@@ -1,18 +1,9 @@
 <?php
 
-namespace Tests\Feature;
+test('zona waktu aplikasi adalah Asia/Jakarta', function () {
+    expect(config('app.timezone'))->toBe('Asia/Jakarta');
+});
 
-use Tests\TestCase;
-
-class KonfigurasiDasarTest extends TestCase
-{
-    public function test_zona_waktu_aplikasi_adalah_asia_jakarta(): void
-    {
-        $this->assertSame('Asia/Jakarta', config('app.timezone'));
-    }
-
-    public function test_locale_aplikasi_adalah_id(): void
-    {
-        $this->assertSame('id', config('app.locale'));
-    }
-}
+test('locale aplikasi adalah id', function () {
+    expect(config('app.locale'))->toBe('id');
+});
