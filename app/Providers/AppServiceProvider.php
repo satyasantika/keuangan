@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(! app()->isProduction());
         Model::preventSilentlyDiscardingAttributes(! app()->isProduction());
         DB::prohibitDestructiveCommands(app()->isProduction());
+
+        // Alias morph wajib; alias lain ditambahkan saat modelnya dibuat.
+        Relation::enforceMorphMap([
+            'user' => User::class,
+        ]);
 
         $this->siapkanSubpath();
     }

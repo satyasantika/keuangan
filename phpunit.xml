@@ -22,10 +22,14 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_URL" value="http://localhost"/>
+        <env name="ASSET_URL" value="http://localhost"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
+        <env name="PERMISSION_CACHE_STORE" value="array"/>
+        <env name="KEUANGAN_LOCK_STORE" value="array"/>
         <env name="DB_CONNECTION" value="mariadb"/>
         <env name="DB_HOST" value="host.docker.internal"/>
         <env name="DB_DATABASE" value="db_keuangan_testing"/>

@@ -29,8 +29,8 @@ test('url dan asset berawalan subpath produksi', function () {
         ->and(asset('build/app.js'))->toBe('https://supportfkip.unsil.ac.id/keuangan/build/app.js');
 });
 
-test('halaman awal memasang cookie sesi keuangan_session ber-path /keuangan', function () {
-    $respons = $this->get('/')->assertOk();
+test('halaman login panel memasang cookie sesi keuangan_session ber-path /keuangan', function () {
+    $respons = $this->get('/panel/login')->assertOk();
 
     $cookie = collect($respons->headers->getCookies())->firstWhere(fn ($c) => $c->getName() === 'keuangan_session');
 
