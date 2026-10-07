@@ -16,3 +16,4 @@ Keputusan pemilik yang menggantikan bagian paket vibecoding bila bertentangan:
 | Hook `pre-commit` | `docker compose exec` dari repo | Disesuaikan memakai `docker exec keuangan-php` (compose tidak di repo) |
 | CI | `ci.yml` MySQL 8.4 | `uji.yml` (MariaDB 10.11, PHP 8.5) + `deploy.yml` (SSH, `~/docker-apps/deploy.sh keuangan`) mengikuti pola `sigap` |
 | Git | Remote + PR | Tanpa remote: branch fase, `merge --no-ff` ke `main`, tag lokal |
+| Tipe kolom UUID | `CHAR(36)` (MySQL) | Di MariaDB 10.11 `$table->uuid()` / `foreignUuid()` / `uuidMorphs()` otomatis menjadi tipe bawaan `UUID` (16 byte, dibaca/ditulis sebagai string 36 karakter). Dipakai apa adanya; antarmuka PHP identik. Uji `UuidTest` menerima `uuid` atau `char(36)` |
