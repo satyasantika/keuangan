@@ -46,7 +46,7 @@ npm install && npm run build  # Node di host (container tidak memiliki Node)
 
 Aplikasi: http://localhost:8035/keuangan/ (juga http://localhost:8035 untuk pemeriksaan langsung; kesehatan: `/api/health`) · Mailpit: http://localhost:8025 (bila tersedia).
 
-Horizon (antrean) berjalan sebagai service `keuangan-horizon` dan dasbornya di `/keuangan/horizon` (hanya environment `local` sampai gate peran dipasang di F2.5);
+Horizon (antrean) berjalan sebagai service `keuangan-horizon` dan dasbornya di `/keuangan/horizon` (hanya peran `super-admin`, di semua environment);
 restart setelah mengubah kode job: `cd /home/satya/code && docker compose restart keuangan-horizon`. Penjadwal: service `keuangan-scheduler`.
 Redis bersama: DB 13 (default/lock), 14 (cache), 15 (antrean), prefiks `keuangan_`.
 
@@ -60,6 +60,19 @@ kup php artisan test      # uji berjalan di MariaDB db_keuangan_testing, bukan S
 
 Hook git (sekali per klon): `git config core.hooksPath .githooks`. Hook `pre-commit` menjalankan pint dan test di container `keuangan-php`;
 `commit-msg` mewajibkan Conventional Commits (lihat `docs/vibecoding/STANDAR-GIT.md`).
+
+### Super-admin pertama dan MFA
+
+1. Isi di `.env`: `SEED_ADMIN_EMAIL` (mis. `admin@unsil.ac.id`), `SEED_ADMIN_PASSWORD` (kata sandi kuat), opsional `SEED_ADMIN_NAMA`.
+2. Jalankan `kup php artisan migrate` lalu `kup php artisan db:seed` (idempoten): membuat 7 peran + izin sesuai PRD §3.2 dan akun super-admin.
+   Seeder gagal dengan pesan jelas bila kedua variabel kosong. Lihat izin: `kup php artisan permission:show`.
+3. Login di `/panel/login`. Peran `super-admin`, `admin-keuangan`, `bpp`, `wadek-keuangan` **wajib MFA**: setelah login pertama
+   diarahkan ke halaman pengaturan MFA; pindai QR dengan aplikasi autentikator (Google Authenticator/Authy/dsb.), masukkan kode,
+   lalu simpan kode pemulihan. Peran lain dapat mengaktifkan MFA opsional lewat menu profil.
+4. Pengguna lain dibuat super-admin di menu Sistem > Pengguna. Bila pengguna kehilangan perangkat autentikator dan kode pemulihan,
+   super-admin memakai aksi "Reset MFA" (tercatat di jejak audit). Login dibatasi 5 percobaan per menit per kombinasi surel + IP.
+5. Aset Filament (`public/css|js|fonts/filament`) tidak masuk git; dipublikasikan oleh `composer install`/`php artisan filament:upgrade`
+   (script `post-autoload-dump`) dan wajib ada saat build image produksi.
 
 ### Subpath `/keuangan`
 
