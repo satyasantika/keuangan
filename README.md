@@ -1,5 +1,7 @@
 # Keuangan FKIP Unsil
 
+![Uji keuangan](../../actions/workflows/uji.yml/badge.svg)
+
 Aplikasi pencatatan dan pelaporan keuangan kegiatan Fakultas Keguruan dan Ilmu Pendidikan (FKIP) Universitas Siliwangi: pagu unit, pengajuan kegiatan + RAB, persetujuan berjenjang, pencairan, SPJ dengan bukti (tautan), pengembalian sisa dana, kunci periode, serta dasbor dan laporan.
 
 ## Dokumen
