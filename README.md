@@ -27,8 +27,6 @@ Keputusan arsitektural (ADR) ada di `docs/keputusan/`.
 
 ## Cara menjalankan
 
-Akan dilengkapi di F1.9 (ringkasan sementara di bawah).
-
 ### Menjalankan lokal
 
 Infrastruktur (di luar repo ini, di `/home/satya/code`, lihat `docs/keputusan/0003-lingkungan-dan-penyimpangan-standar.md`):
@@ -46,7 +44,22 @@ kup php artisan migrate
 npm install && npm run build  # Node di host (container tidak memiliki Node)
 ```
 
-Aplikasi: http://localhost:8035/keuangan/ (juga http://localhost:8035 untuk pemeriksaan langsung) · Mailpit: http://localhost:8025 (bila tersedia).
+Aplikasi: http://localhost:8035/keuangan/ (juga http://localhost:8035 untuk pemeriksaan langsung; kesehatan: `/api/health`) · Mailpit: http://localhost:8025 (bila tersedia).
+
+Horizon (antrean) berjalan sebagai service `keuangan-horizon` dan dasbornya di `/keuangan/horizon` (hanya environment `local` sampai gate peran dipasang di F2.5);
+restart setelah mengubah kode job: `cd /home/satya/code && docker compose restart keuangan-horizon`. Penjadwal: service `keuangan-scheduler`.
+Redis bersama: DB 13 (default/lock), 14 (cache), 15 (antrean), prefiks `keuangan_`.
+
+### Menjalankan uji dan gerbang kualitas
+
+```bash
+kup composer cek          # pint --test + phpstan (level 6) + pest paralel
+kup ./vendor/bin/pint     # format
+kup php artisan test      # uji berjalan di MariaDB db_keuangan_testing, bukan SQLite
+```
+
+Hook git (sekali per klon): `git config core.hooksPath .githooks`. Hook `pre-commit` menjalankan pint dan test di container `keuangan-php`;
+`commit-msg` mewajibkan Conventional Commits (lihat `docs/vibecoding/STANDAR-GIT.md`).
 
 ### Subpath `/keuangan`
 
