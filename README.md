@@ -25,4 +25,23 @@ Keputusan arsitektural (ADR) ada di `docs/keputusan/`.
 
 ## Cara menjalankan
 
-Akan dilengkapi di F1.
+Akan dilengkapi di F1.9 (ringkasan sementara di bawah).
+
+### Menjalankan lokal
+
+Infrastruktur (di luar repo ini, di `/home/satya/code`, lihat `docs/keputusan/0003-lingkungan-dan-penyimpangan-standar.md`):
+container `keuangan-php`, `keuangan-nginx`, `keuangan-scheduler` (file `docker-compose.yml`), MariaDB native di host
+(`db_keuangan`, `db_keuangan_testing`), dan Redis bersama (container `redis`). Tanpa Sail, tanpa PHP di host.
+
+```bash
+alias kup='docker exec keuangan-php'
+cd /home/satya/code && docker compose up -d --build keuangan-php keuangan-nginx keuangan-scheduler
+cd keuangan
+cp .env.example .env          # isi DB_PASSWORD
+kup composer install
+kup php artisan key:generate
+kup php artisan migrate
+npm install && npm run build  # Node di host (container tidak memiliki Node)
+```
+
+Aplikasi: http://localhost:8035 · Mailpit: http://localhost:8025 (bila tersedia).
