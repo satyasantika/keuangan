@@ -44,4 +44,27 @@ kup php artisan migrate
 npm install && npm run build  # Node di host (container tidak memiliki Node)
 ```
 
-Aplikasi: http://localhost:8035 · Mailpit: http://localhost:8025 (bila tersedia).
+Aplikasi: http://localhost:8035/keuangan/ (juga http://localhost:8035 untuk pemeriksaan langsung) · Mailpit: http://localhost:8025 (bila tersedia).
+
+### Subpath `/keuangan`
+
+Produksi: `https://supportfkip.unsil.ac.id/keuangan`. Reverse proxy memotong awalan sebelum meneruskan ke Nginx aplikasi,
+sedangkan aplikasi membangkitkan semua URL dengan awalan itu (`URL::forceRootUrl`, `ASSET_URL`, `SESSION_PATH=/keuangan`,
+`SESSION_COOKIE=keuangan_session`, `trustProxies`). Nginx lokal (`/home/satya/code/docker/nginx/keuangan.conf`) meniru
+pemotongan awalan itu, sehingga lokal dan produksi berperilaku sama. Aset dibangun dengan `ASSET_URL` terisi
+(`npm run build` membaca `.env`, base `/keuangan/build/`). Dilarang `href="/..."`, `src="/..."`, `action="/..."`,
+`fetch('/...')` di Blade/JS (diuji `tests/Arch/SubpathTest.php`).
+
+Blok reverse proxy produksi (di server depan):
+
+```nginx
+location = /keuangan { return 301 /keuangan/; }
+location /keuangan/ {
+    proxy_pass http://127.0.0.1:<port>/;          # garis miring akhir = awalan dipotong
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Prefix /keuangan;
+    client_max_body_size 20m;
+}
+```
