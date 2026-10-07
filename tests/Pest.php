@@ -16,8 +16,9 @@ pest()->extend(TestCase::class)
 
 /**
  * Pengguna aktif dengan peran tertentu (seeder peran dijalankan bila belum).
+ * Peran yang wajib MFA otomatis dianggap sudah mengaktifkan MFA kecuali $mfa = false.
  */
-function penggunaDenganPeran(Peran|string $peran, array $atribut = []): User
+function penggunaDenganPeran(Peran|string $peran, array $atribut = [], bool $mfa = true): User
 {
     if (Role::count() === 0) {
         test()->seed(PeranDanIzinSeeder::class);
@@ -25,5 +26,11 @@ function penggunaDenganPeran(Peran|string $peran, array $atribut = []): User
 
     $nilai = $peran instanceof Peran ? $peran->value : $peran;
 
-    return User::factory()->create($atribut)->assignRole($nilai);
+    $pengguna = User::factory()->create($atribut)->assignRole($nilai);
+
+    if ($mfa && $pengguna->wajibMfa()) {
+        $pengguna->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
+    }
+
+    return $pengguna;
 }

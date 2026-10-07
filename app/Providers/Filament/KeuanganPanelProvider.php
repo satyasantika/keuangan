@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
+use App\Http\Middleware\WajibMfa;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,7 +32,13 @@ class KeuanganPanelProvider extends PanelProvider
             ->default()
             ->id('keuangan')
             ->path('panel')
-            ->login()
+            ->login(Login::class)
+            ->profile()
+            ->multiFactorAuthentication(
+                [AppAuthentication::make()->recoverable()->brandName('Keuangan FKIP Unsil')],
+                isRequired: true,
+            )
+            ->multiFactorAuthenticationRequiredMiddlewareName(WajibMfa::class)
             ->brandName('Keuangan FKIP Unsil')
             ->colors([
                 'primary' => Color::Amber,

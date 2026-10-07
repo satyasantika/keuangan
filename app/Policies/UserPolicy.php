@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Peran;
 use App\Models\User;
 
 class UserPolicy
@@ -37,5 +38,13 @@ class UserPolicy
     public function deleteAny(User $user): bool
     {
         return $user->can('pengguna.hapus');
+    }
+
+    /**
+     * Reset MFA hanya oleh super-admin (F2.6).
+     */
+    public function resetMfa(User $user, User $model): bool
+    {
+        return $user->hasRole(Peran::SuperAdmin->value);
     }
 }

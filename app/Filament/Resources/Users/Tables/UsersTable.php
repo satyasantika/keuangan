@@ -4,11 +4,14 @@ namespace App\Filament\Resources\Users\Tables;
 
 use App\Enums\Peran;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -46,6 +49,28 @@ class UsersTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('resetMfa')
+                    ->label('Reset MFA')
+                    ->icon(Heroicon::OutlinedShieldExclamation)
+                    ->color('danger')
+                    ->authorize('resetMfa')
+                    ->visible(fn (User $record): bool => $record->sudahAktifkanMfa())
+                    ->requiresConfirmation()
+                    ->modalDescription('Pengguna harus mendaftarkan ulang aplikasi autentikator pada login berikutnya.')
+                    ->action(function (User $record): void {
+                        $record->forceFill([
+                            'app_authentication_secret' => null,
+                            'app_authentication_recovery_codes' => null,
+                        ])->save();
+
+                        activity('users')
+                            ->performedOn($record)
+                            ->causedBy(auth()->user())
+                            ->event('reset-mfa')
+                            ->log('Reset MFA');
+
+                        Notification::make()->title('MFA direset')->success()->send();
+                    }),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
