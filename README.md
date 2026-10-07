@@ -1,5 +1,7 @@
 # Keuangan FKIP Unsil
 
+![Uji keuangan](../../actions/workflows/uji.yml/badge.svg)
+
 Aplikasi pencatatan dan pelaporan keuangan kegiatan Fakultas Keguruan dan Ilmu Pendidikan (FKIP) Universitas Siliwangi: pagu unit, pengajuan kegiatan + RAB, persetujuan berjenjang, pencairan, SPJ dengan bukti (tautan), pengembalian sisa dana, kunci periode, serta dasbor dan laporan.
 
 ## Dokumen
@@ -25,4 +27,65 @@ Keputusan arsitektural (ADR) ada di `docs/keputusan/`.
 
 ## Cara menjalankan
 
-Akan dilengkapi di F1.
+### Menjalankan lokal
+
+Infrastruktur (di luar repo ini, di `/home/satya/code`, lihat `docs/keputusan/0003-lingkungan-dan-penyimpangan-standar.md`):
+container `keuangan-php`, `keuangan-nginx`, `keuangan-scheduler` (file `docker-compose.yml`), MariaDB native di host
+(`db_keuangan`, `db_keuangan_testing`), dan Redis bersama (container `redis`). Tanpa Sail, tanpa PHP di host.
+
+```bash
+alias kup='docker exec keuangan-php'
+cd /home/satya/code && docker compose up -d --build keuangan-php keuangan-nginx keuangan-scheduler
+cd keuangan
+cp .env.example .env          # isi DB_PASSWORD
+kup composer install
+kup php artisan key:generate
+kup php artisan migrate
+npm install && npm run build  # Node di host (container tidak memiliki Node)
+```
+
+Aplikasi: http://localhost:8035/keuangan/ (juga http://localhost:8035 untuk pemeriksaan langsung; kesehatan: `/api/health`) · Mailpit: http://localhost:8025 (bila tersedia).
+
+Horizon (antrean) berjalan sebagai service `keuangan-horizon` dan dasbornya di `/keuangan/horizon` (hanya environment `local` sampai gate peran dipasang di F2.5);
+restart setelah mengubah kode job: `cd /home/satya/code && docker compose restart keuangan-horizon`. Penjadwal: service `keuangan-scheduler`.
+Redis bersama: DB 13 (default/lock), 14 (cache), 15 (antrean), prefiks `keuangan_`.
+
+### Menjalankan uji dan gerbang kualitas
+
+```bash
+kup composer cek          # pint --test + phpstan (level 6) + pest paralel
+kup ./vendor/bin/pint     # format
+kup php artisan test      # uji berjalan di MariaDB db_keuangan_testing, bukan SQLite
+```
+
+Hook git (sekali per klon): `git config core.hooksPath .githooks`. Hook `pre-commit` menjalankan pint dan test di container `keuangan-php`;
+`commit-msg` mewajibkan Conventional Commits (lihat `docs/vibecoding/STANDAR-GIT.md`).
+
+### Subpath `/keuangan`
+
+Produksi: `https://supportfkip.unsil.ac.id/keuangan`. Reverse proxy memotong awalan sebelum meneruskan ke Nginx aplikasi,
+sedangkan aplikasi membangkitkan semua URL dengan awalan itu (`URL::forceRootUrl`, `ASSET_URL`, `SESSION_PATH=/keuangan`,
+`SESSION_COOKIE=keuangan_session`, `trustProxies`). Nginx lokal (`/home/satya/code/docker/nginx/keuangan.conf`) meniru
+pemotongan awalan itu, sehingga lokal dan produksi berperilaku sama. Aset dibangun dengan `ASSET_URL` terisi
+(`npm run build` membaca `.env`, base `/keuangan/build/`). Dilarang `href="/..."`, `src="/..."`, `action="/..."`,
+`fetch('/...')` di Blade/JS (diuji `tests/Arch/SubpathTest.php`).
+
+Blok reverse proxy produksi (di server depan):
+
+```nginx
+location = /keuangan { return 301 /keuangan/; }
+location /keuangan/ {
+    proxy_pass http://127.0.0.1:<port>/;          # garis miring akhir = awalan dipotong
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Prefix /keuangan;
+    client_max_body_size 20m;
+}
+```
+
+### Laravel Boost (agen AI)
+
+`.mcp.json` menjalankan server MCP Boost di dalam container (`docker exec -i keuangan-php php artisan boost:mcp`).
+Pedoman versi-spesifik ditambahkan Boost di bagian bawah `CLAUDE.md` (isi paket di bagian atas tidak boleh diringkas).
+Perbarui pedoman dengan `kup php artisan boost:update`; periksa hasilnya agar bagian atas `CLAUDE.md` tetap utuh.
