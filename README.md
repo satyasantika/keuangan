@@ -68,3 +68,9 @@ location /keuangan/ {
     client_max_body_size 20m;
 }
 ```
+
+### Laravel Boost (agen AI)
+
+`.mcp.json` menjalankan server MCP Boost di dalam container (`docker exec -i keuangan-php php artisan boost:mcp`).
+Pedoman versi-spesifik ditambahkan Boost di bagian bawah `CLAUDE.md` (isi paket di bagian atas tidak boleh diringkas).
+Perbarui pedoman dengan `kup php artisan boost:update`; periksa hasilnya agar bagian atas `CLAUDE.md` tetap utuh.
