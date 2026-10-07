@@ -1,0 +1,35 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+/.phpunit.cache
+/.fleet
+/.idea
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+/build
+
+# STANDAR-GIT §7
+/storage/app/tmp/*
+!/storage/app/tmp/.gitignore
+*.sql
+*.sql.gz
+*.zip
+/backup/
+/docs/referensi/rahasia/
+
+# CLAUDE.md wajib terlacak (abaikan ignore global)
+!CLAUDE.md
