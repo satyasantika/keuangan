@@ -9,3 +9,8 @@ parameters:
         - database/
         - routes/
     tmpDir: build/phpstan
+    ignoreErrors:
+        # Trait fondasi yang baru dipakai model pada fase berikutnya.
+        -
+            identifier: trait.unused
+            path: app/Concerns/MemilikiRiwayatStatus.php
