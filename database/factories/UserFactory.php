@@ -29,8 +29,16 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'nip' => fake()->numerify('##################'),
+            'no_hp' => fake()->numerify('08##########'),
+            'aktif' => true,
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function nonaktif(): static
+    {
+        return $this->state(fn (array $attributes) => ['aktif' => false]);
     }
 
     /**
