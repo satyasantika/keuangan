@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pengajuans\Pages;
 
+use App\Filament\Resources\Pencairans\Actions\AksiPencairan;
 use App\Filament\Resources\Pengajuans\Actions\AksiPengajuan;
 use App\Filament\Resources\Pengajuans\Actions\AksiPersetujuan;
 use App\Filament\Resources\Pengajuans\PengajuanResource;
@@ -18,6 +19,7 @@ class ViewPengajuan extends ViewRecord
             AksiPengajuan::ajukan(),
             ...AksiPersetujuan::semua(),
             AksiPersetujuan::batalkanKeuangan(),
+            AksiPencairan::catat(),
             AksiPengajuan::cetakPdf(),
             EditAction::make(),
             AksiPengajuan::batalkan(),

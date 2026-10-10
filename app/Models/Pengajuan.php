@@ -12,6 +12,7 @@ use App\Enums\StatusPencairan;
 use App\Enums\StatusPengajuan;
 use App\Enums\TahapPersetujuan;
 use App\Exceptions\KesalahanDomain;
+use App\Support\Uang;
 use Database\Factories\PengajuanFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -143,6 +144,22 @@ class Pengajuan extends Model implements PemilikTautan
     public function spjSudahDiterima(): bool
     {
         return false;
+    }
+
+    /**
+     * Sudah ada realisasi SPJ tercatat. Sementara false; dilengkapi F7.1.
+     */
+    public function punyaRealisasi(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Sisa yang belum dicairkan = total RAB aktif − total dicairkan.
+     */
+    public function sisaBelumDicairkan(): string
+    {
+        return Uang::kurang((string) ($this->rabAktif->total ?? '0'), (string) $this->total_dicairkan);
     }
 
     /** @return HasMany<Pencairan, $this> */
