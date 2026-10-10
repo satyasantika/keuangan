@@ -87,6 +87,10 @@
             "@lint",
             "@analyse",
             "@test"
+        ],
+        "panduan": [
+            "Composer\\Config::disableProcessTimeout",
+            "docker compose -f docker-compose.panduan.yml --profile panduan run --rm keuangan-panduan"
         ]
     },
     "extra": {

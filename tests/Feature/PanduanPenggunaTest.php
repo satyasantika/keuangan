@@ -1,37 +1,10 @@
 <?php
 
 use App\Enums\Peran;
-use App\Http\Controllers\PanduanController;
 use App\Models\Pengajuan;
 use App\Models\User;
 use Database\Seeders\UatSeeder;
 use Illuminate\Support\Facades\Hash;
-
-test('setiap peran memiliki panduan di docs/panduan', function () {
-    $tersedia = PanduanController::halamanTersedia();
-
-    foreach (Peran::cases() as $peran) {
-        expect($tersedia)->toContain($peran->value);
-    }
-});
-
-test('halaman panduan dapat diakses pengguna login dan memuat panduan perannya', function () {
-    $pengguna = penggunaDenganPeran(Peran::AdminUnit);
-
-    $this->actingAs($pengguna)->get(route('panduan.pengguna'))
-        ->assertOk()
-        ->assertSee('Panduan Admin Prodi/Unit')
-        ->assertSee('Ajukan SPJ');
-
-    $this->actingAs($pengguna)->get(route('panduan.pengguna', 'README'))->assertOk()->assertSee('Shared Drive');
-    $this->actingAs($pengguna)->get('/panduan-pengguna/tidak-ada')->assertNotFound();
-});
-
-test('tamu diarahkan ke login dan panel menampilkan tautan Panduan', function () {
-    $this->get(route('panduan.pengguna'))->assertRedirect(route('filament.keuangan.auth.login'));
-
-    $this->actingAs(penggunaDenganPeran(Peran::Pimpinan))->get('/panel')->assertOk()->assertSee(route('panduan.pengguna'), false);
-});
 
 test('UatSeeder menolak berjalan di production dan local', function (string $lingkungan) {
     $this->app->detectEnvironment(fn () => $lingkungan);

@@ -145,7 +145,7 @@ class DemoSeeder extends Seeder
         }
     }
 
-    private function pengajuanLampau(string $judul, int $hariLalu, string $tahunId, User $oleh, Akun $akun): Pengajuan
+    protected function pengajuanLampau(string $judul, int $hariLalu, string $tahunId, User $oleh, Akun $akun): Pengajuan
     {
         $mulai = now()->subDays($hariLalu);
         $pengajuan = app(SimpanDrafPengajuan::class)->handle([

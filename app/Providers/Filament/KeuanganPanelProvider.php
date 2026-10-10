@@ -64,6 +64,10 @@ class KeuanganPanelProvider extends PanelProvider
                 'Sistem',
             ])
             ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn (): string => Blade::render('<p class="mt-4 text-center text-sm"><a href="{{ asset(\'panduan/index.html\') }}" class="font-semibold text-primary-600 hover:underline dark:text-primary-400">Panduan Pengguna</a></p>'),
+            )
+            ->renderHook(
                 PanelsRenderHook::FOOTER,
                 fn (): string => Blade::render('<div class="py-3 text-center text-xs text-gray-500 dark:text-gray-400">Keuangan FKIP Unsil v{{ config(\'app.version\') }}</div>'),
             )

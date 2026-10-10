@@ -30,4 +30,11 @@ return [
         'emails' => env('UAT_EMAILS', ''),
     ],
 
+    /*
+    | Akun demo panduan (PanduanSeeder, hanya APP_ENV=local) & tangkapan layar Playwright.
+    */
+    'panduan' => [
+        'password' => env('PANDUAN_PASSWORD'),
+    ],
+
 ];

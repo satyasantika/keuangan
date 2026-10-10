@@ -2,46 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Peran;
 use App\Models\User;
-use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 /**
- * Menampilkan panduan pengguna (docs/panduan/*.md) sebagai HTML ter-escape untuk pengguna yang login.
+ * Mengarahkan pengguna ke panduan HTML perannya di public/panduan (STANDAR-TEKNIS §2.5).
  */
 class PanduanController extends Controller
 {
-    public function __invoke(Request $request, ?string $halaman = null): View
+    public function __invoke(Request $request): RedirectResponse
     {
         /** @var User $pengguna */
         $pengguna = $request->user();
-        $tersedia = self::halamanTersedia();
-        $halaman ??= in_array($peran = (string) $pengguna->getRoleNames()->first(), $tersedia, true) ? $peran : 'README';
+        $peran = (string) $pengguna->getRoleNames()->first();
+        $halaman = Peran::tryFrom($peran) !== null && is_file(public_path("panduan/{$peran}.html")) ? "{$peran}.html" : 'index.html';
 
-        abort_unless(in_array($halaman, $tersedia, true), 404);
-
-        $html = Str::markdown((string) file_get_contents(self::folder().'/'.$halaman.'.md'), [
-            'html_input' => 'escape',
-            'allow_unsafe_links' => false,
-        ]);
-
-        // Tautan antar-berkas panduan (foo.md) diarahkan ke route panduan.
-        $html = (string) preg_replace_callback('/href="([a-z0-9-]+|README)\.md"/i', fn (array $c): string => 'href="'.e(route('panduan.pengguna', $c[1])).'"', $html);
-
-        return view('panduan.halaman', ['isi' => $html, 'halaman' => $halaman, 'daftar' => $tersedia]);
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function halamanTersedia(): array
-    {
-        return array_map(fn (string $berkas): string => basename($berkas, '.md'), glob(self::folder().'/*.md') ?: []);
-    }
-
-    private static function folder(): string
-    {
-        return base_path('docs/panduan');
+        return redirect()->to(asset("panduan/{$halaman}"));
     }
 }
