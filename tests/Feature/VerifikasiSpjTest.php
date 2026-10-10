@@ -24,11 +24,11 @@ test('ajukan tanpa realisasi → gagal', function () {
     $p = buatPengajuanDicairkan($this->k);
     $spj = Spj::create(['pengajuan_id' => $p->id, 'dibuat_oleh' => $this->k->adminPmat->id]);
 
-    expect(fn () => app(AjukanSpj::class)->handle($spj, $this->k->adminPmat))->toThrow(KesalahanDomain::class, 'minimal satu realisasi');
+    expect(fn () => app(AjukanSpj::class)->handle($spj, $this->k->adminPmat, true))->toThrow(KesalahanDomain::class, 'minimal satu realisasi');
 });
 
 test('nomor SPJ/2027/0001 terbit dan riwayat tercatat', function () {
-    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k), $this->k->adminPmat);
+    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k), $this->k->adminPmat, true);
 
     expect($spj->status)->toBe(StatusSpj::Diajukan)
         ->and($spj->nomor)->toBe('SPJ/2027/0001')
@@ -38,7 +38,7 @@ test('nomor SPJ/2027/0001 terbit dan riwayat tercatat', function () {
 
 test('pengaju SPJ yang juga bpp tidak bisa menerima SPJ-nya sendiri', function () {
     $this->k->adminPmat->assignRole(Peran::Bpp->value);
-    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k), $this->k->adminPmat);
+    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k), $this->k->adminPmat, true);
 
     expect(fn () => app(TerimaSpj::class)->handle($spj, $this->k->adminPmat))->toThrow(PelanggaranPemisahanTugasException::class);
     expect($this->k->adminPmat->can('verifikasi', $spj))->toBeFalse()
@@ -46,7 +46,7 @@ test('pengaju SPJ yang juga bpp tidak bisa menerima SPJ-nya sendiri', function (
 });
 
 test('dikembalikan → admin-unit menambah realisasi lalu mengajukan ulang (nomor tetap)', function () {
-    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k, '200000'), $this->k->adminPmat);
+    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k, '200000'), $this->k->adminPmat, true);
 
     expect(fn () => app(KembalikanSpj::class)->handle($spj, $this->k->keu, 'kurang'))->toThrow(ValidationException::class);
 
@@ -58,13 +58,13 @@ test('dikembalikan → admin-unit menambah realisasi lalu mengajukan ulang (nomo
     [$data, $tautan] = dataRealisasi($p, '1', '100000');
     app(CatatRealisasi::class)->handle($p, $data, $tautan, $this->k->adminPmat);
 
-    $spj = app(AjukanSpj::class)->handle($spj->fresh(), $this->k->adminPmat);
+    $spj = app(AjukanSpj::class)->handle($spj->fresh(), $this->k->adminPmat, true);
     expect($spj->nomor)->toBe('SPJ/2027/0001')
-        ->and(RiwayatStatus::where('model_id', $spj->id)->latest('id')->value('catatan'))->toBe('Diajukan ulang');
+        ->and(RiwayatStatus::where('model_id', $spj->id)->latest('id')->value('catatan'))->toStartWith('Diajukan ulang');
 });
 
 test('diterima dengan sisa dana 0 → pengajuan selesai', function () {
-    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k, '300000'), $this->k->adminPmat);
+    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k, '300000'), $this->k->adminPmat, true);
     $spj = app(TerimaSpj::class)->handle($spj, $this->k->bpp, 'Lengkap');
 
     $p = $spj->pengajuan->fresh();
@@ -77,7 +77,7 @@ test('diterima dengan sisa dana 0 → pengajuan selesai', function () {
 });
 
 test('diterima dengan sisa dana > 0 → pengajuan tetap dicairkan; realisasi terkunci', function () {
-    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k, '250000'), $this->k->adminPmat);
+    $spj = app(AjukanSpj::class)->handle(buatSpjDenganRealisasi($this->k, '250000'), $this->k->adminPmat, true);
     $spj = app(TerimaSpj::class)->handle($spj, $this->k->keu);
 
     expect($spj->pengajuan->fresh()->status)->toBe(StatusPengajuan::Dicairkan)
@@ -93,7 +93,7 @@ test('admin-unit tidak bisa memverifikasi; verifikator tidak bisa mengajukan', f
 
     expect($this->k->keu->can('ajukan', $spj))->toBeFalse();
 
-    $spj = app(AjukanSpj::class)->handle($spj, $this->k->adminPmat);
+    $spj = app(AjukanSpj::class)->handle($spj, $this->k->adminPmat, true);
     expect($this->k->adminPmat->can('verifikasi', $spj))->toBeFalse()
         ->and(fn () => app(TerimaSpj::class)->handle($spj, penggunaDenganPeran(Peran::Pimpinan)))->toThrow(AuthorizationException::class);
 });

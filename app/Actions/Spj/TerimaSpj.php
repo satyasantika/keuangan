@@ -24,6 +24,7 @@ class TerimaSpj
     public function __construct(
         private readonly CatatRiwayatStatus $catatRiwayat,
         private readonly SelesaikanPengajuan $selesaikan,
+        private readonly BekukanTautanSpj $bekukan,
     ) {}
 
     public function handle(Spj $spj, User $oleh, ?string $catatan = null): Spj
@@ -46,7 +47,10 @@ class TerimaSpj
                 'catatan_verifikasi' => $catatan,
             ])->save();
 
-            $this->catatRiwayat->handle($terkini, StatusSpj::Diajukan, StatusSpj::Diterima, $oleh, $catatan, self::tahap($oleh));
+            $riwayat = $this->catatRiwayat->handle($terkini, StatusSpj::Diajukan, StatusSpj::Diterima, $oleh, $catatan, self::tahap($oleh));
+
+            // Snapshot tautan bukti dalam transaksi yang sama; setelah ini tautan realisasi terkunci.
+            $this->bekukan->handle($terkini, $riwayat);
 
             $this->selesaikan->handle($terkini->pengajuan()->firstOrFail(), $oleh);
 
