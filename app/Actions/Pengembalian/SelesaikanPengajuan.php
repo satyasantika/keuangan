@@ -9,7 +9,8 @@ use App\Models\User;
 use App\Support\Uang;
 
 /**
- * Menyelesaikan pengajuan bila SPJ diterima dan sisa dana nol (BR-18). Dipanggil di dalam transaksi.
+ * Pengajuan selesai bila SPJ diterima dan (sisa dana nol atau sisa sudah dikembalikan terverifikasi) (BR-18).
+ * Kurang bayar (sisa < 0) tidak diselesaikan sampai pencairan tambahan dicatat. Dipanggil di dalam transaksi.
  */
 class SelesaikanPengajuan
 {
@@ -23,7 +24,11 @@ class SelesaikanPengajuan
             return false;
         }
 
-        if (Uang::bandingkan($pengajuan->sisaDana(), '0') !== 0) {
+        $sisa = $pengajuan->sisaDana();
+        $lunas = Uang::bandingkan($sisa, '0') === 0
+            || (Uang::bandingkan($sisa, '0') > 0 && Uang::bandingkan((string) $pengajuan->total_dikembalikan, $sisa) === 0);
+
+        if (! $lunas) {
             return false;
         }
 

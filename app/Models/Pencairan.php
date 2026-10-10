@@ -65,13 +65,14 @@ class Pencairan extends Model implements PemilikTautan
     }
 
     /**
-     * Tautan bukti hanya berubah selama pencairan aktif, periodenya terbuka, dan SPJ belum diterima.
+     * Tautan bukti hanya berubah selama pencairan aktif, periodenya terbuka, dan belum dibekukan
+     * (SPJ diterima membekukan tautan pencairan yang ada saat itu; pencairan tambahan sesudahnya tetap terbuka).
      */
     public function tautanDapatDiubah(): bool
     {
         return $this->status === StatusPencairan::Dicatat
             && Periode::query()->whereKey($this->periode_id)->value('status') === StatusPeriode::Terbuka
-            && ! $this->pengajuan()->firstOrFail()->spjSudahDiterima();
+            && ! TautanBerkasBeku::query()->where('pemilik_type', $this->getMorphClass())->where('pemilik_id', $this->getKey())->exists();
     }
 
     /** @return BelongsTo<Pengajuan, $this> */
