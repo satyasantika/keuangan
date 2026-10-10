@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CetakPengajuanController;
+use App\Http\Controllers\CetakRevisiController;
 use App\Http\Controllers\VerifikasiPublikController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,5 @@ Route::get('/verifikasi/{id}', VerifikasiPublikController::class)
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/pengajuan/{pengajuan}/pdf', CetakPengajuanController::class)->name('pengajuan.pdf');
+    Route::get('/revisi/{rab}/pdf', CetakRevisiController::class)->name('revisi.pdf');
 });

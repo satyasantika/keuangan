@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Resources\Pengajuans\PengajuanResource;
+use App\Filament\Widgets\RevisiMenungguWidget;
 use App\Models\Pengajuan;
 use App\Models\User;
 use App\Queries\MenungguTindakanQuery;
@@ -39,7 +40,15 @@ class MenungguTindakan extends Page implements HasTable
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->can('persetujuan.setujui') ?? false;
+        return (auth()->user()?->can('persetujuan.setujui') ?? false) || (auth()->user()?->can('revisi.setujui') ?? false);
+    }
+
+    /**
+     * Tab kedua: revisi RAB yang menunggu.
+     */
+    protected function getFooterWidgets(): array
+    {
+        return [RevisiMenungguWidget::class];
     }
 
     public static function getNavigationBadge(): ?string
@@ -50,7 +59,7 @@ class MenungguTindakan extends Page implements HasTable
             return null;
         }
 
-        $jumlah = MenungguTindakanQuery::untuk($pengguna)->count();
+        $jumlah = MenungguTindakanQuery::untuk($pengguna)->count() + MenungguTindakanQuery::revisiUntuk($pengguna)->count();
 
         return $jumlah > 0 ? (string) $jumlah : null;
     }

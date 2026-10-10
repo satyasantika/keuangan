@@ -23,7 +23,7 @@ class RabPolicy
 
     public function view(User $user, Rab $rab): bool
     {
-        return ($user->can('revisi.lihat') || $user->can('pengajuan.lihat')) && $rab->pengajuan->terlihatOleh($user);
+        return ($user->can('revisi.lihat') || $user->can('pengajuan.lihat')) && $rab->pengajuanPemilik()->terlihatOleh($user);
     }
 
     /** Buat revisi atas pengajuan disetujui/dicairkan yang SPJ-nya belum diajukan/diterima. */
@@ -52,7 +52,7 @@ class RabPolicy
             && $rab->status === StatusRab::Draf
             && $user->can('revisi.ubah')
             && $user->unit_id !== null
-            && $user->unit_id === $rab->pengajuan->unit_id;
+            && $user->unit_id === $rab->pengajuanPemilik()->unit_id;
     }
 
     public function ajukan(User $user, Rab $rab): bool
