@@ -114,3 +114,24 @@ location /keuangan/ {
 `.mcp.json` menjalankan server MCP Boost di dalam container (`docker exec -i keuangan-php php artisan boost:mcp`).
 Pedoman versi-spesifik ditambahkan Boost di bagian bawah `CLAUDE.md` (isi paket di bagian atas tidak boleh diringkas).
 Perbarui pedoman dengan `kup php artisan boost:update`; periksa hasilnya agar bagian atas `CLAUDE.md` tetap utuh.
+
+## Panduan pengguna, deploy, dan cadangan
+
+- Panduan per peran (HTML + tangkapan layar): `public/panduan/` → `https://supportfkip.unsil.ac.id/keuangan/panduan/`,
+  ditautkan dari halaman masuk dan menu pengguna **Panduan**.
+- Deploy produksi: `docs/deploy.md` · Cadangan & uji pulih: `docs/runbook-cadangan.md` · Lembar UAT: `docs/uat/hasil-uat.md`.
+
+### Memperbarui panduan
+
+Tangkapan layar dibuat ulang dengan Playwright (container `mcr.microsoft.com/playwright`) dari data rekaan lokal:
+
+```bash
+# .env lokal: PANDUAN_PASSWORD=<sandi akun demo>
+kup php artisan migrate:fresh --seeder=PanduanSeeder        # HANYA lokal; akun panduan.<peran>@contoh.test
+PANDUAN_PASSWORD=<sandi> composer panduan                    # atau: docker compose -f docker-compose.panduan.yml --profile panduan run --rm keuangan-panduan
+# satu peran saja: ... run --rm keuangan-panduan sh -c "npm i --no-save --prefix /tmp/pw playwright@1.63.0 && node tests/panduan/tangkap.mjs bpp"
+```
+
+Gambar tersimpan di `public/panduan/img/<peran>/NN-<langkah>.png` dengan nama tetap, sehingga halaman HTML tidak
+perlu diubah. Teks panduan diedit langsung di `public/panduan/<peran>.html` (semua tautan relatif). Setelah itu
+jalankan `kup php artisan test --filter=Panduan`.

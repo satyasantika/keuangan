@@ -1,0 +1,130 @@
+# Compose produksi Keuangan FKIP Unsil (STANDAR-TEKNIS §7).
+# Pakai: cp .env.production.example .env.production && isi; lalu
+#   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+# Variabel lingkungan (container & interpolasi compose) dari .env.production (TIDAK di-commit).
+
+x-aplikasi: &aplikasi
+  image: keuangan-app:${APP_VERSION:-latest}
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+    target: app
+    args:
+      ASSET_URL: ${ASSET_URL:-https://supportfkip.unsil.ac.id/keuangan}
+  env_file: .env.production
+  restart: unless-stopped
+  volumes:
+    - tmp:/var/www/html/storage/app/tmp
+    - logs:/var/www/html/storage/logs
+  depends_on:
+    mysql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks: [keuangan]
+
+services:
+  app:
+    <<: *aplikasi
+    environment:
+      RUN_MIGRATIONS: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    image: keuangan-web:${APP_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: web
+      args:
+        ASSET_URL: ${ASSET_URL:-https://supportfkip.unsil.ac.id/keuangan}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8035}:80"
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/api/health | grep -q '\"status\":\"ok\"'"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks: [keuangan]
+
+  queue:
+    <<: *aplikasi
+    command: ["php", "artisan", "horizon"]
+    stop_grace_period: 60s
+
+  scheduler:
+    <<: *aplikasi
+    command: ["php", "artisan", "schedule:work"]
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+07:00
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-keuangan}
+      MYSQL_USER: ${DB_USERNAME:-keuangan}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD wajib diisi}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD wajib diisi}
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [keuangan]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD wajib diisi}"]
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks: [keuangan]
+
+  backup:
+    build:
+      context: .
+      dockerfile: docker/backup/Dockerfile
+    image: keuangan-backup:${APP_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      DB_HOST: mysql
+      DB_DATABASE: ${DB_DATABASE:-keuangan}
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_ROOT_PASSWORD}
+      BACKUP_DIR: /backup/mysql
+      RETENSI_HARI: ${RETENSI_HARI:-30}
+    volumes:
+      - ./backup:/backup
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [keuangan]
+
+volumes:
+  mysql:
+  redis:
+  tmp:
+  logs:
+
+networks:
+  keuangan:

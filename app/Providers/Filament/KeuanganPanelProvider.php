@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dasbor;
 use App\Http\Middleware\WajibMfa;
+use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -13,6 +14,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -41,6 +43,14 @@ class KeuanganPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->userMenuItems([
+                Action::make('panduan')
+                    ->label('Panduan')
+                    ->icon(Heroicon::OutlinedBookOpen)
+                    ->url(fn (): string => route('panduan.pengguna'))
+                    ->extraAttributes(['rel' => 'noopener noreferrer'])
+                    ->openUrlInNewTab(),
+            ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->spa()
@@ -53,6 +63,10 @@ class KeuanganPanelProvider extends PanelProvider
                 'Master',
                 'Sistem',
             ])
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn (): string => Blade::render('<p class="mt-4 text-center text-sm"><a href="{{ asset(\'panduan/index.html\') }}" class="font-semibold text-primary-600 hover:underline dark:text-primary-400">Panduan Pengguna</a></p>'),
+            )
             ->renderHook(
                 PanelsRenderHook::FOOTER,
                 fn (): string => Blade::render('<div class="py-3 text-center text-xs text-gray-500 dark:text-gray-400">Keuangan FKIP Unsil v{{ config(\'app.version\') }}</div>'),

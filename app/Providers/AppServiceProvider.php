@@ -39,6 +39,7 @@ use Filament\Actions\Imports\Models\Import;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
@@ -75,6 +76,7 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(! app()->isProduction());
         Model::preventSilentlyDiscardingAttributes(! app()->isProduction());
         DB::prohibitDestructiveCommands(app()->isProduction());
+        $this->siapkanProxy();
 
         // Alias morph wajib; alias lain ditambahkan saat modelnya dibuat.
         Relation::enforceMorphMap([
@@ -112,6 +114,19 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('verifikasi-publik', fn (Request $request) => Limit::perMinute(30)->by((string) $request->ip()));
 
         $this->siapkanSubpath();
+    }
+
+    /**
+     * Proxy tepercaya dari config (bukan env() di bootstrap/app.php yang dievaluasi sebelum .env dimuat),
+     * agar X-Forwarded-Proto/Prefix dari reverse proxy dihormati.
+     */
+    private function siapkanProxy(): void
+    {
+        $proxy = trim((string) config('keuangan.trusted_proxies'));
+
+        if ($proxy !== '') {
+            TrustProxies::at($proxy === '*' ? '*' : array_values(array_filter(array_map('trim', explode(',', $proxy)))));
+        }
     }
 
     /**

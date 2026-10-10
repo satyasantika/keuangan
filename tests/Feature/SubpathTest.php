@@ -46,3 +46,13 @@ test('redirect tamu ke login tetap di bawah subpath', function () {
     $this->get('/_uji/terlindung')
         ->assertRedirect('https://supportfkip.unsil.ac.id/keuangan/panel/login');
 });
+
+test('URL update Livewire tidak menggandakan awalan subpath (dengan maupun tanpa X-Forwarded-Prefix)', function (array $header) {
+    $html = $this->withHeaders($header)->get('/panel/login')->assertOk()->getContent();
+    preg_match('/data-update-uri="([^"]+)"/', $html, $cocok);
+
+    expect($cocok[1])->toMatch('#^https://supportfkip\.unsil\.ac\.id/keuangan/livewire-[a-z0-9]+/update$#');
+})->with([
+    'tanpa header' => [[]],
+    'dengan X-Forwarded-Prefix' => [['X-Forwarded-Prefix' => '/keuangan', 'X-Forwarded-Proto' => 'https']],
+]);

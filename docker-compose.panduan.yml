@@ -1,0 +1,20 @@
+# Tangkapan layar panduan (STANDAR-TEKNIS §2.5). Lokal saja:
+#   php artisan migrate:fresh --seeder=PanduanSeeder
+#   PANDUAN_PASSWORD=... docker compose -f docker-compose.panduan.yml --profile panduan run --rm keuangan-panduan
+# network_mode host: URL absolut aplikasi (APP_URL lokal) dapat dibuka dari container.
+services:
+  keuangan-panduan:
+    profiles: ["panduan"]
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    network_mode: host
+    working_dir: /work
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - .:/work
+    environment:
+      PANDUAN_BASE_URL: ${PANDUAN_BASE_URL:-http://localhost:8035/keuangan}
+      PANDUAN_PASSWORD: ${PANDUAN_PASSWORD:?PANDUAN_PASSWORD wajib diisi}
+      PLAYWRIGHT_MODULE: /tmp/pw/node_modules/playwright/index.mjs
+      HOME: /tmp
+      npm_config_cache: /tmp/npm-cache
+    command: ["sh", "-c", "npm install --silent --no-save --no-audit --no-fund --prefix /tmp/pw playwright@1.63.0 && node tests/panduan/tangkap.mjs"]

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\AwalanSubpath;
+use App\Http\Middleware\HeaderKeamanan;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,9 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn () => route('filament.keuangan.auth.login'));
+        $middleware->prepend(AwalanSubpath::class);
+        $middleware->append(HeaderKeamanan::class);
 
+        // Daftar proxy dipasang di AppServiceProvider::siapkanProxy() (setelah .env dimuat).
         $middleware->trustProxies(
-            at: env('TRUSTED_PROXIES') === '*' ? '*' : array_filter(explode(',', (string) env('TRUSTED_PROXIES'))),
             headers: Request::HEADER_X_FORWARDED_FOR
                 | Request::HEADER_X_FORWARDED_HOST
                 | Request::HEADER_X_FORWARDED_PORT

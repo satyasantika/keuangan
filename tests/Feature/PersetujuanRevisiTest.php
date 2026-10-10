@@ -9,10 +9,10 @@ use App\Actions\Revisi\VerifikasiRevisiRab;
 use App\Actions\Spj\CatatRealisasi;
 use App\Enums\StatusRab;
 use App\Exceptions\AksiSedangDiprosesException;
+use App\Exceptions\PelanggaranPemisahanTugasException;
 use App\Models\RabItem;
 use App\Models\RealisasiItem;
 use App\Models\RiwayatStatus;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Cache;
 
 beforeEach(function () {
@@ -82,7 +82,7 @@ test('pembuat revisi tidak bisa menyetujui', function () {
     $this->k->adminPmat->assignRole('admin-keuangan');
 
     expect($this->k->adminPmat->can('verifikasi', $revisi))->toBeFalse()
-        ->and(fn () => app(VerifikasiRevisiRab::class)->handle($revisi, $this->k->adminPmat))->toThrow(AuthorizationException::class);
+        ->and(fn () => app(VerifikasiRevisiRab::class)->handle($revisi, $this->k->adminPmat))->toThrow(PelanggaranPemisahanTugasException::class);
 });
 
 test('revisi ditolak → RAB aktif tidak berubah dan revisi baru bernomor 2 dapat dibuat', function () {

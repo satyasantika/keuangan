@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Menyusun pengajuan kegiatan beserta RAB, mencatat realisasi dan bukti, mengajukan SPJ, serta menyetor sisa dana — hanya untuk unit Anda.">
+<title>Panduan Admin Prodi/Unit — Keuangan FKIP Unsil</title>
+<style>
+:root{--aksen:#b45309;--aksen-muda:#fef3c7;--teks:#111827;--redup:#4b5563;--garis:#e5e7eb;--latar:#f9fafb}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;color:var(--teks);background:var(--latar)}
+header{background:var(--aksen);color:#fff;padding:1rem}header a{color:#fff}header p{margin:.25rem 0 0;opacity:.9}
+.wadah{max-width:60rem;margin:0 auto;padding:1rem}
+main{background:#fff;border:1px solid var(--garis);border-radius:.75rem;padding:1rem 1.25rem}
+h1{margin:.25rem 0;font-size:1.6rem}h2{margin-top:2rem;border-bottom:2px solid var(--aksen-muda);padding-bottom:.25rem}
+ol.langkah{padding-left:1.25rem}ol.langkah>li{margin:1.25rem 0}
+figure{margin:.75rem 0;border:1px solid var(--garis);border-radius:.5rem;overflow:hidden;background:#fff}
+figure img{display:block;width:100%;height:auto}figure.ponsel{max-width:390px}
+figcaption{font-size:.9rem;color:var(--redup);padding:.4rem .6rem;border-top:1px solid var(--garis)}
+.kartu{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:1rem;padding:0;list-style:none}
+.kartu li{border:1px solid var(--garis);border-radius:.75rem;padding:1rem;background:#fff}.kartu a{font-weight:600;color:var(--aksen)}
+.catatan{background:var(--aksen-muda);border-left:4px solid var(--aksen);padding:.5rem .75rem;border-radius:.25rem}
+dl.tj dt{font-weight:600;margin-top:.75rem}dl.tj dd{margin:0 0 0 1rem}
+nav.atas{font-size:.9rem;margin-bottom:.5rem}nav.atas a{color:var(--aksen)}
+footer{font-size:.85rem;color:var(--redup);text-align:center;padding:1rem}
+kbd{font-family:inherit;background:#f3f4f6;border:1px solid var(--garis);border-radius:.25rem;padding:0 .3rem}
+@media (max-width:600px){main{padding:.75rem}h1{font-size:1.3rem}}
+@media print{header{background:none;color:#000;border-bottom:2px solid #000}header a,nav.atas{display:none}main{border:0}figure{break-inside:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+<header><div class="wadah"><strong>Keuangan FKIP Unsil</strong><p>Panduan pengguna · versi 1.0.0 · 10 Oktober 2026</p></div></header>
+<div class="wadah">
+<nav class="atas"><a href="index.html">← Daftar panduan</a></nav>
+<main>
+<h1>Panduan Admin Prodi/Unit</h1>
+<p><b>Peran:</b> <kbd>admin-unit</kbd></p>
+<h2>Tujuan peran</h2><p>Menyusun pengajuan kegiatan beserta RAB, mencatat realisasi dan bukti, mengajukan SPJ, serta menyetor sisa dana — hanya untuk unit Anda.</p>
+<h2>Cara masuk</h2>
+<ol>
+<li>Buka <a href="../panel/login">halaman masuk aplikasi</a> (alamat <kbd>https://supportfkip.unsil.ac.id/keuangan/panel</kbd>).</li>
+<li>Isi <b>Alamat email</b> dan <b>Kata sandi</b> akun Anda, lalu klik <b>Masuk</b>.</li>
+
+</ol>
+<h2>Langkah-langkah</h2>
+<ol class="langkah"><li><h3>Melihat sisa pagu</h3><p>Buka <b>Beranda → Dasbor</b>. Kartu <b>Ringkasan anggaran</b> menampilkan pagu, dana disetujui, dicairkan, realisasi, dan serapan unit Anda.</p><figure><img src="img/admin-unit/01-dasbor.png" alt="Tangkapan layar: Melihat sisa pagu (Admin Prodi/Unit)" loading="lazy"><figcaption>Melihat sisa pagu</figcaption></figure></li><li><h3>Daftar pengajuan</h3><p>Buka <b>Kegiatan → Pengajuan Kegiatan</b>. Saring menurut tahun atau status; klik baris untuk melihat rincian.</p><figure><img src="img/admin-unit/02-daftar-pengajuan.png" alt="Tangkapan layar: Daftar pengajuan (Admin Prodi/Unit)" loading="lazy"><figcaption>Daftar pengajuan</figcaption></figure></li><li><h3>Membuat pengajuan</h3><p>Klik <b>Buat</b>. Isi data kegiatan, lalu tambah item RAB (akun, uraian, volume, satuan, harga satuan). Jumlah dan total dihitung otomatis dan ringkasan sisa pagu tampil di bawahnya. Klik <b>Simpan</b> (status Draf).</p><figure><img src="img/admin-unit/03-buat-pengajuan.png" alt="Tangkapan layar: Membuat pengajuan (Admin Prodi/Unit)" loading="lazy"><figcaption>Membuat pengajuan</figcaption></figure></li><li><h3>Tautan TOR &amp; mengajukan</h3><p>Pada rincian pengajuan, buka <b>TOR/KAK &amp; tautan pendukung</b> → <b>Tambah tautan</b> dan tempel tautan TOR. Lalu klik <b>Ajukan</b>: nomor <kbd>PGJ/&lt;tahun&gt;/&lt;urut&gt;</kbd> terbit dan pengajuan terkunci. Setelah dicairkan, tombol <b>Susun SPJ</b> muncul.</p><figure><img src="img/admin-unit/04-rincian-pengajuan.png" alt="Tangkapan layar: Tautan TOR &amp; mengajukan (Admin Prodi/Unit)" loading="lazy"><figcaption>Tautan TOR &amp; mengajukan</figcaption></figure></li><li><h3>Realisasi &amp; SPJ</h3><p>Di halaman SPJ, tambah <b>Realisasi</b> per item RAB beserta tautan kuitansi/nota/faktur (centang akses terbatas). Pajak dicatat lewat tombol <b>Pajak</b> dengan nilai sesuai bukti potong. Klik <b>Ajukan SPJ</b> dan centang pernyataan berkas final.</p><figure><img src="img/admin-unit/05-spj-realisasi.png" alt="Tangkapan layar: Realisasi &amp; SPJ (Admin Prodi/Unit)" loading="lazy"><figcaption>Realisasi &amp; SPJ</figcaption></figure></li><li><h3>Menyetor sisa dana</h3><p>Setelah SPJ diterima dan masih ada sisa, buka pengajuan → <b>Catat pengembalian sisa dana</b> (tanggal, jumlah, nomor bukti setor, tautan bukti setor). Pantau statusnya di <b>Bendahara → Pengembalian</b>.</p><figure><img src="img/admin-unit/06-pengembalian.png" alt="Tangkapan layar: Menyetor sisa dana (Admin Prodi/Unit)" loading="lazy"><figcaption>Menyetor sisa dana</figcaption></figure></li><li><h3>Di ponsel: dasbor</h3><p>Aplikasi dapat dibuka dari peramban ponsel. Menu tersedia di tombol ☰ kiri atas.</p><figure class="ponsel"><img src="img/admin-unit/07-ponsel-dasbor.png" alt="Tangkapan layar: Di ponsel: dasbor (Admin Prodi/Unit)" loading="lazy"><figcaption>Di ponsel: dasbor</figcaption></figure></li><li><h3>Di ponsel: rincian pengajuan</h3><p>Rincian pengajuan dan tombol aksi tampil bertumpuk; tautan bukti dari aplikasi Google Drive dapat langsung ditempel.</p><figure class="ponsel"><img src="img/admin-unit/08-ponsel-pengajuan.png" alt="Tangkapan layar: Di ponsel: rincian pengajuan (Admin Prodi/Unit)" loading="lazy"><figcaption>Di ponsel: rincian pengajuan</figcaption></figure></li></ol>
+<h2>Menyimpan bukti di Google Drive</h2>
+<p class="catatan">Aplikasi <b>tidak menerima unggahan berkas</b>. Simpan bukti di Google Drive, lalu tempel tautannya.</p>
+<ol>
+<li>Simpan berkas di <b>Shared Drive unit/fakultas</b> (bukan Drive pribadi) agar tidak hilang saat pegawai pindah.</li>
+<li>Klik kanan berkas → <b>Bagikan</b> → <i>Akses umum</i> → pilih <b>Terbatas</b> atau <b>Universitas Siliwangi</b>. Jangan pilih “Siapa saja yang memiliki link” untuk kuitansi, nota, faktur, bukti transfer, dan bukti setor.</li>
+<li>Klik <b>Salin link</b>, tempel di isian <b>Tautan (URL)</b>, dan untuk bukti keuangan centang konfirmasi akses terbatas.</li>
+<li><b>Dari ponsel:</b> foto nota → simpan ke folder Shared Drive unit → ketuk ⋮ → <b>Bagikan</b> → <i>Setelan akses</i> → Terbatas/Universitas Siliwangi → ketuk ⋮ → <b>Salin link</b> → tempel di aplikasi melalui peramban ponsel.</li>
+</ol>
+<p>Tautan ditolak bila memakai <kbd>http://</kbd>, pemendek (bit.ly, s.id), tautan <b>folder</b> Drive, atau domain di luar daftar (mis. dropbox.com).</p>
+<h2>Tanya-jawab</h2><dl class="tj"><dt>Mengapa realisasi bulan lalu ditolak?</dt><dd>Periode bulan itu sudah dikunci. Hubungi admin keuangan.</dd><dt>Muncul lencana “Akses publik” pada bukti?</dt><dd>Ubah setelan berbagi berkas di Drive menjadi Terbatas/Universitas Siliwangi.</dd><dt>Pengajuan ditolak karena pagu?</dt><dd>Total melebihi sisa pagu unit; kurangi item atau tunggu pagu disesuaikan.</dd></dl>
+<h2>Kontak</h2><p>Admin Keuangan FKIP (keuangan-fkip@unsil.ac.id) · Admin TI Fakultas untuk akun &amp; MFA.</p>
+</main>
+</div>
+<footer>Keuangan FKIP Universitas Siliwangi · panduan versi 1.0.0, diperbarui 10 Oktober 2026 · Kontak: Admin Keuangan FKIP (keuangan-fkip@unsil.ac.id) · Admin TI Fakultas untuk akun &amp; MFA</footer>
+</body>
+</html>

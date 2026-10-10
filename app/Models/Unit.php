@@ -76,6 +76,11 @@ class Unit extends Model
      */
     public static function aktifTercache(): Collection
     {
-        return Cache::remember(self::KUNCI_CACHE_AKTIF, now()->addDay(), fn () => self::query()->where('aktif', true)->orderBy('kode')->get());
+        // Disimpan sebagai larik atribut: cache tidak mengizinkan unserialize objek (cache.serializable_classes).
+        return self::hydrate(Cache::remember(
+            self::KUNCI_CACHE_AKTIF,
+            now()->addDay(),
+            fn (): array => self::query()->where('aktif', true)->orderBy('kode')->get()->map(fn (self $m): array => $m->getAttributes())->all(),
+        ));
     }
 }

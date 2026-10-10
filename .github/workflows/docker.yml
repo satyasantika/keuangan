@@ -1,0 +1,33 @@
+# Memastikan Dockerfile produksi valid: membangun image app & web pada setiap tag rilis v*.
+name: Docker keuangan
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Bangun image app
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: app
+          push: false
+          tags: keuangan-app:${{ github.ref_name }}
+          build-args: ASSET_URL=https://supportfkip.unsil.ac.id/keuangan
+
+      - name: Bangun image web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: web
+          push: false
+          tags: keuangan-web:${{ github.ref_name }}
+          build-args: ASSET_URL=https://supportfkip.unsil.ac.id/keuangan

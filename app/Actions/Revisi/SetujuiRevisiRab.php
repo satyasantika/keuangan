@@ -7,12 +7,14 @@ use App\Actions\Pengajuan\HitungSisaPagu;
 use App\Actions\Pengajuan\HitungUlangTotalPengajuan;
 use App\Enums\StatusRab;
 use App\Enums\TahapPersetujuan;
+use App\Exceptions\PelanggaranPemisahanTugasException;
 use App\Exceptions\TransisiStatusTidakSahException;
 use App\Models\Pengajuan;
 use App\Models\Rab;
 use App\Models\RabItem;
 use App\Models\RealisasiItem;
 use App\Models\User;
+use App\Policies\RabPolicy;
 use App\Support\DenganKunci;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +33,10 @@ class SetujuiRevisiRab
     public function handle(Rab $rab, User $oleh, ?string $catatan = null): Rab
     {
         if (! $oleh->can('setujui', $rab)) {
+            if ($oleh->can('revisi.setujui') && (new RabPolicy)->melanggarPemisahan($oleh, $rab, TahapPersetujuan::Wadek)) {
+                throw new PelanggaranPemisahanTugasException('Pemisahan tugas: pembuat revisi atau pengguna yang sudah bertindak di tahap lain tidak boleh menyetujui revisi ini.');
+            }
+
             throw new AuthorizationException('Anda tidak berhak menyetujui revisi ini.');
         }
 

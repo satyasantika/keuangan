@@ -2,7 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\Peran;
 use App\Models\User;
+use App\Support\DaftarPerluVerifikasi;
 use App\Support\Pengaturan as PengaturanAplikasi;
 use BackedEnum;
 use Database\Seeders\PengaturanSeeder;
@@ -15,8 +17,10 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
@@ -114,7 +118,27 @@ class Pengaturan extends Page
 
     public function content(Schema $schema): Schema
     {
-        return $schema->components([$this->getFormContentComponent()]);
+        return $schema->components([$this->bagianPerluVerifikasi(), $this->getFormContentComponent()]);
+    }
+
+    /**
+     * Lencana butir "perlu verifikasi" yang masih terbuka — hanya super-admin & admin-keuangan.
+     */
+    protected function bagianPerluVerifikasi(): Component
+    {
+        $butir = DaftarPerluVerifikasi::terbuka();
+
+        return Section::make('Perlu verifikasi')
+            ->description('Nilai berikut masih usulan/contoh dan wajib dikonfirmasi bagian keuangan sebelum dipakai resmi.')
+            ->icon(Heroicon::OutlinedExclamationTriangle)
+            ->iconColor('warning')
+            ->visible(fn (): bool => auth()->user()?->hasAnyRole([Peran::SuperAdmin->value, Peran::AdminKeuangan->value]) ?? false)
+            ->schema($butir === []
+                ? [Text::make('Semua butir sudah terverifikasi.')->badge()->color('success')]
+                : array_map(fn (array $b): Component => Flex::make([
+                    Text::make("{$b['judul']}: {$b['jumlah']}")->badge()->color('warning')->grow(false),
+                    Text::make($b['keterangan']),
+                ]), $butir));
     }
 
     public function getFormContentComponent(): Component

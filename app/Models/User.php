@@ -103,6 +103,11 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         $this->save();
     }
 
+    /**
+     * Domain surel akun demo panduan (PanduanSeeder, hanya APP_ENV=local).
+     */
+    public const DOMAIN_PANDUAN = 'contoh.test';
+
     public function sudahAktifkanMfa(): bool
     {
         return filled($this->app_authentication_secret);
@@ -110,9 +115,14 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 
     /**
      * Peran yang wajib MFA (PRD §3.1): super-admin, admin-keuangan, bpp, wadek-keuangan.
+     * Pengecualian hanya akun demo panduan (@contoh.test) di APP_ENV=local untuk tangkapan layar.
      */
     public function wajibMfa(): bool
     {
+        if (app()->isLocal() && str_ends_with((string) $this->email, '@'.self::DOMAIN_PANDUAN)) {
+            return false;
+        }
+
         return $this->hasAnyRole(array_map(fn (Peran $p) => $p->value, Peran::wajibMfa()));
     }
 }
