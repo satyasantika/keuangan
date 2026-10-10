@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CetakKartuKegiatanController;
 use App\Http\Controllers\CetakPengajuanController;
 use App\Http\Controllers\CetakRevisiController;
 use App\Http\Controllers\LaporanController;
@@ -16,6 +17,7 @@ Route::get('/verifikasi/{id}', VerifikasiPublikController::class)
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/pengajuan/{pengajuan}/pdf', CetakPengajuanController::class)->name('pengajuan.pdf');
+    Route::get('/pengajuan/{pengajuan}/kartu', CetakKartuKegiatanController::class)->name('pengajuan.kartu');
     Route::get('/revisi/{rab}/pdf', CetakRevisiController::class)->name('revisi.pdf');
     Route::get('/laporan/ekspor', [LaporanController::class, 'ekspor'])->middleware('throttle:ekspor')->name('laporan.ekspor');
     Route::get('/ekspor/{laporanEkspor}', UnduhEksporController::class)->middleware('signed')->name('ekspor.unduh');

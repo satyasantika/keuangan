@@ -38,6 +38,12 @@ class LaporanController extends Controller
         $pengguna = $request->user();
         $parameter = array_diff_key($data, array_flip(['jenis', 'format']));
 
+        if ($data['jenis'] === 'LAP-03') {
+            abort_unless(KatalogLaporan::bolehAkses('LAP-03', $pengguna) && filled($data['pengajuan_id'] ?? null), 422, 'Pilih pengajuan untuk LAP-03.');
+
+            return redirect()->route('pengajuan.kartu', $data['pengajuan_id']);
+        }
+
         try {
             $laporan = KatalogLaporan::bangun($data['jenis'], $parameter, $pengguna);
         } catch (InvalidArgumentException $e) {

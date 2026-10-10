@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Data\ParameterLaporan;
 use App\Laporan\DataLaporan;
 use App\Laporan\KatalogLaporan;
+use App\Models\Pengajuan;
 use App\Models\TahunAnggaran;
 use App\Models\Unit;
 use App\Models\User;
@@ -76,6 +77,11 @@ class Laporan extends Page
                 Select::make('jenis_periode')->label('Periode')->options(['tahunan' => 'Tahunan', 'semester' => 'Semester', 'bulanan' => 'Bulanan'])->live(),
                 Select::make('nilai_periode')->label('Semester/bulan')
                     ->options(fn (Get $get): array => $get('jenis_periode') === 'semester' ? [1 => 'Semester 1', 2 => 'Semester 2'] : array_combine(range(1, 12), range(1, 12)))
+                    ->live(),
+                Select::make('pengajuan_id')->label('Pengajuan (LAP-03)')
+                    ->options(fn (): array => Pengajuan::query()->terlihatOleh($pengguna)->whereNotNull('nomor')->orderByDesc('diajukan_pada')->limit(200)->pluck('nomor', 'id')->all())
+                    ->searchable()
+                    ->visible(fn (Get $get): bool => $get('jenis') === 'LAP-03')
                     ->live(),
                 Select::make('unit_id')->label('Unit')
                     ->options(fn (): array => Unit::query()->orderBy('kode')->pluck('kode', 'id')->all())
