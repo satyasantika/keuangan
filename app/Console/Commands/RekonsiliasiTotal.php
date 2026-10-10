@@ -3,12 +3,16 @@
 namespace App\Console\Commands;
 
 use App\Actions\Pengajuan\HitungUlangTotalPengajuan;
+use App\Enums\Peran;
 use App\Models\Pengajuan;
+use App\Models\User;
+use App\Notifications\SelisihRekonsiliasi;
 use App\Support\Uang;
 use App\Support\VersiCacheDasbor;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * Membandingkan kolom total_* pengajuan dengan perhitungan ulang dari tabel sumber (BR-26).
@@ -77,6 +81,12 @@ class RekonsiliasiTotal extends Command
         }
 
         $this->error(count($selisih).' selisih ditemukan. Jalankan dengan --perbaiki untuk menyimpan hasil hitung ulang.');
+
+        $superAdmin = User::query()->where('aktif', true)->role(Peran::SuperAdmin->value)->get();
+
+        if ($superAdmin->isNotEmpty()) {
+            Notification::send($superAdmin, new SelisihRekonsiliasi(count($selisih)));
+        }
 
         return self::FAILURE;
     }

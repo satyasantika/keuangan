@@ -50,6 +50,18 @@ Horizon (antrean) berjalan sebagai service `keuangan-horizon` dan dasbornya di `
 restart setelah mengubah kode job: `cd /home/satya/code && docker compose restart keuangan-horizon`. Penjadwal: service `keuangan-scheduler`.
 Redis bersama: DB 13 (default/lock), 14 (cache), 15 (antrean), prefiks `keuangan_`.
 
+### Penjadwal, notifikasi, dan surel lokal
+
+- Penjadwal berjalan sebagai service `keuangan-scheduler`; tanpa service itu jalankan `kup php artisan schedule:work`.
+  Lihat daftar jadwal: `kup php artisan schedule:list` (pengingat SPJ 07.00, rekap mingguan Senin 07.30, pengingat kunci
+  periode 08.00 pada tanggal pengaturan, rekonsiliasi 01.00, periksa ulang tautan Minggu 03.00, bersihkan berkas sementara
+  setiap jam menit 15, `horizon:snapshot` 5 menit).
+- Uji tanpa mengirim: `kup php artisan keuangan:pengingat-spj --dry-run`, `kup php artisan keuangan:periksa-ulang-tautan --dry-run`.
+- Semua notifikasi diantrekan ke antrean `notifikasi` (Horizon). Untuk menguji surel lokal set `MAIL_MAILER=smtp`,
+  `MAIL_HOST=mailpit`, `MAIL_PORT=1025` di `.env`, lalu buka Mailpit http://localhost:8025. Surel tidak memuat URL tautan bukti
+  maupun data penerima.
+- WhatsApp opsional: isi `WHATSAPP_AKTIF=true`, `WHATSAPP_URL`, `WHATSAPP_TOKEN` (hanya lewat env; token tidak pernah dicatat).
+
 ### Menjalankan uji dan gerbang kualitas
 
 ```bash

@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    /*
+    | Gateway WhatsApp opsional (mis. Fonnte). Kredensial hanya dari env; token tidak pernah dicatat di log.
+    */
+    'whatsapp' => [
+        'aktif' => (bool) env('WHATSAPP_AKTIF', false),
+        'url' => env('WHATSAPP_URL'),
+        'token' => env('WHATSAPP_TOKEN'),
+        'batas_per_menit' => (int) env('WHATSAPP_BATAS_PER_MENIT', 20),
+    ],
+
 ];
