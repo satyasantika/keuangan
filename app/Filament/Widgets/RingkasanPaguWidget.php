@@ -2,20 +2,23 @@
 
 namespace App\Filament\Widgets;
 
-use App\Actions\Pengajuan\HitungSisaPagu;
-use App\Enums\StatusTahunAnggaran;
-use App\Models\TahunAnggaran;
+use App\Filament\Widgets\Concerns\MemakaiParameterDasbor;
 use App\Models\User;
+use App\Queries\LaporanRealisasiQuery;
 use App\Support\Uang;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 /**
- * Pagu, komitmen, dan sisa pagu unit pengguna (US-PAGU-03) untuk admin-unit/kepala-unit.
+ * Ringkasan pagu, disetujui, dicairkan, realisasi, serapan — lingkup sesuai pengguna.
  */
 class RingkasanPaguWidget extends StatsOverviewWidget
 {
+    use MemakaiParameterDasbor;
+
     protected static ?int $sort = 1;
+
+    protected int|string|array $columnSpan = 'full';
 
     protected ?string $pollingInterval = null;
 
@@ -23,31 +26,34 @@ class RingkasanPaguWidget extends StatsOverviewWidget
     {
         $pengguna = auth()->user();
 
-        return $pengguna instanceof User && $pengguna->unit_id !== null && ! $pengguna->lingkupFakultas() && $pengguna->can('pagu.lihat');
+        return $pengguna instanceof User && $pengguna->can('dasbor.lihat') && ($pengguna->lingkupFakultas() || $pengguna->unit_id !== null);
     }
 
     protected function getHeading(): ?string
     {
-        return 'Pagu unit';
+        return 'Ringkasan anggaran';
     }
 
     protected function getStats(): array
     {
         /** @var User $pengguna */
         $pengguna = auth()->user();
-        $tahun = TahunAnggaran::query()->where('status', StatusTahunAnggaran::Berjalan->value)->orderByDesc('tahun')->first();
+        $parameter = $this->parameterLaporan();
 
-        if ($tahun === null || $pengguna->unit_id === null) {
-            return [Stat::make('Pagu', '—')->description('Belum ada tahun anggaran berjalan')];
+        if ($parameter === null) {
+            return [Stat::make('Pagu', '—')->description('Belum ada tahun anggaran')];
         }
 
-        $ringkas = app(HitungSisaPagu::class)->handle($tahun->id, $pengguna->unit_id);
+        $total = LaporanRealisasiQuery::total(LaporanRealisasiQuery::untuk($parameter, $pengguna));
 
         return [
-            Stat::make("Pagu {$tahun->tahun}", Uang::format($ringkas['pagu'] ?? '0')),
-            Stat::make('Komitmen', Uang::format($ringkas['komitmen'] ?? '0'))->description('Pengajuan yang sedang/telah disetujui'),
-            Stat::make('Sisa pagu', Uang::format($ringkas['sisa'] ?? '0'))
-                ->color(Uang::bandingkan($ringkas['sisa'] ?? '0', '0') > 0 ? 'success' : 'danger'),
+            Stat::make('Pagu', Uang::format($total['pagu']))->description('Sisa '.Uang::format($total['sisa_pagu'])),
+            Stat::make('Disetujui', Uang::format($total['disetujui'])),
+            Stat::make('Dicairkan', Uang::format($total['dicairkan']))->description($parameter->label()),
+            Stat::make('Realisasi', Uang::format($total['realisasi']))->description($parameter->label()),
+            Stat::make('Serapan', $total['serapan_persen'] === null ? '—' : str_replace('.', ',', $total['serapan_persen']).'%')
+                ->description('Realisasi kumulatif / pagu')
+                ->color('success'),
         ];
     }
 }

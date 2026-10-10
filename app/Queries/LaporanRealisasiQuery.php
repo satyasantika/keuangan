@@ -45,7 +45,7 @@ class LaporanRealisasiQuery
     /**
      * Total seluruh baris (untuk baris total laporan/dasbor).
      *
-     * @param  Collection<int, array<string, mixed>>  $baris
+     * @param  Collection<int, covariant array<string, mixed>>  $baris
      * @return array{pagu: string, komitmen: string, disetujui: string, dicairkan: string, realisasi: string, realisasi_kumulatif: string, sisa_pagu: string, serapan_persen: string|null}
      */
     public static function total(Collection $baris): array

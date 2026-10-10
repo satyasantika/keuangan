@@ -119,12 +119,15 @@ test('riwayat status tampil terurut; log perubahan hanya untuk peran fakultas', 
         ->assertSee('Item RAB');
 });
 
-test('widget antrean tampil untuk penyetuju saja', function () {
+test('widget antrean di dasbor tampil untuk admin-keuangan & bpp (F11.2)', function () {
     buatPengajuanDiajukan($this->k);
 
-    $this->actingAs($this->k->kepalaPmat);
+    $this->actingAs($this->k->keu);
     expect(AntreanPersetujuanWidget::canView())->toBeTrue();
     Livewire::test(AntreanPersetujuanWidget::class)->assertOk()->assertSee('Menunggu tindakan saya');
+
+    $this->actingAs($this->k->bpp);
+    expect(AntreanPersetujuanWidget::canView())->toBeTrue();
 
     $this->actingAs($this->k->adminPmat);
     expect(AntreanPersetujuanWidget::canView())->toBeFalse();

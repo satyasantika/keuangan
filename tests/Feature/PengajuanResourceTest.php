@@ -165,13 +165,14 @@ test('HitungSisaPagu level akun memakai rincian pagu_akun dan item RAB aktif', f
         ->and(app(HitungSisaPagu::class)->handle($this->tahun->id, $this->pmat->id, $lain->id))->toBeNull();
 });
 
-test('widget ringkasan pagu tampil untuk admin-unit, tidak untuk peran fakultas', function () {
-    $keu = penggunaDenganPeran(Peran::AdminKeuangan);
-
+test('widget ringkasan pagu tampil untuk admin-unit dan peran fakultas, tidak untuk pengguna unit tanpa unit', function () {
     $this->actingAs($this->adminPmat);
     expect(RingkasanPaguWidget::canView())->toBeTrue();
     Livewire::test(RingkasanPaguWidget::class)->assertOk();
 
-    $this->actingAs($keu);
+    $this->actingAs(penggunaDenganPeran(Peran::AdminKeuangan));
+    expect(RingkasanPaguWidget::canView())->toBeTrue();
+
+    $this->actingAs(penggunaDenganPeran(Peran::AdminUnit));
     expect(RingkasanPaguWidget::canView())->toBeFalse();
 });
