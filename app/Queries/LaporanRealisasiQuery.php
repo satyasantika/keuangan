@@ -39,7 +39,8 @@ class LaporanRealisasiQuery
         $parameter = new ParameterLaporan($parameter->tahunAnggaranId, $parameter->jenisPeriode, $parameter->nilaiPeriode, $unitId, $parameter->akunId);
 
         /** @var Collection<int, array{unit_id: string, unit_kode: string, unit_nama: string, pagu: string, komitmen: string, disetujui: string, dicairkan: string, realisasi: string, realisasi_kumulatif: string, sisa_pagu: string, serapan_persen: string|null, sumber: string}> */
-        return VersiCacheDasbor::ingat('lra:'.$parameter->kunciCache(), fn (): Collection => self::hitung($parameter));
+        // Larik biasa (bukan objek Collection) karena cache tidak mengizinkan unserialize objek.
+        return collect(VersiCacheDasbor::ingat('lra:'.$parameter->kunciCache(), fn (): array => self::hitung($parameter)->all()));
     }
 
     /**

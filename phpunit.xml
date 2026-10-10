@@ -31,6 +31,7 @@
         <env name="CACHE_STORE" value="array"/>
         <env name="PERMISSION_CACHE_STORE" value="array"/>
         <env name="KEUANGAN_LOCK_STORE" value="array"/>
+        <env name="TRUSTED_PROXIES" value="*"/>
         <env name="DB_CONNECTION" value="mariadb"/>
         <env name="DB_HOST" value="host.docker.internal"/>
         <env name="DB_DATABASE" value="db_keuangan_testing"/>

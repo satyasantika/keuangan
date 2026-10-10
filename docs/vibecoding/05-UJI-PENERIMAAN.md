@@ -131,29 +131,29 @@ Gerbang: `composer cek` (pint `--test`, Larastan level 6, Pest paralel) hijau di
 
 | No | Butir | Cara verifikasi | ✓ |
 |---|---|---|---|
-| K-01 | Otorisasi per record di Policy untuk setiap Resource & aksi; tidak ada logika otorisasi di Blade | `MatriksIzinTest`, tinjau kode | |
-| K-02 | IDOR: URL memakai UUID; akses lintas unit 403/404 | `IdorTest`; uji manual ganti UUID | |
-| K-03 | Pemisahan tugas (BR-07) di server, bukan hanya menyembunyikan tombol | `PemisahanTugasTest` | |
-| K-04 | Tidak ada unggahan berkas pengguna (STANDAR-TEKNIS §1a): tidak ada `FileUpload`/`UploadedFile` selain impor Excel/CSV yang dihapus setelah diproses; `storage/app` hanya berisi `tmp` ≤ 24 jam | `TanpaUnggahanTest`; `find storage/app -mtime +1` | |
-| K-05 | Validasi tautan `TautanBerkasValid`: hanya `https`, domain daftar putih, tolak pemendek URL, folder Drive, `javascript:`/`data:`, host mirip | Test berkas | |
-| K-05a | Privasi bukti keuangan (NPWP/rekening): konfirmasi akses terbatas domain unsil.ac.id wajib; `PeriksaTautanBerkas` menandai tautan yang dapat dibuka anonim; URL bukti tidak dirender untuk peran tak berhak dan tidak dikirim lewat surel/WhatsApp | Test berkas & notifikasi; UAT AU-09b/c | |
-| K-05b | Integritas bukti: pernyataan berkas final saat ajukan SPJ; snapshot `tautan_berkas_beku` (URL + waktu) saat diterima; tautan terkunci setelahnya | Test SPJ; UAT AK-08b | |
-| K-05c | Tautan keluar `target="_blank" rel="noopener noreferrer"`; CSP `frame-src` hanya `drive.google.com`/`docs.google.com`; pemeriksa tautan tanpa cookie, timeout 10 dtk, tanpa mengunduh isi | Test header; tinjau kode | |
-| K-06 | Rate limit: login 5/mnt, simpan tautan 30/mnt, periksa tautan 60/mnt (keluar), ekspor 5/mnt, verifikasi publik 30/mnt | Test throttle | |
-| K-07 | CSRF aktif (bawaan Laravel/Livewire); tidak ada route POST yang dikecualikan tanpa alasan | Tinjau `bootstrap/app.php` | |
-| K-08 | XSS: deskripsi/catatan ter-escape di panel, PDF, surel, halaman publik; tidak ada `{!! !!}` untuk input pengguna | Test payload `<script>` | |
+| K-01 | Otorisasi per record di Policy untuk setiap Resource & aksi; tidak ada logika otorisasi di Blade | `MatriksIzinTest`, tinjau kode | ✓ |
+| K-02 | IDOR: URL memakai UUID; akses lintas unit 403/404 | `IdorTest`; uji manual ganti UUID | ✓ |
+| K-03 | Pemisahan tugas (BR-07) di server, bukan hanya menyembunyikan tombol | `PemisahanTugasTest` | ✓ |
+| K-04 | Tidak ada unggahan berkas pengguna (STANDAR-TEKNIS §1a): tidak ada `FileUpload`/`UploadedFile` selain impor Excel/CSV yang dihapus setelah diproses; `storage/app` hanya berisi `tmp` ≤ 24 jam | `TanpaUnggahanTest`; `find storage/app -mtime +1` | ✓ |
+| K-05 | Validasi tautan `TautanBerkasValid`: hanya `https`, domain daftar putih, tolak pemendek URL, folder Drive, `javascript:`/`data:`, host mirip | Test berkas | ✓ |
+| K-05a | Privasi bukti keuangan (NPWP/rekening): konfirmasi akses terbatas domain unsil.ac.id wajib; `PeriksaTautanBerkas` menandai tautan yang dapat dibuka anonim; URL bukti tidak dirender untuk peran tak berhak dan tidak dikirim lewat surel/WhatsApp | Test berkas & notifikasi; UAT AU-09b/c | ✓ |
+| K-05b | Integritas bukti: pernyataan berkas final saat ajukan SPJ; snapshot `tautan_berkas_beku` (URL + waktu) saat diterima; tautan terkunci setelahnya | Test SPJ; UAT AK-08b | ✓ |
+| K-05c | Tautan keluar `target="_blank" rel="noopener noreferrer"`; CSP `frame-src` hanya `drive.google.com`/`docs.google.com`; pemeriksa tautan tanpa cookie, timeout 10 dtk, tanpa mengunduh isi | Test header; tinjau kode | ✓ |
+| K-06 | Rate limit: login 5/mnt, simpan tautan 30/mnt, periksa tautan 60/mnt (keluar), ekspor 5/mnt, verifikasi publik 30/mnt | Test throttle | ✓ |
+| K-07 | CSRF aktif (bawaan Laravel/Livewire); tidak ada route POST yang dikecualikan tanpa alasan | Tinjau `bootstrap/app.php` | ✓ |
+| K-08 | XSS: deskripsi/catatan ter-escape di panel, PDF, surel, halaman publik; tidak ada `{!! !!}` untuk input pengguna | Test payload `<script>` | ✓ |
 | K-09 | MFA wajib untuk super-admin, admin-keuangan, bpp, wadek-keuangan | UAT AK-01 | |
-| K-10 | Sesi: `secure`, `http_only`, `same_site=lax`, HTTPS + HSTS di produksi | Cek header & cookie | |
-| K-11 | Header keamanan (CSP dasar, X-Frame-Options, Referrer-Policy, Permissions-Policy) | `curl -I` | |
-| K-12 | Log & activitylog tanpa kata sandi, token, secret MFA, token WhatsApp | Test log; tinjau `activity_log` | |
-| K-13 | Halaman verifikasi publik hanya memuat data minimum; `noindex` | UAT PB-01 | |
-| K-14 | Integritas uang: tidak ada float; total dihitung server; rekonsiliasi harian tanpa selisih | Arch test; `keuangan:rekonsiliasi` | |
-| K-15 | Lock Redis + `lockForUpdate` pada penomoran & persetujuan | `LockTest` | |
-| K-16 | Periode terkunci tidak dapat ditulis lewat jalur mana pun (form, impor, pembatalan) | `PeriodeTerkunciTest` | |
+| K-10 | Sesi: `secure`, `http_only`, `same_site=lax`, HTTPS + HSTS di produksi | Cek header & cookie | ✓ |
+| K-11 | Header keamanan (CSP dasar, X-Frame-Options, Referrer-Policy, Permissions-Policy) | `curl -I` | ✓ |
+| K-12 | Log & activitylog tanpa kata sandi, token, secret MFA, token WhatsApp | Test log; tinjau `activity_log` | ✓ |
+| K-13 | Halaman verifikasi publik hanya memuat data minimum; `noindex` | UAT PB-01 | ✓ |
+| K-14 | Integritas uang: tidak ada float; total dihitung server; rekonsiliasi harian tanpa selisih | Arch test; `keuangan:rekonsiliasi` | ✓ |
+| K-15 | Lock Redis + `lockForUpdate` pada penomoran & persetujuan | `LockTest` | ✓ |
+| K-16 | Periode terkunci tidak dapat ditulis lewat jalur mana pun (form, impor, pembatalan) | `PeriodeTerkunciTest` | ✓ |
 | K-17 | `APP_DEBUG=false`; halaman galat tanpa jejak stack | Uji 500 di staging | |
-| K-18 | `kup composer audit` & `kup npm audit` bersih; dependensi pada major yang ditetapkan | CI | |
+| K-18 | `kup composer audit` & `kup npm audit` bersih; dependensi pada major yang ditetapkan | CI | ✓ |
 | K-19 | `.env`, dump DB, isi `storage/app/tmp` tidak masuk repo/image | `git ls-files`, `.dockerignore` | |
-| K-20 | Horizon hanya super-admin; `/api/health` tidak membocorkan detail exception | Test | |
+| K-20 | Horizon hanya super-admin; `/api/health` tidak membocorkan detail exception | Test | ✓ |
 
 ## 4. Checklist go-live
 
