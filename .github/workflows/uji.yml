@@ -73,6 +73,9 @@ jobs:
           npm ci
           npm run build
 
+      - name: Shellcheck skrip docker & cadangan
+        run: shellcheck docker/entrypoint.sh docker/backup/*.sh
+
       - name: Pint
         run: ./vendor/bin/pint --test
 

@@ -15,7 +15,7 @@ test('.dockerignore mengecualikan rahasia, dump, dan berkas sementara', function
 test('compose produksi memuat app, web, queue (horizon), scheduler, mysql 8.4, dan redis 7', function () use ($akar) {
     $compose = (string) file_get_contents($akar.'/docker-compose.prod.yml');
 
-    foreach (['app:', 'web:', 'queue:', 'scheduler:', 'mysql:', 'redis:'] as $layanan) {
+    foreach (['app:', 'web:', 'queue:', 'scheduler:', 'mysql:', 'redis:', 'backup:'] as $layanan) {
         expect($compose)->toContain("\n  {$layanan}");
     }
 
@@ -50,4 +50,15 @@ test('contoh .env.production memakai subpath & cookie aman sesuai STANDAR-TEKNIS
         ->toContain('SESSION_SECURE_COOKIE=true')
         ->not->toMatch('/^TRUSTED_PROXIES=\*/m')
         ->not->toMatch('/^(APP_KEY|DB_PASSWORD|REDIS_PASSWORD|MAIL_PASSWORD)=\S/m');
+});
+
+test('cadangan harian 01:30 WIB dengan retensi bawaan 30 hari dan pemulihan menolak produksi', function () use ($akar) {
+    $dockerfile = (string) file_get_contents($akar.'/docker/backup/Dockerfile');
+    $backup = (string) file_get_contents($akar.'/docker/backup/backup.sh');
+    $restore = (string) file_get_contents($akar.'/docker/backup/restore.sh');
+
+    expect($dockerfile)->toContain('30 1 * * *')->toContain('Asia/Jakarta')
+        ->and($backup)->toContain('--single-transaction')->toContain('--routines')->toContain('--triggers')
+        ->toContain('RETENSI_HARI="${RETENSI_HARI:-30}"')->toContain('sha256sum')
+        ->and($restore)->toContain('"${APP_ENV:-}" = "production"')->toContain('--paksa');
 });

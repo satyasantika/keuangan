@@ -100,6 +100,26 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     networks: [keuangan]
 
+  backup:
+    build:
+      context: .
+      dockerfile: docker/backup/Dockerfile
+    image: keuangan-backup:${APP_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      DB_HOST: mysql
+      DB_DATABASE: ${DB_DATABASE:-keuangan}
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_ROOT_PASSWORD}
+      BACKUP_DIR: /backup/mysql
+      RETENSI_HARI: ${RETENSI_HARI:-30}
+    volumes:
+      - ./backup:/backup
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [keuangan]
+
 volumes:
   mysql:
   redis:

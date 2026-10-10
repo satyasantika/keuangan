@@ -59,7 +59,8 @@ docker compose --env-file .env.production -f docker-compose.prod.yml exec queue 
 curl -fsS http://127.0.0.1:8035/api/health
 ```
 
-Sebelum memperbarui, pastikan cadangan MySQL terbaru ada (lihat runbook cadangan).
+Sebelum memperbarui, pastikan cadangan MySQL terbaru ada (lihat `docs/runbook-cadangan.md`; service `backup`
+membuat dump harian 01:30 WIB ke `./backup/mysql`).
 
 ## Rollback ke tag sebelumnya
 
