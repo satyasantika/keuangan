@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Pengajuans\Actions;
 use App\Actions\Pengajuan\AjukanPengajuan;
 use App\Actions\Pengajuan\BatalkanPengajuan;
 use App\Actions\Pengajuan\HitungSisaPagu;
+use App\Enums\StatusPengajuan;
 use App\Exceptions\KesalahanDomain;
 use App\Models\Pengajuan;
 use App\Models\User;
@@ -49,6 +50,17 @@ class AksiPengajuan
                 $record->refresh();
                 Notification::make()->title("Pengajuan {$hasil->nomor} diajukan")->success()->send();
             });
+    }
+
+    public static function cetakPdf(): Action
+    {
+        return Action::make('cetakPdf')
+            ->label('Cetak PDF')
+            ->icon(Heroicon::OutlinedPrinter)
+            ->color('gray')
+            ->visible(fn (Pengajuan $record): bool => $record->status !== StatusPengajuan::Draf && (auth()->user()?->can('view', $record) ?? false))
+            ->url(fn (Pengajuan $record): string => route('pengajuan.pdf', $record))
+            ->openUrlInNewTab();
     }
 
     public static function batalkan(): Action

@@ -29,6 +29,7 @@ use Filament\Actions\Imports\Models\Import;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
@@ -87,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).
         RateLimiter::for('periksa-tautan', fn () => Limit::perMinute(60));
+        RateLimiter::for('verifikasi-publik', fn (Request $request) => Limit::perMinute(30)->by((string) $request->ip()));
 
         $this->siapkanSubpath();
     }

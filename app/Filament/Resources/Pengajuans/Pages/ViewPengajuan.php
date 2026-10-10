@@ -15,6 +15,7 @@ class ViewPengajuan extends ViewRecord
     {
         return [
             AksiPengajuan::ajukan(),
+            AksiPengajuan::cetakPdf(),
             EditAction::make(),
             AksiPengajuan::batalkan(),
         ];
