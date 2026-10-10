@@ -7,6 +7,10 @@ use App\Actions\Master\TetapkanPagu;
 use App\Actions\Master\UbahStatusTahunAnggaran;
 use App\Actions\Pengajuan\AjukanPengajuan;
 use App\Actions\Pengajuan\SimpanDrafPengajuan;
+use App\Actions\Persetujuan\KembalikanPengajuan;
+use App\Actions\Persetujuan\SetujuiPengajuan;
+use App\Actions\Persetujuan\TolakPengajuan;
+use App\Actions\Persetujuan\VerifikasiPengajuan;
 use App\Contracts\PenyimpananBerkas;
 use App\Enums\JenisTautan;
 use App\Enums\Peran;
@@ -98,10 +102,31 @@ class DemoSeeder extends Seeder
 
             app(PenyimpananBerkas::class)->simpan($pengajuan, JenisTautan::Tor, 'https://drive.google.com/file/d/1Demo'.Str::random(20).'/view', "TOR {$nama}", false, $oleh);
 
-            if ($i % 2 === 1) {
-                app(AjukanPengajuan::class)->handle($pengajuan, $oleh);
+            if ($i % 2 === 1 || $i === 0) {
+                $pengajuan = app(AjukanPengajuan::class)->handle($pengajuan, $oleh);
             }
+
+            $kepala = User::query()->whereKey($unit[$kode]->kepala_user_id)->firstOrFail();
+            $this->majukan($pengajuan, $i, $kepala, $keu, $wadek);
         }
+    }
+
+    /**
+     * Sebar pengajuan ke setiap status persetujuan: 0 dikembalikan, 1 diajukan, 3 diverifikasi unit,
+     * 5 diverifikasi keuangan, 7 disetujui, 9 ditolak; sisanya draf.
+     */
+    private function majukan(Pengajuan $pengajuan, int $i, User $kepala, User $keu, User $wadek): void
+    {
+        $verifikasi = app(VerifikasiPengajuan::class);
+
+        match ($i) {
+            0 => app(KembalikanPengajuan::class)->handle($pengajuan, $kepala, 'Lengkapi rincian volume (demo)'),
+            3 => $verifikasi->handle($pengajuan, $kepala),
+            5 => $verifikasi->handle($verifikasi->handle($pengajuan, $kepala), $keu),
+            7 => app(SetujuiPengajuan::class)->handle($verifikasi->handle($verifikasi->handle($pengajuan, $kepala), $keu), $wadek, 'Disetujui (demo)'),
+            9 => app(TolakPengajuan::class)->handle($pengajuan, $kepala, 'Tidak sesuai rencana unit (demo)'),
+            default => null,
+        };
     }
 
     private function pengguna(string $nama, string $namaLengkap, Peran $peran, ?string $unitId = null): User
