@@ -5,9 +5,11 @@ namespace App\Actions\Revisi;
 use App\Actions\Audit\CatatRiwayatStatus;
 use App\Enums\StatusRab;
 use App\Enums\TahapPersetujuan;
+use App\Exceptions\PelanggaranPemisahanTugasException;
 use App\Exceptions\TransisiStatusTidakSahException;
 use App\Models\Rab;
 use App\Models\User;
+use App\Policies\RabPolicy;
 use Illuminate\Auth\Access\AuthorizationException;
 
 /**
@@ -23,6 +25,10 @@ class VerifikasiRevisiRab
     public function handle(Rab $rab, User $oleh, ?string $catatan = null): Rab
     {
         if (! $oleh->can('verifikasi', $rab)) {
+            if ($oleh->can('revisi.setujui') && (new RabPolicy)->melanggarPemisahan($oleh, $rab, TahapPersetujuan::Keuangan)) {
+                throw new PelanggaranPemisahanTugasException('Pemisahan tugas: pembuat revisi atau pengguna yang sudah bertindak di tahap lain tidak boleh memverifikasi revisi ini.');
+            }
+
             throw new AuthorizationException('Anda tidak berhak memverifikasi revisi ini.');
         }
 
