@@ -9,6 +9,7 @@ use App\Actions\Pengajuan\AjukanPengajuan;
 use App\Actions\Pengajuan\SimpanDrafPengajuan;
 use App\Actions\Persetujuan\SetujuiPengajuan;
 use App\Actions\Persetujuan\VerifikasiPengajuan;
+use App\Actions\Spj\CatatRealisasi;
 use App\Enums\JenisTautan;
 use App\Enums\Peran;
 use App\Enums\StatusTahunAnggaran;
@@ -17,6 +18,7 @@ use App\Models\JenisPencairan;
 use App\Models\Pagu;
 use App\Models\Pengajuan;
 use App\Models\Role;
+use App\Models\Spj;
 use App\Models\TahunAnggaran;
 use App\Models\Unit;
 use App\Models\User;
@@ -212,4 +214,15 @@ function dataRealisasi(Pengajuan $pengajuan, string $volume = '1', string $harga
         ['rab_item_id' => $item->id, 'tanggal_bukti' => $tanggal, 'nomor_bukti' => 'KW-01', 'uraian' => 'Konsumsi', 'penerima' => 'Katering', 'volume' => $volume, 'harga_satuan' => $harga],
         [['jenis' => 'kuitansi', 'label' => 'Kuitansi konsumsi', 'url' => "https://drive.google.com/file/d/{$driveId}/view", 'akses_terbatas_dikonfirmasi' => true]],
     ];
+}
+
+/**
+ * Pengajuan dicairkan 300.000 dengan realisasi sejumlah $bruto (volume 1) → SPJ draf.
+ */
+function buatSpjDenganRealisasi(object $k, string $bruto = '300000'): Spj
+{
+    $pengajuan = buatPengajuanDicairkan($k);
+    [$data, $tautan] = dataRealisasi($pengajuan, '1', $bruto);
+
+    return app(CatatRealisasi::class)->handle($pengajuan, $data, $tautan, $k->adminPmat)->spj->fresh();
 }
