@@ -21,6 +21,8 @@ use App\Models\PotonganPajak;
 use App\Models\Rab;
 use App\Models\RabItem;
 use App\Models\RealisasiItem;
+use App\Models\RekapPeriode;
+use App\Models\RekapPeriodeAkun;
 use App\Models\Spj;
 use App\Models\TahunAnggaran;
 use App\Models\TarifPajak;
@@ -96,6 +98,8 @@ class AppServiceProvider extends ServiceProvider
             'potongan_pajak' => PotonganPajak::class,
             'pengembalian' => Pengembalian::class,
             'tautan_berkas_beku' => TautanBerkasBeku::class,
+            'rekap_periode' => RekapPeriode::class,
+            'rekap_periode_akun' => RekapPeriodeAkun::class,
         ]);
 
         // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).

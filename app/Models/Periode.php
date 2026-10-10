@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Concerns\MemilikiRiwayatStatus;
 use App\Enums\StatusPeriode;
 use App\Exceptions\KesalahanDomain;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -25,7 +27,7 @@ use Illuminate\Support\Carbon;
  */
 class Periode extends Model
 {
-    use HasUuids;
+    use HasUuids, MemilikiRiwayatStatus;
 
     protected $table = 'periode';
 
@@ -44,6 +46,18 @@ class Periode extends Model
             'dikunci_pada' => 'datetime',
             'versi_kunci' => 'integer',
         ];
+    }
+
+    /** @return HasMany<RekapPeriode, $this> */
+    public function rekap(): HasMany
+    {
+        return $this->hasMany(RekapPeriode::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function pengunci(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dikunci_oleh');
     }
 
     /** @return BelongsTo<TahunAnggaran, $this> */
