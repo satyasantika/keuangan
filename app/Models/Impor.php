@@ -13,4 +13,10 @@ class Impor extends Import
     use HasUuids;
 
     protected $table = 'imports';
+
+    /** Kolom FK di failed_import_rows tetap bernama import_id. */
+    public function getForeignKey(): string
+    {
+        return 'import_id';
+    }
 }

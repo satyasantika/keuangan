@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Akun;
 use App\Models\BarisImporGagal;
 use App\Models\Ekspor;
 use App\Models\Impor;
+use App\Models\KategoriPenggunaanDana;
 use App\Models\Periode;
 use App\Models\TahunAnggaran;
 use App\Models\Unit;
@@ -46,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
             'tahun_anggaran' => TahunAnggaran::class,
             'periode' => Periode::class,
             'unit' => Unit::class,
+            'akun' => Akun::class,
+            'kategori_penggunaan_dana' => KategoriPenggunaanDana::class,
         ]);
 
         $this->siapkanSubpath();
