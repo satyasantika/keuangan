@@ -6,6 +6,7 @@ use App\Models\TautanBerkas;
 use Filament\Notifications\Notification as NotifikasiFilament;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -29,7 +30,27 @@ class TautanBerkasBermasalah extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function viaQueues(): array
+    {
+        return ['database' => 'notifikasi', 'mail' => 'notifikasi'];
+    }
+
+    /**
+     * Surel tidak memuat URL tautan (hanya label dan langkah perbaikan).
+     */
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('[Keuangan FKIP] '.$this->judul())
+            ->greeting('Yth. Bapak/Ibu,')
+            ->line($this->langkah())
+            ->salutation('Keuangan FKIP Unsil');
     }
 
     public function judul(): string
