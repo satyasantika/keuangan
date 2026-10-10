@@ -152,7 +152,7 @@ Gerbang: `composer cek` (pint `--test`, Larastan level 6, Pest paralel) hijau di
 | K-16 | Periode terkunci tidak dapat ditulis lewat jalur mana pun (form, impor, pembatalan) | `PeriodeTerkunciTest` | ✓ |
 | K-17 | `APP_DEBUG=false`; halaman galat tanpa jejak stack | Uji 500 di staging | |
 | K-18 | `kup composer audit` & `kup npm audit` bersih; dependensi pada major yang ditetapkan | CI | ✓ |
-| K-19 | `.env`, dump DB, isi `storage/app/tmp` tidak masuk repo/image | `git ls-files`, `.dockerignore` | |
+| K-19 | `.env`, dump DB, isi `storage/app/tmp` tidak masuk repo/image | `git ls-files`, `.dockerignore` | ✓ |
 | K-20 | Horizon hanya super-admin; `/api/health` tidak membocorkan detail exception | Test | ✓ |
 
 ## 4. Checklist go-live
