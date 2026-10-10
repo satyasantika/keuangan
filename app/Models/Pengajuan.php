@@ -8,6 +8,7 @@ use App\Concerns\MemilikiTautanBerkas;
 use App\Concerns\TercatatAktivitas;
 use App\Contracts\PemilikTautan;
 use App\Enums\Peran;
+use App\Enums\StatusPencairan;
 use App\Enums\StatusPengajuan;
 use App\Enums\TahapPersetujuan;
 use App\Exceptions\KesalahanDomain;
@@ -129,11 +130,25 @@ class Pengajuan extends Model implements PemilikTautan
     }
 
     /**
-     * Ada pencairan berstatus dicatat (BR-23). Dilengkapi F6.1 setelah tabel pencairan ada.
+     * Ada pencairan berstatus dicatat (BR-23).
      */
     public function punyaPencairanAktif(): bool
     {
+        return $this->pencairan()->where('status', StatusPencairan::Dicatat->value)->exists();
+    }
+
+    /**
+     * SPJ pengajuan sudah diterima. Sementara false; dilengkapi F7.1 setelah tabel spj ada.
+     */
+    public function spjSudahDiterima(): bool
+    {
         return false;
+    }
+
+    /** @return HasMany<Pencairan, $this> */
+    public function pencairan(): HasMany
+    {
+        return $this->hasMany(Pencairan::class)->orderBy('tanggal');
     }
 
     /**
