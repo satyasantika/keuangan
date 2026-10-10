@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\StatusRab;
+use App\Exceptions\KesalahanDomain;
 use Database\Factories\RabItemFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -47,6 +49,19 @@ class RabItem extends Model
             'harga_satuan' => 'decimal:2',
             'jumlah' => 'decimal:2',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // BR-03: item hanya berubah selama RAB draf (guard model selain Policy).
+        $jaga = function (RabItem $item): void {
+            if (Rab::query()->whereKey($item->rab_id)->toBase()->value('status') !== StatusRab::Draf->value) {
+                throw new KesalahanDomain('RAB sudah terkunci.');
+            }
+        };
+
+        static::saving($jaga);
+        static::deleting($jaga);
     }
 
     /** @return BelongsTo<Rab, $this> */

@@ -6,6 +6,7 @@ use App\Concerns\DibatasiUnit;
 use App\Concerns\MemilikiRiwayatStatus;
 use App\Concerns\TercatatAktivitas;
 use App\Enums\StatusPengajuan;
+use App\Exceptions\KesalahanDomain;
 use Database\Factories\PengajuanFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -103,6 +104,18 @@ class Pengajuan extends Model
             'disetujui_pada' => 'datetime',
             'selesai_pada' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // BR-03: data inti terkunci sejak diajukan; perubahan status/total oleh Action tetap diizinkan.
+        static::updating(function (Pengajuan $pengajuan): void {
+            $statusLama = StatusPengajuan::from((string) $pengajuan->getRawOriginal('status'));
+
+            if (! $statusLama->dapatDiubah() && $pengajuan->isDirty(self::KOLOM_INTI)) {
+                throw new KesalahanDomain('Pengajuan berstatus '.$statusLama->getLabel().' tidak dapat diubah.');
+            }
+        });
     }
 
     /** @return BelongsTo<TahunAnggaran, $this> */

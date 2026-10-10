@@ -44,3 +44,40 @@ function buatTahun(int $tahun = 2027): TahunAnggaran
 {
     return app(BuatTahunAnggaran::class)->handle($tahun, penggunaDenganPeran(Peran::AdminKeuangan));
 }
+
+/**
+ * Data kegiatan sah untuk SimpanDrafPengajuan.
+ *
+ * @return array<string, mixed>
+ */
+function dataKegiatan(string $tahunAnggaranId, array $timpa = []): array
+{
+    return [
+        'tahun_anggaran_id' => $tahunAnggaranId,
+        'judul_kegiatan' => 'Lokakarya Kurikulum',
+        'deskripsi' => 'Penyusunan kurikulum prodi',
+        'tanggal_mulai_kegiatan' => '2027-03-10',
+        'tanggal_selesai_kegiatan' => '2027-03-11',
+        'tempat' => 'Aula FKIP',
+        'penanggung_jawab' => 'Dr. Penanggung Jawab',
+        ...$timpa,
+    ];
+}
+
+/**
+ * Satu item RAB sah (nilai string desimal).
+ *
+ * @return array<string, mixed>
+ */
+function itemRab(string $akunId, string $volume = '2', string $harga = '150000', array $timpa = []): array
+{
+    return [
+        'akun_id' => $akunId,
+        'uraian' => 'Konsumsi peserta',
+        'rincian_volume' => null,
+        'volume' => $volume,
+        'satuan' => 'OH',
+        'harga_satuan' => $harga,
+        ...$timpa,
+    ];
+}
