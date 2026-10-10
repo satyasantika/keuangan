@@ -15,12 +15,17 @@ use App\Models\PaguAkun;
 use App\Models\Pencairan;
 use App\Models\Pengajuan;
 use App\Models\Pengaturan;
+use App\Models\Pengembalian;
 use App\Models\Periode;
+use App\Models\PotonganPajak;
 use App\Models\Rab;
 use App\Models\RabItem;
+use App\Models\RealisasiItem;
+use App\Models\Spj;
 use App\Models\TahunAnggaran;
 use App\Models\TarifPajak;
 use App\Models\TautanBerkas;
+use App\Models\TautanBerkasBeku;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\Berkas\TautanEksternal;
@@ -86,6 +91,11 @@ class AppServiceProvider extends ServiceProvider
             'rab_item' => RabItem::class,
             'tautan_berkas' => TautanBerkas::class,
             'pencairan' => Pencairan::class,
+            'spj' => Spj::class,
+            'realisasi_item' => RealisasiItem::class,
+            'potongan_pajak' => PotonganPajak::class,
+            'pengembalian' => Pengembalian::class,
+            'tautan_berkas_beku' => TautanBerkasBeku::class,
         ]);
 
         // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).

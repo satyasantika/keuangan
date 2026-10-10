@@ -5,6 +5,7 @@ namespace App\Actions\Pencairan;
 use App\Actions\Audit\CatatRiwayatStatus;
 use App\Actions\Berkas\SimpanTautanBerkas;
 use App\Actions\Pengajuan\HitungUlangTotalPengajuan;
+use App\Actions\Pengembalian\SelesaikanPengajuan;
 use App\Enums\JenisTautan;
 use App\Enums\StatusPencairan;
 use App\Enums\StatusPengajuan;
@@ -37,6 +38,7 @@ class CatatPencairan
         private readonly CatatRiwayatStatus $catatRiwayat,
         private readonly SimpanTautanBerkas $simpanTautan,
         private readonly HitungUlangTotalPengajuan $hitungUlang,
+        private readonly SelesaikanPengajuan $selesaikan,
     ) {}
 
     /**
@@ -89,6 +91,9 @@ class CatatPencairan
             }
 
             $this->hitungUlang->handle($terkini);
+
+            // Pencairan tambahan atas kurang bayar dapat menuntaskan pengajuan (BR-18).
+            $this->selesaikan->handle($terkini, $oleh);
 
             return $pencairan;
         }));

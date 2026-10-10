@@ -5,23 +5,30 @@ namespace Database\Seeders;
 use App\Actions\Master\BuatTahunAnggaran;
 use App\Actions\Master\TetapkanPagu;
 use App\Actions\Master\UbahStatusTahunAnggaran;
+use App\Actions\Pencairan\CatatPencairan;
 use App\Actions\Pengajuan\AjukanPengajuan;
 use App\Actions\Pengajuan\SimpanDrafPengajuan;
 use App\Actions\Persetujuan\KembalikanPengajuan;
 use App\Actions\Persetujuan\SetujuiPengajuan;
 use App\Actions\Persetujuan\TolakPengajuan;
 use App\Actions\Persetujuan\VerifikasiPengajuan;
+use App\Actions\Spj\AjukanSpj;
+use App\Actions\Spj\CatatRealisasi;
+use App\Actions\Spj\TerimaSpj;
 use App\Contracts\PenyimpananBerkas;
 use App\Enums\JenisTautan;
 use App\Enums\Peran;
 use App\Enums\StatusTahunAnggaran;
+use App\Jobs\PeriksaTautanBerkas;
 use App\Models\Akun;
+use App\Models\JenisPencairan;
 use App\Models\Pagu;
 use App\Models\Pengajuan;
 use App\Models\TahunAnggaran;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Str;
 
 /**
@@ -37,13 +44,16 @@ class DemoSeeder extends Seeder
             return;
         }
 
-        $this->call([PeranDanIzinSeeder::class, PengaturanSeeder::class, UnitContohSeeder::class, AkunContohSeeder::class, KategoriPenggunaanDanaContohSeeder::class]);
+        // Tautan demo fiktif tidak diperiksa ke Google.
+        Bus::fake([PeriksaTautanBerkas::class]);
+
+        $this->call([PeranDanIzinSeeder::class, PengaturanSeeder::class, JenisPencairanSeeder::class, UnitContohSeeder::class, AkunContohSeeder::class, KategoriPenggunaanDanaContohSeeder::class]);
 
         $unit = Unit::query()->whereIn('kode', ['PMAT', 'PBIO', 'PBI'])->get()->keyBy('kode');
 
         $keu = $this->pengguna('admin-keuangan', 'Admin Keuangan Demo', Peran::AdminKeuangan);
         $wadek = $this->pengguna('wadek', 'Wadek Keuangan Demo', Peran::WadekKeuangan);
-        $this->pengguna('bpp', 'BPP Demo', Peran::Bpp);
+        $bpp = $this->pengguna('bpp', 'BPP Demo', Peran::Bpp);
         $this->pengguna('pimpinan', 'Dekan Demo', Peran::Pimpinan);
 
         $adminUnit = [];
@@ -109,6 +119,71 @@ class DemoSeeder extends Seeder
             $kepala = User::query()->whereKey($unit[$kode]->kepala_user_id)->firstOrFail();
             $this->majukan($pengajuan, $i, $kepala, $keu, $wadek);
         }
+
+        // Pengajuan yang sudah selesai dan yang SPJ-nya terlambat (butuh tanggal lampau di tahun berjalan).
+        if (now()->dayOfYear > 60) {
+            $kepalaPmat = User::query()->whereKey($unit['PMAT']->kepala_user_id)->firstOrFail();
+            $setujui = fn (Pengajuan $p): Pengajuan => app(SetujuiPengajuan::class)->handle(
+                app(VerifikasiPengajuan::class)->handle(app(VerifikasiPengajuan::class)->handle($p, $kepalaPmat), $keu), $wadek, 'Disetujui (demo)');
+
+            $selesai = $setujui($this->pengajuanLampau('Pelatihan Penulisan Artikel', 20, $tahun->id, $adminUnit['PMAT'], $akun->first()));
+            $this->cairkan($selesai, 18, $bpp);
+            $this->spjLengkap($selesai->fresh(), 19, $adminUnit['PMAT'], $bpp);
+
+            $terlambat = $setujui($this->pengajuanLampau('Bimbingan Teknis Laboratorium', 50, $tahun->id, $adminUnit['PMAT'], $akun->first()));
+            $this->cairkan($terlambat, 45, $bpp);
+        }
+    }
+
+    private function pengajuanLampau(string $judul, int $hariLalu, string $tahunId, User $oleh, Akun $akun): Pengajuan
+    {
+        $mulai = now()->subDays($hariLalu);
+        $pengajuan = app(SimpanDrafPengajuan::class)->handle([
+            'tahun_anggaran_id' => $tahunId,
+            'judul_kegiatan' => $judul,
+            'deskripsi' => 'Data demo — bukan kegiatan sungguhan.',
+            'tanggal_mulai_kegiatan' => $mulai->toDateString(),
+            'tanggal_selesai_kegiatan' => $mulai->copy()->addDay()->toDateString(),
+            'tempat' => 'Kampus Unsil',
+            'penanggung_jawab' => 'Penanggung jawab PMAT',
+        ], [
+            ['akun_id' => $akun->id, 'uraian' => 'Konsumsi peserta', 'volume' => '30', 'satuan' => 'OK', 'harga_satuan' => '35000'],
+        ], $oleh);
+
+        app(PenyimpananBerkas::class)->simpan($pengajuan, JenisTautan::Tor, 'https://drive.google.com/file/d/1Demo'.Str::random(20).'/view', "TOR {$judul}", false, $oleh);
+
+        return app(AjukanPengajuan::class)->handle($pengajuan, $oleh);
+    }
+
+    private function cairkan(Pengajuan $pengajuan, int $hariLalu, User $bpp): void
+    {
+        app(CatatPencairan::class)->handle($pengajuan->fresh() ?? $pengajuan, [
+            'jenis_pencairan_id' => JenisPencairan::query()->where('kode', 'LS')->value('id'),
+            'tanggal' => now()->subDays($hariLalu)->toDateString(),
+            'jumlah' => (string) $pengajuan->total_disetujui,
+            'nomor_bukti' => 'DEMO-'.Str::upper(Str::random(6)),
+            'penerima' => 'Penyedia demo',
+        ], [
+            ['label' => 'Bukti transfer (demo)', 'url' => 'https://drive.google.com/file/d/1Demo'.Str::random(20).'/view', 'akses_terbatas_dikonfirmasi' => true],
+        ], $bpp);
+    }
+
+    private function spjLengkap(Pengajuan $pengajuan, int $hariLalu, User $oleh, User $bpp): void
+    {
+        $item = $pengajuan->rabAktif()->firstOrFail()->item()->firstOrFail();
+        $realisasi = app(CatatRealisasi::class)->handle($pengajuan, [
+            'rab_item_id' => $item->id,
+            'tanggal_bukti' => now()->subDays($hariLalu)->toDateString(),
+            'nomor_bukti' => 'KW-DEMO',
+            'uraian' => 'Konsumsi peserta',
+            'volume' => (string) $item->volume,
+            'harga_satuan' => (string) $item->harga_satuan,
+        ], [
+            ['jenis' => 'kuitansi', 'label' => 'Kuitansi (demo)', 'url' => 'https://drive.google.com/file/d/1Demo'.Str::random(20).'/view', 'akses_terbatas_dikonfirmasi' => true],
+        ], $oleh);
+
+        $spj = app(AjukanSpj::class)->handle($realisasi->spj, $oleh, true);
+        app(TerimaSpj::class)->handle($spj, $bpp, 'Lengkap (demo)');
     }
 
     /**
