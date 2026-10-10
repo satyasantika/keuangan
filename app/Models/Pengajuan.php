@@ -10,6 +10,7 @@ use App\Contracts\PemilikTautan;
 use App\Enums\Peran;
 use App\Enums\StatusPencairan;
 use App\Enums\StatusPengajuan;
+use App\Enums\StatusRab;
 use App\Enums\StatusSpj;
 use App\Enums\TahapPersetujuan;
 use App\Exceptions\KesalahanDomain;
@@ -188,6 +189,18 @@ class Pengajuan extends Model implements PemilikTautan
     public function sisaBelumDicairkan(): string
     {
         return Uang::kurang((string) ($this->rabAktif->total ?? '0'), (string) $this->total_dicairkan);
+    }
+
+    /**
+     * Revisi RAB (nomor > 0) yang masih berjalan: draf/diajukan/diverifikasi_keuangan (BR-10).
+     */
+    public function revisiBerjalan(): ?Rab
+    {
+        return Rab::query()
+            ->where('pengajuan_id', $this->getKey())
+            ->where('nomor_revisi', '>', 0)
+            ->whereIn('status', [StatusRab::Draf->value, StatusRab::Diajukan->value, StatusRab::DiverifikasiKeuangan->value])
+            ->first();
     }
 
     /** @return HasMany<Pencairan, $this> */
