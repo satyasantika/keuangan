@@ -28,7 +28,7 @@ class ListRekapHonorEksternals extends ListRecords
                 ->authorize(fn (): bool => auth()->user()?->can('impor', RekapHonorEksternal::class) ?? false)
                 ->modalDescription('Berkas Excel ekspor fkipapp (rekap total per bulan × prodi × jenis ujian). Berkas dihapus setelah diproses.')
                 ->schema([
-                    // Satu-satunya unggahan yang diizinkan (STANDAR-TEKNIS §1a): impor Excel yang dihapus setelah diproses.
+                    // Satu-satunya unggahan yang diizinkan: impor Excel yang dihapus setelah diproses.
                     FileUpload::make('berkas')
                         ->label('Berkas .xlsx')
                         ->required()

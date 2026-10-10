@@ -22,7 +22,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use InvalidArgumentException;
 
 /**
- * Daftar laporan (01-PRD §8), hak akses per laporan, dan penyusunan isinya dari Queries.
+ * Daftar laporan, hak akses per laporan, dan penyusunan isinya dari Queries.
  */
 class KatalogLaporan
 {

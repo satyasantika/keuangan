@@ -11,6 +11,8 @@ use Filament\Notifications\Notification;
  */
 class Login extends LoginDasar
 {
+    protected static string $layout = 'layouts.masuk';
+
     /**
      * @param  string|null  $method
      * @param  string|null  $component

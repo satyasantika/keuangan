@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Support\Impersonasi;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class WajibMfa
     {
         $pengguna = $request->user();
 
-        if ($pengguna instanceof User && $pengguna->wajibMfa() && ! $pengguna->sudahAktifkanMfa()) {
+        if (! Impersonasi::aktif() && $pengguna instanceof User && $pengguna->wajibMfa() && ! $pengguna->sudahAktifkanMfa()) {
             return redirect()->guest(Filament::getSetUpRequiredMultiFactorAuthenticationUrl());
         }
 

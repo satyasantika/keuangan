@@ -1,7 +1,7 @@
 <?php
 
 /*
-| Kebijakan berkas = tautan, bukan unggahan (STANDAR-TEKNIS §1a, BR-15).
+| Kebijakan berkas = tautan, bukan unggahan.
 */
 return [
 

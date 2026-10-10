@@ -47,4 +47,12 @@ class UserPolicy
     {
         return $user->hasRole(Peran::SuperAdmin->value);
     }
+
+    /**
+     * Impersonasi darurat: hanya super-admin, bukan diri sendiri, dan akun sasaran aktif.
+     */
+    public function impersonate(User $user, User $model): bool
+    {
+        return $user->hasRole(Peran::SuperAdmin->value) && $user->isNot($model) && $model->aktif;
+    }
 }

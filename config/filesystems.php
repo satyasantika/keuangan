@@ -33,7 +33,7 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            // Tidak menyajikan/menerima berkas lewat route storage.local (STANDAR-TEKNIS §1a).
+            // Tidak menyajikan/menerima berkas lewat route storage.local.
             'serve' => false,
             'throw' => false,
             'report' => false,

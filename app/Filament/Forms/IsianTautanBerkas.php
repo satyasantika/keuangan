@@ -13,7 +13,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Get;
 
 /**
- * Isian tautan berkas (pengganti unggahan, STANDAR-TEKNIS §1a).
+ * Isian tautan berkas.
  */
 class IsianTautanBerkas
 {

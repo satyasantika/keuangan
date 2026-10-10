@@ -21,7 +21,7 @@ use Throwable;
 
 /**
  * Impor rekap total honor ujian dari ekspor Excel fkipapp (BR-24). Semua baris satu batch, satu transaksi:
- * bila ada baris tidak valid seluruh batch ditolak. Berkas sementara SELALU dihapus (STANDAR-TEKNIS §1a).
+ * bila ada baris tidak valid seluruh batch ditolak. Berkas sementara SELALU dihapus.
  */
 class ImporRekapHonor implements ShouldQueue
 {

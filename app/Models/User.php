@@ -17,16 +17,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @property string $id
  * @property string|null $unit_id
  * @property-read Unit|null $unit
+ * @property bool $wajib_ganti_sandi
+ * @property Carbon|null $sandi_diubah_pada
  * @property string|null $app_authentication_secret
  * @property array<string>|null $app_authentication_recovery_codes
  */
-#[Fillable(['name', 'email', 'password', 'nip', 'no_hp', 'unit_id', 'kode_eksternal', 'aktif'])]
+#[Fillable(['name', 'email', 'password', 'nip', 'no_hp', 'unit_id', 'kode_eksternal', 'aktif', 'wajib_ganti_sandi'])]
 #[Hidden(['password', 'remember_token', 'app_authentication_secret', 'app_authentication_recovery_codes'])]
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
@@ -46,6 +49,8 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'aktif' => 'boolean',
+            'wajib_ganti_sandi' => 'boolean',
+            'sandi_diubah_pada' => 'datetime',
             'app_authentication_secret' => 'encrypted',
             'app_authentication_recovery_codes' => 'encrypted:array',
         ];
@@ -114,11 +119,15 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     }
 
     /**
-     * Peran yang wajib MFA (PRD §3.1): super-admin, admin-keuangan, bpp, wadek-keuangan.
-     * Pengecualian hanya akun demo panduan (@contoh.test) di APP_ENV=local untuk tangkapan layar.
+     * Peran yang wajib MFA: super-admin, admin-keuangan, bpp, wadek-keuangan — hanya bila `keuangan.mfa_wajib` aktif.
+     * Pengecualian akun demo panduan (@contoh.test) di APP_ENV=local untuk tangkapan layar.
      */
     public function wajibMfa(): bool
     {
+        if (! config('keuangan.mfa_wajib')) {
+            return false;
+        }
+
         if (app()->isLocal() && str_ends_with((string) $this->email, '@'.self::DOMAIN_PANDUAN)) {
             return false;
         }

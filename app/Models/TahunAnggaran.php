@@ -28,7 +28,7 @@ class TahunAnggaran extends Model
 
     protected $attributes = ['status' => 'perencanaan'];
 
-    /** Kolom status hanya diubah oleh Action (CLAUDE.md). */
+    /** Kolom status hanya diubah oleh Action. */
     protected $fillable = ['tahun', 'nama', 'tanggal_mulai', 'tanggal_selesai', 'keterangan'];
 
     protected function casts(): array

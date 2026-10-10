@@ -7,7 +7,7 @@ use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 
 /**
- * Processor Monolog yang menyamarkan nilai kunci sensitif di context/extra log (05-UJI-PENERIMAAN K-12).
+ * Processor Monolog yang menyamarkan nilai kunci sensitif di context/extra log.
  * Dipasang sebagai `tap` pada kanal log.
  */
 class SamarkanDataSensitif implements ProcessorInterface

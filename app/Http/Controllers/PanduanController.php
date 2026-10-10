@@ -8,7 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Mengarahkan pengguna ke panduan HTML perannya di public/panduan (STANDAR-TEKNIS §2.5).
+ * Mengarahkan pengguna ke panduan HTML perannya di public/panduan.
  */
 class PanduanController extends Controller
 {

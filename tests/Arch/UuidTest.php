@@ -8,7 +8,7 @@ arch('semua model memakai HasUuids')
     ->toUseTrait(HasUuids::class);
 
 test('migrasi aplikasi tidak memakai kunci auto-increment', function () {
-    // Tabel infrastruktur kerangka kerja yang diizinkan (STANDAR-TEKNIS §4a butir 6).
+    // Tabel infrastruktur kerangka kerja yang diizinkan.
     $infrastruktur = ['create_cache_table', 'create_jobs_table'];
 
     $dilarang = [

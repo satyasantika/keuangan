@@ -1,4 +1,4 @@
-// Tangkapan layar panduan per peran (STANDAR-TEKNIS §2.5).
+// Tangkapan layar panduan per peran.
 // Jalankan: composer panduan  (atau docker compose -f docker-compose.panduan.yml --profile panduan run --rm keuangan-panduan)
 // Prasyarat lokal: php artisan migrate:fresh --seeder=PanduanSeeder ; PANDUAN_PASSWORD sama dengan .env.
 // Keluaran: public/panduan/img/<peran>/NN-<langkah>.png (viewport 1366×768; alur ponsel 390×844).
@@ -94,6 +94,19 @@ const ALUR = {
     ],
 };
 
+/** Halaman publik (tanpa masuk): landing dan halaman masuk. */
+async function tangkapUmum(browser) {
+    await mkdir(KELUARAN + 'umum', { recursive: true });
+    const konteks = await browser.newContext({ viewport: LAYAR, locale: 'id-ID', timezoneId: 'Asia/Jakarta', deviceScaleFactor: 1 });
+    const page = await konteks.newPage();
+    await buka(page, '/');
+    await page.screenshot({ path: KELUARAN + 'umum/landing.png', fullPage: true });
+    await buka(page, '/panel/login');
+    await page.screenshot({ path: KELUARAN + 'umum/masuk.png' });
+    await konteks.close();
+    console.log('✓ img/umum/landing.png, img/umum/masuk.png');
+}
+
 async function masuk(page, peran) {
     await page.goto(BASE + '/panel/login');
     await page.fill('input[type=email]', `panduan.${peran}@contoh.test`);
@@ -105,6 +118,8 @@ async function masuk(page, peran) {
 const peranDipilih = process.argv.slice(2);
 const browser = await chromium.launch();
 let gagal = 0;
+
+if (peranDipilih.length === 0 || peranDipilih.includes('umum')) await tangkapUmum(browser);
 
 for (const [peran, langkah] of Object.entries(ALUR)) {
     if (peranDipilih.length && !peranDipilih.includes(peran)) continue;
@@ -133,6 +148,28 @@ for (const [peran, langkah] of Object.entries(ALUR)) {
 
         await konteks.close();
     }
+
+    // Halaman profil/ganti kata sandi (sama untuk semua peran) dan, untuk super-admin, dialog impor massal.
+    const konteksProfil = await browser.newContext({ viewport: LAYAR, locale: 'id-ID', timezoneId: 'Asia/Jakarta', deviceScaleFactor: 1 });
+    const halaman = await konteksProfil.newPage();
+    try {
+        await masuk(halaman, peran);
+        await buka(halaman, '/panel/profile');
+        await halaman.screenshot({ path: `${KELUARAN}${peran}/profil.png`, fullPage: true, mask: [halaman.locator('input[type=password]')] });
+        console.log('✓', `img/${peran}/profil.png`);
+
+        if (peran === 'super-admin') {
+            await buka(halaman, '/panel/users');
+            await halaman.getByRole('button', { name: 'Impor massal (tempel)' }).click();
+            await halaman.waitForTimeout(800);
+            await halaman.screenshot({ path: `${KELUARAN}${peran}/impor-tempel.png` });
+            console.log('✓', `img/${peran}/impor-tempel.png`);
+        }
+    } catch (e) {
+        gagal++;
+        console.error('✗', peran, 'profil', e.message);
+    }
+    await konteksProfil.close();
 }
 
 await browser.close();

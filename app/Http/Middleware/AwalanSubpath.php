@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Akses tanpa reverse proxy (mis. port langsung) tidak membawa X-Forwarded-Prefix; tanpa awalan itu URL relatif
- * (mis. URL update Livewire) tergandakan karena root URL sudah dipaksa berawalan (STANDAR-TEKNIS §2.4).
+ * (mis. URL update Livewire) tergandakan karena root URL sudah dipaksa berawalan.
  * Header bawaan hanya berpengaruh bila pengirim termasuk proxy tepercaya.
  */
 class AwalanSubpath

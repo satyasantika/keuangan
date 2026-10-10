@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Header keamanan global (05-UJI-PENERIMAAN K-05c, K-10, K-11).
+ * Header keamanan global.
  *
  * CSP dasar kompatibel Filament/Livewire/Alpine (skrip inline & evaluasi Alpine), pratinjau tautan hanya dari
  * Google Drive/Docs (frame) dan lh3.googleusercontent.com (gambar).

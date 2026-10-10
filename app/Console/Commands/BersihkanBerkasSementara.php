@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Hapus berkas sementara ekspor/impor berumur > 24 jam (STANDAR-TEKNIS §1a.6).
+ * Hapus berkas sementara ekspor/impor berumur > 24 jam.
  */
 #[Signature('keuangan:bersihkan-sementara {--jam=24 : Umur maksimal berkas}')]
 #[Description('Hapus berkas sementara di storage/app/tmp')]

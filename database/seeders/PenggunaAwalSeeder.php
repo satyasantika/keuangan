@@ -15,7 +15,7 @@ class PenggunaAwalSeeder extends Seeder
         $password = config('keuangan.seed_admin.password');
 
         if (blank($email) || blank($password)) {
-            throw new RuntimeException('SEED_ADMIN_EMAIL dan SEED_ADMIN_PASSWORD wajib diisi di .env sebelum menjalankan seeder pengguna awal.');
+            throw new RuntimeException('Surel dan kata sandi super-admin awal tidak boleh kosong (SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD).');
         }
 
         $pengguna = User::firstOrCreate(
@@ -26,6 +26,9 @@ class PenggunaAwalSeeder extends Seeder
                 'aktif' => true,
             ],
         );
+
+        // MFA tidak diwajibkan secara bawaan (keuangan.mfa_wajib), jadi akun awal langsung dapat dipakai.
+        $pengguna->forceFill(['app_authentication_secret' => null, 'app_authentication_recovery_codes' => null]);
 
         $pengguna->forceFill(['email_verified_at' => $pengguna->email_verified_at ?? now()])->save();
         $pengguna->syncRoles([Peran::SuperAdmin->value]);

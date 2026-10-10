@@ -21,7 +21,7 @@ class ListAkuns extends ListRecords
                 ->label('Impor akun')
                 ->importer(AkunImporter::class)
                 ->authorize('import', Akun::class)
-                // Satu-satunya input berkas (STANDAR-TEKNIS §1a): berkas sementara dihapus setelah dibaca.
+                // Satu-satunya input berkas: berkas sementara dihapus setelah dibaca.
                 ->after(function (array $data): void {
                     if (($data['file'] ?? null) instanceof TemporaryUploadedFile) {
                         $data['file']->delete();

@@ -2,22 +2,29 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Actions\Pengguna\AturWajibGantiSandi;
+use App\Actions\Pengguna\MulaiImpersonasi;
 use App\Enums\Peran;
 use App\Models\User;
+use App\Support\Impersonasi;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class UsersTable
 {
@@ -34,6 +41,7 @@ class UsersTable
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => Peran::tryFrom($state)?->getLabel() ?? $state),
                 TextColumn::make('unit.kode')->label('Unit')->placeholder('—')->sortable(),
+                IconColumn::make('wajib_ganti_sandi')->label('Wajib ganti sandi')->boolean()->toggleable(),
                 ToggleColumn::make('aktif')
                     ->label('Aktif')
                     ->disabled(fn (User $record): bool => ! auth()->user()?->can('update', $record)),
@@ -72,10 +80,44 @@ class UsersTable
 
                         Notification::make()->title('MFA direset')->success()->send();
                     }),
+                Action::make('impersonasi')
+                    ->label('Masuk sebagai')
+                    ->icon(Heroicon::OutlinedUserCircle)
+                    ->color('warning')
+                    ->authorize('impersonate')
+                    ->visible(fn (User $record): bool => ! Impersonasi::aktif() && (bool) auth()->user()?->can('impersonate', $record))
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (User $record): string => "Masuk sebagai {$record->name}?")
+                    ->modalDescription('Hanya untuk keadaan darurat. Seluruh tindakan Anda selama menyamar tercatat di jejak audit atas nama pengguna ini dengan penanda impersonasi. Profil dan kata sandi pengguna tidak dapat diubah selama menyamar.')
+                    ->action(function (User $record) {
+                        app(MulaiImpersonasi::class)->handle(auth()->user(), $record);
+
+                        return redirect()->to(Filament::getUrl());
+                    }),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('wajibkanGantiSandi')
+                        ->label('Wajibkan ganti kata sandi')
+                        ->icon(Heroicon::OutlinedKey)
+                        ->visible(fn (): bool => (bool) auth()->user()?->hasRole(Peran::SuperAdmin->value))
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records): void {
+                            $jumlah = app(AturWajibGantiSandi::class)->handle($records, true, auth()->user());
+                            Notification::make()->title("{$jumlah} pengguna wajib mengganti kata sandi")->success()->send();
+                        }),
+                    BulkAction::make('cabutWajibGantiSandi')
+                        ->label('Cabut kewajiban ganti kata sandi')
+                        ->icon(Heroicon::OutlinedLockOpen)
+                        ->visible(fn (): bool => (bool) auth()->user()?->hasRole(Peran::SuperAdmin->value))
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records): void {
+                            app(AturWajibGantiSandi::class)->handle($records, false, auth()->user());
+                            Notification::make()->title('Kewajiban ganti kata sandi dicabut')->success()->send();
+                        }),
                     DeleteBulkAction::make(),
                 ]),
             ]);

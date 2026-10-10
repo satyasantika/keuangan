@@ -30,8 +30,8 @@ test('footer panel menampilkan versi aplikasi', function () {
         ->assertSee('Keuangan FKIP Unsil v'.config('app.version'));
 });
 
-test('halaman utama diarahkan ke panel', function () {
-    $this->get('/')->assertRedirect('/panel');
+test('halaman utama menampilkan landing page dengan tautan masuk', function () {
+    $this->get('/')->assertOk()->assertSee(route('filament.keuangan.auth.login'), false);
 });
 
 test('kolom pengguna tambahan tersedia', function () {

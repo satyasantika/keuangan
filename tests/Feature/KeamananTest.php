@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /**
- * Pengerasan keamanan (05-UJI-PENERIMAAN §3): header, XSS, tautan, log, halaman galat.
+ * Pengerasan keamanan: header, XSS, tautan, log, halaman galat.
  */
 const XSS = '<script>alert("xss")</script>';
 
