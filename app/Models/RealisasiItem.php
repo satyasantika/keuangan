@@ -43,6 +43,12 @@ class RealisasiItem extends Model implements PemilikTautan
     /** @use HasFactory<RealisasiItemFactory> */
     use HasFactory, HasUuids, MemilikiTautanBerkas, MenjagaPeriodeTerkunci, SoftDeletes, TercatatAktivitas;
 
+    /**
+     * Pengecualian guard HANYA untuk pemetaan realisasi saat revisi RAB berlaku (BR-11).
+     * Selalu diaktifkan lewat petakanTanpaPenjaga() yang me-reset di finally.
+     */
+    private static bool $pemetaanRevisi = false;
+
     protected $table = 'realisasi_item';
 
     protected $attributes = ['total_pajak' => '0.00', 'indikasi_bukti_ganda' => false];
@@ -66,6 +72,10 @@ class RealisasiItem extends Model implements PemilikTautan
     protected static function booted(): void
     {
         $jaga = function (RealisasiItem $item): void {
+            if (self::$pemetaanRevisi) {
+                return;
+            }
+
             if (! $item->spjDapatDiubah()) {
                 throw new KesalahanDomain('Realisasi terkunci: SPJ sudah diajukan atau diterima.');
             }
@@ -73,6 +83,26 @@ class RealisasiItem extends Model implements PemilikTautan
 
         static::saving($jaga);
         static::deleting($jaga);
+    }
+
+    /**
+     * Memindahkan realisasi dari item RAB lama ke item revisi (tanpa event model) dengan flag yang
+     * selalu dikembalikan ke false.
+     */
+    public static function petakanTanpaPenjaga(string $itemLamaId, string $itemBaruId): int
+    {
+        self::$pemetaanRevisi = true;
+
+        try {
+            return self::withTrashed()->where('rab_item_id', $itemLamaId)->update(['rab_item_id' => $itemBaruId]);
+        } finally {
+            self::$pemetaanRevisi = false;
+        }
+    }
+
+    public static function sedangMemetakanRevisi(): bool
+    {
+        return self::$pemetaanRevisi;
     }
 
     /**

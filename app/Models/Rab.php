@@ -57,6 +57,14 @@ class Rab extends Model
         return $this->belongsTo(Pengajuan::class);
     }
 
+    /**
+     * Pengajuan pemilik (memakai relasi termuat bila ada, tanpa memicu lazy loading).
+     */
+    public function pengajuanPemilik(): Pengajuan
+    {
+        return $this->relationLoaded('pengajuan') ? $this->pengajuan : $this->pengajuan()->firstOrFail();
+    }
+
     /** @return HasMany<RabItem, $this> */
     public function item(): HasMany
     {

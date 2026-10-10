@@ -8,6 +8,11 @@ use App\Actions\Pengembalian\CatatPengembalian;
 use App\Actions\Pengembalian\VerifikasiPengembalian;
 use App\Actions\Persetujuan\SetujuiPengajuan;
 use App\Actions\Persetujuan\VerifikasiPengajuan;
+use App\Actions\Revisi\AjukanRevisiRab;
+use App\Actions\Revisi\BuatRevisiRab;
+use App\Actions\Revisi\SetujuiRevisiRab;
+use App\Actions\Revisi\SimpanItemRevisi;
+use App\Actions\Revisi\VerifikasiRevisiRab;
 use App\Actions\Spj\AjukanSpj;
 use App\Actions\Spj\CatatPotonganPajak;
 use App\Actions\Spj\CatatRealisasi;
@@ -17,6 +22,9 @@ use App\Enums\StatusPengajuan;
 use App\Enums\StatusSpj;
 use App\Models\Akun;
 use App\Models\JenisPajak;
+use App\Models\Rab;
+use App\Models\RabItem;
+use App\Models\RealisasiItem;
 use App\Models\RiwayatStatus;
 use App\Models\TautanBerkas;
 use App\Models\TautanBerkasBeku;
@@ -88,6 +96,66 @@ test('alur lengkap: pagu → pengajuan → persetujuan → pencairan → realisa
         ->and(RiwayatStatus::count())->toBeGreaterThanOrEqual(10)
         ->and(RiwayatStatus::where('model_type', 'pengajuan')->where('model_id', $p->id)->pluck('ke')->all())
         ->toBe(['diajukan', 'diverifikasi_unit', 'diverifikasi_keuangan', 'disetujui', 'dicairkan', 'selesai']);
+
+    $this->artisan('keuangan:rekonsiliasi')->expectsOutput('Tidak ada selisih total.')->assertSuccessful();
+});
+
+test('alur lengkap dengan revisi RAB di tengah: realisasi dipetakan, total disetujui berubah, tetap selesai', function () {
+    $this->travelTo('2027-06-20 10:00:00');
+    $k = siapkanAnggaran('100000000.00');
+    $akunHonor = Akun::factory()->create();
+
+    $p = app(SimpanDrafPengajuan::class)->handle(dataKegiatan($k->tahun->id, ['tanggal_mulai_kegiatan' => '2027-06-10', 'tanggal_selesai_kegiatan' => '2027-06-11']), [
+        itemRab($k->akun->id, '20', '50000', ['uraian' => 'Konsumsi']),
+        itemRab($akunHonor->id, '2', '1500000', ['uraian' => 'Honor narasumber', 'satuan' => 'OJ']),
+    ], $k->adminPmat);
+    app(SimpanTautanBerkas::class)->handle($p, JenisTautan::Tor, 'https://drive.google.com/file/d/1TorRevisi/view', 'TOR', false, $k->adminPmat);
+    $p = app(AjukanPengajuan::class)->handle($p->fresh(), $k->adminPmat);
+    $p = app(VerifikasiPengajuan::class)->handle(app(VerifikasiPengajuan::class)->handle($p, $k->kepalaPmat), $k->keu);
+    $p = app(SetujuiPengajuan::class)->handle($p, $k->wadek)->fresh();
+
+    [$cair, $bukti] = dataPencairan('4000000', '2027-06-12');
+    app(CatatPencairan::class)->handle($p, $cair, $bukti, $k->bpp);
+    $p->refresh();
+
+    [$konsumsi] = $p->rabAktif->item()->get()->all();
+    $realisasiKonsumsi = app(CatatRealisasi::class)->handle($p, [
+        'rab_item_id' => $konsumsi->id, 'tanggal_bukti' => '2027-06-10', 'nomor_bukti' => 'KW-1', 'uraian' => 'Konsumsi 19 orang', 'volume' => '19', 'harga_satuan' => '50000',
+    ], [['jenis' => 'kuitansi', 'label' => 'Kuitansi konsumsi', 'url' => 'https://drive.google.com/file/d/1KwRev1/view', 'akses_terbatas_dikonfirmasi' => true]], $k->adminPmat);
+
+    // Revisi: honor turun menjadi 2 × 1.450.000.
+    $revisi = app(BuatRevisiRab::class)->handle($p->fresh(), 'Honor narasumber disesuaikan standar biaya', $k->adminPmat);
+    $items = RabItem::where('rab_id', $revisi->id)->orderBy('urutan')->get()
+        ->map(fn ($i) => ['id' => $i->id, 'akun_id' => $i->akun_id, 'uraian' => $i->uraian, 'volume' => (string) $i->volume, 'satuan' => $i->satuan, 'harga_satuan' => (string) $i->harga_satuan])->all();
+    $items[1]['harga_satuan'] = '1450000';
+    app(SimpanItemRevisi::class)->handle($revisi, $items, $k->adminPmat);
+    $revisi = app(AjukanRevisiRab::class)->handle($revisi->fresh(), $k->adminPmat);
+    expect(AjukanRevisiRab::peringatan($revisi))->toHaveCount(1);
+    $revisi = app(VerifikasiRevisiRab::class)->handle($revisi, $k->keu);
+    app(SetujuiRevisiRab::class)->handle($revisi, $k->wadek);
+
+    $p->refresh();
+    [$konsumsiBaru, $honorBaru] = $p->rabAktif->item()->get()->all();
+    expect($p->rab_aktif_id)->toBe($revisi->id)
+        ->and($p->total_disetujui)->toBe('3900000.00')
+        ->and($realisasiKonsumsi->fresh()->rab_item_id)->toBe($konsumsiBaru->id);
+
+    app(CatatRealisasi::class)->handle($p, [
+        'rab_item_id' => $honorBaru->id, 'tanggal_bukti' => '2027-06-11', 'nomor_bukti' => 'KW-2', 'uraian' => 'Honor 2 jam', 'volume' => '2', 'harga_satuan' => '1450000',
+    ], [['jenis' => 'kuitansi', 'label' => 'Kuitansi honor', 'url' => 'https://drive.google.com/file/d/1KwRev2/view', 'akses_terbatas_dikonfirmasi' => true]], $k->adminPmat);
+
+    $spj = app(TerimaSpj::class)->handle(app(AjukanSpj::class)->handle($realisasiKonsumsi->spj, $k->adminPmat, true), $k->bpp);
+    $p->refresh();
+    expect($p->sisaDana())->toBe('150000.00');
+
+    $kembali = app(CatatPengembalian::class)->handle($p, ['tanggal_setor' => '2027-06-19', 'jumlah' => '150000', 'nomor_bukti_setor' => 'NTPN-R'], [
+        ['label' => 'Bukti setor', 'url' => 'https://drive.google.com/file/d/1SetorRev/view', 'akses_terbatas_dikonfirmasi' => true],
+    ], $k->adminPmat);
+    app(VerifikasiPengembalian::class)->handle($kembali, $k->bpp);
+
+    expect($p->fresh()->status)->toBe(StatusPengajuan::Selesai)
+        ->and(Rab::where('pengajuan_id', $p->id)->count())->toBe(2)
+        ->and(RealisasiItem::sedangMemetakanRevisi())->toBeFalse();
 
     $this->artisan('keuangan:rekonsiliasi')->expectsOutput('Tidak ada selisih total.')->assertSuccessful();
 });
