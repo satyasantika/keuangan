@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TahunAnggarans\Tables;
 
+use App\Actions\Master\TutupTahunAnggaran;
 use App\Actions\Master\UbahStatusTahunAnggaran;
 use App\Enums\StatusTahunAnggaran;
 use App\Exceptions\KesalahanDomain;
@@ -10,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Checkbox;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -38,9 +40,38 @@ class TahunAnggaransTable
                 ViewAction::make(),
                 EditAction::make(),
                 self::aksiUbahStatus('mulaiBerjalan', 'Jalankan', StatusTahunAnggaran::Berjalan, Heroicon::OutlinedPlay, 'success'),
-                self::aksiUbahStatus('tutupTahun', 'Tutup tahun', StatusTahunAnggaran::Ditutup, Heroicon::OutlinedLockClosed, 'danger'),
+                self::aksiTutupTahun(),
                 DeleteAction::make(),
             ]);
+    }
+
+    public static function aksiTutupTahun(): Action
+    {
+        return Action::make('tutupTahun')
+            ->label('Tutup tahun')
+            ->icon(Heroicon::OutlinedLockClosed)
+            ->color('danger')
+            ->authorize('tutup')
+            ->visible(fn (TahunAnggaran $record): bool => $record->status === StatusTahunAnggaran::Berjalan)
+            ->modalDescription(function (TahunAnggaran $record): string {
+                $belum = UbahStatusTahunAnggaran::jumlahDicairkanBelumSelesai($record);
+
+                return 'Seluruh transaksi tahun ini menjadi baca-saja.'.($belum > 0 ? " Peringatan: {$belum} pengajuan dicairkan belum selesai." : '');
+            })
+            ->schema([
+                Checkbox::make('konfirmasi')->label('Saya memahami peringatan dan tetap menutup tahun anggaran'),
+            ])
+            ->action(function (TahunAnggaran $record, array $data): void {
+                try {
+                    app(TutupTahunAnggaran::class)->handle($record, auth()->user(), (bool) ($data['konfirmasi'] ?? false));
+                } catch (KesalahanDomain $e) {
+                    Notification::make()->title('Gagal menutup tahun')->body($e->getMessage())->danger()->send();
+
+                    return;
+                }
+
+                Notification::make()->title('Tahun anggaran ditutup')->success()->send();
+            });
     }
 
     public static function aksiUbahStatus(string $nama, string $label, StatusTahunAnggaran $ke, Heroicon $ikon, string $warna): Action

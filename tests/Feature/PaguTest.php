@@ -154,7 +154,7 @@ test('ubah pagu ditetapkan wajib alasan dan tercatat di riwayat', function () {
 test('pagu pada tahun anggaran ditutup tidak dapat disimpan', function () {
     $aksi = app(UbahStatusTahunAnggaran::class);
     $aksi->handle($this->tahun, StatusTahunAnggaran::Berjalan, $this->keu);
-    $aksi->handle($this->tahun, StatusTahunAnggaran::Ditutup, $this->keu);
+    tutupTahunPaksa($this->tahun);
 
     expect(fn () => $this->pagu->update(['keterangan' => 'ubah']))->toThrow(KesalahanDomain::class, 'ditutup');
 });

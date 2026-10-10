@@ -110,7 +110,7 @@ test('(g) unit_id kiriman klien diabaikan untuk admin-unit', function () {
 test('(h) tahun anggaran ditutup ditolak', function () {
     $keu = penggunaDenganPeran(Peran::AdminKeuangan);
     app(UbahStatusTahunAnggaran::class)->handle($this->tahun, StatusTahunAnggaran::Berjalan, $keu);
-    app(UbahStatusTahunAnggaran::class)->handle($this->tahun, StatusTahunAnggaran::Ditutup, $keu);
+    tutupTahunPaksa($this->tahun);
 
     expect(fn () => $this->aksi->handle(dataKegiatan($this->tahun->id), [itemRab($this->akun->id)], $this->adminPmat))
         ->toThrow(KesalahanDomain::class, 'ditutup');

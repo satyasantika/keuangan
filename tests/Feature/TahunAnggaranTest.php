@@ -67,7 +67,8 @@ test('status bergerak satu arah dan mundur ditolak', function () {
     expect(fn () => $aksi->handle($tahun, StatusTahunAnggaran::Perencanaan, $keu))
         ->toThrow(TransisiStatusTidakSahException::class);
 
-    $aksi->handle($tahun, StatusTahunAnggaran::Ditutup, $keu);
+    $tahun->periode()->get()->each(fn ($p) => $p->forceFill(['status' => StatusPeriode::Terkunci])->save());
+    $aksi->handle($tahun, StatusTahunAnggaran::Ditutup, penggunaDenganPeran(Peran::WadekKeuangan));
 
     expect(fn () => $aksi->handle($tahun, StatusTahunAnggaran::Berjalan, $keu))
         ->toThrow(TransisiStatusTidakSahException::class)
@@ -77,7 +78,7 @@ test('status bergerak satu arah dan mundur ditolak', function () {
 test('lompat status perencanaan langsung ke ditutup ditolak', function () {
     $tahun = buatTahun(2027);
 
-    expect(fn () => app(UbahStatusTahunAnggaran::class)->handle($tahun, StatusTahunAnggaran::Ditutup, penggunaDenganPeran(Peran::AdminKeuangan)))
+    expect(fn () => app(UbahStatusTahunAnggaran::class)->handle($tahun, StatusTahunAnggaran::Ditutup, penggunaDenganPeran(Peran::WadekKeuangan)))
         ->toThrow(TransisiStatusTidakSahException::class);
 });
 
@@ -131,10 +132,8 @@ test('memindahkan tanggal KE periode terkunci ditolak', function () {
 
 test('tahun anggaran ditutup menolak penulisan walau periode terbuka', function () {
     $tahun = buatTahun(2027);
-    $keu = penggunaDenganPeran(Peran::AdminKeuangan);
-    $aksi = app(UbahStatusTahunAnggaran::class);
-    $aksi->handle($tahun, StatusTahunAnggaran::Berjalan, $keu);
-    $aksi->handle($tahun, StatusTahunAnggaran::Ditutup, $keu);
+    app(UbahStatusTahunAnggaran::class)->handle($tahun, StatusTahunAnggaran::Berjalan, penggunaDenganPeran(Peran::AdminKeuangan));
+    tutupTahunPaksa($tahun);
 
     expect(fn () => ModelUji::create(['tanggal' => '2027-06-01']))->toThrow(KesalahanDomain::class, 'ditutup');
 });

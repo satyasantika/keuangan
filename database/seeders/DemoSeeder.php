@@ -8,6 +8,7 @@ use App\Actions\Master\UbahStatusTahunAnggaran;
 use App\Actions\Pencairan\CatatPencairan;
 use App\Actions\Pengajuan\AjukanPengajuan;
 use App\Actions\Pengajuan\SimpanDrafPengajuan;
+use App\Actions\Periode\KunciPeriode;
 use App\Actions\Persetujuan\KembalikanPengajuan;
 use App\Actions\Persetujuan\SetujuiPengajuan;
 use App\Actions\Persetujuan\TolakPengajuan;
@@ -18,12 +19,14 @@ use App\Actions\Spj\TerimaSpj;
 use App\Contracts\PenyimpananBerkas;
 use App\Enums\JenisTautan;
 use App\Enums\Peran;
+use App\Enums\StatusPeriode;
 use App\Enums\StatusTahunAnggaran;
 use App\Jobs\PeriksaTautanBerkas;
 use App\Models\Akun;
 use App\Models\JenisPencairan;
 use App\Models\Pagu;
 use App\Models\Pengajuan;
+use App\Models\Periode;
 use App\Models\TahunAnggaran;
 use App\Models\Unit;
 use App\Models\User;
@@ -132,6 +135,13 @@ class DemoSeeder extends Seeder
 
             $terlambat = $setujui($this->pengajuanLampau('Bimbingan Teknis Laboratorium', 50, $tahun->id, $adminUnit['PMAT'], $akun->first()));
             $this->cairkan($terlambat, 45, $bpp);
+        }
+
+        // Periode Januari s.d. bulan lalu dikunci (setelah transaksi demo bertanggal lampau dibuat).
+        foreach (Periode::query()->where('tahun_anggaran_id', $tahun->id)->where('bulan', '<', (int) now()->month)->orderBy('bulan')->get() as $periode) {
+            if ($periode->status === StatusPeriode::Terbuka) {
+                app(KunciPeriode::class)->handle($periode, $keu, abaikanPeringatan: true);
+            }
         }
     }
 
