@@ -5,6 +5,18 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.3.0] - 2026-10-10
+
+### Ditambahkan
+- Tahun anggaran (`BuatTahunAnggaran` membuat 12 periode bulanan, `UbahStatusTahunAnggaran` satu arah perencanaan → berjalan → ditutup) dan `Periode::untukTanggal()`; trait `MenjagaPeriodeTerkunci` menolak tulis/hapus pada periode terkunci atau tahun ditutup (BR-19, BR-20).
+- Master unit/prodi (`UnitResource`, `JenisUnit`, impor `UnitImporter`, cache `master:unit:aktif`), kolom `users.unit_id` wajib untuk admin-unit/kepala-unit, trait `DibatasiUnit` dan `User::lingkupFakultas()` (BR-21); `UnitContohSeeder` (CONTOH, lokal/staging).
+- Akun BAS (`AkunResource`, impor `AkunImporter` di antrean `impor`, lencana "CONTOH", cache `master:akun:aktif`) dan kategori penggunaan dana (urutan dapat diatur); seeder contoh bertanda "perlu verifikasi".
+- Jenis pencairan (UP/TUP/LS, perlu verifikasi), jenis pajak dan tarif referensi berjangka berlaku tanpa tumpang tindih (`TarifPajak::berlakuPada()`, tanpa perhitungan pajak — BR-16); tarif contoh bernilai 0,00 sampai diisi bagian keuangan.
+- Pengaturan kebijakan (`App\Support\Pengaturan` bertipe, tercache, tercatat activitylog) dan halaman Pengaturan berkelompok (ubah: admin-keuangan & super-admin).
+- Pagu unit per tahun beserta rincian per akun (Σ rincian ≤ pagu), penetapan `TetapkanPagu` dan perubahan beralasan `UbahPaguDitetapkan` oleh wadek-keuangan dengan riwayat status; pagu draf tidak berlaku; pengguna unit hanya melihat pagu unitnya (403 lintas unit).
+- Tabel impor/ekspor Filament ber-UUID; berkas impor sementara dihapus setelah dibaca.
+- Uji arsitektur model: `$table` wajib, `status` tidak di `$fillable`, kolom uang `decimal:2`.
+
 ## [0.2.0] - 2026-10-07
 
 ### Ditambahkan
