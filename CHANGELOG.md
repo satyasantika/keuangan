@@ -5,6 +5,17 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.7.0] - 2026-10-10
+
+### Ditambahkan
+- Tabel `spj`, `realisasi_item`, `potongan_pajak`, `pengembalian`, `tautan_berkas_beku` dengan `StatusSpj`/`StatusPengembalian`, guard SPJ (realisasi terkunci sejak diajukan), guard periode terkunci, dan perhitungan ulang total realisasi/pajak/dikembalikan (rekonsiliasi memeriksa total SPJ).
+- `CatatRealisasi`/`HapusRealisasi`: realisasi per item RAB aktif ≤ jumlah item & total RAB (BR-14), tautan kuitansi/nota/faktur wajib dengan akses terbatas (BR-15), deteksi bukti ganda lintas pengajuan (`IndikasiBuktiGandaTerdeteksi`).
+- `CatatPotonganPajak` sebagai informasi (BR-16): nilai diisi pengguna, tarif referensi disalin; BPP dapat melengkapi bukti setor saat SPJ diajukan.
+- Alur SPJ (`AjukanSpj` bernomor `SPJ/{tahun}/{urut}` dengan pernyataan berkas final, `TerimaSpj`, `KembalikanSpj`) dengan pemisahan tugas dan pembekuan tautan bukti (`BekukanTautanSpj`) saat diterima.
+- Pengembalian sisa dana (`CatatPengembalian`, `VerifikasiPengembalian` membekukan bukti setor, `TolakPengembalian`) dan `SelesaikanPengajuan` (BR-18, termasuk kurang bayar yang tuntas lewat pencairan tambahan).
+- `SpjResource` (ringkasan dana, sisa per item, relation manager realisasi + pajak, tab tautan dibekukan, tombol ajukan/terima/kembalikan), `PengembalianResource`, aksi "Susun SPJ" dan "Catat pengembalian sisa dana".
+- Test alur lengkap end-to-end; DemoSeeder memuat pengajuan selesai dan SPJ terlambat.
+
 ## [0.6.0] - 2026-10-10
 
 ### Ditambahkan
