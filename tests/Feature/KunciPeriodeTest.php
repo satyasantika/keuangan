@@ -7,6 +7,8 @@ use App\Actions\Spj\CatatRealisasi;
 use App\Enums\StatusPeriode;
 use App\Exceptions\KesalahanDomain;
 use App\Exceptions\PeriodeTerkunciException;
+use App\Filament\Resources\Pengajuans\Pages\ViewPengajuan;
+use App\Models\JenisPencairan;
 use App\Models\Pencairan;
 use App\Models\Periode;
 use App\Models\RekapPeriode;
@@ -77,4 +79,21 @@ test('pra-cek memunculkan peringatan untuk SPJ belum diterima', function () {
 test('admin-unit dan wadek tidak bisa mengunci (403)', function () {
     expect(fn () => app(KunciPeriode::class)->handle($this->januari, $this->k->adminPmat, true))->toThrow(AuthorizationException::class)
         ->and(fn () => app(KunciPeriode::class)->handle($this->januari, $this->k->wadek, true))->toThrow(AuthorizationException::class);
+});
+
+test('panel: pencairan bertanggal periode terkunci menampilkan notifikasi yang jelas', function () {
+    app(KunciPeriode::class)->handle($this->januari, $this->k->keu, true);
+    $lain = buatPengajuanDisetujui($this->k, kegiatan: ['tanggal_mulai_kegiatan' => '2027-01-10', 'tanggal_selesai_kegiatan' => '2027-01-11']);
+
+    Livewire\Livewire::actingAs($this->k->bpp)->test(ViewPengajuan::class, ['record' => $lain->getRouteKey()])
+        ->callAction('catatPencairan', data: [
+            'jenis_pencairan_id' => JenisPencairan::firstOrCreate(['kode' => 'LS'], ['nama' => 'Pembayaran Langsung'])->id,
+            'tanggal' => '2027-01-21',
+            'jumlah' => '1000',
+            'nomor_bukti' => 'TRF-9',
+            'tautan_bukti' => [['jenis' => 'bukti_pencairan', 'label' => 'Bukti', 'url' => 'https://drive.google.com/file/d/1Tk/view', 'akses_terbatas_dikonfirmasi' => true]],
+        ])
+        ->assertNotified('Gagal mencatat pencairan');
+
+    expect(Pencairan::where('pengajuan_id', $lain->id)->count())->toBe(0);
 });

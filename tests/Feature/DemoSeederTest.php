@@ -3,6 +3,8 @@
 use App\Enums\StatusPengajuan;
 use App\Models\Pagu;
 use App\Models\Pengajuan;
+use App\Models\Periode;
+use App\Models\RekapPeriode;
 use App\Models\TautanBerkas;
 use App\Models\User;
 use Database\Seeders\DemoSeeder;
@@ -25,6 +27,9 @@ test('DemoSeeder di lokal membuat pengguna per peran, pagu ditetapkan, dan 10 pe
         ])
         ->and(Pengajuan::where('status', 'dicairkan')->first()->batas_spj->isPast())->toBeTrue()
         ->and(TautanBerkas::where('pemilik_type', 'pengajuan')->count())->toBe(12);
+
+    expect(Periode::where('status', 'terkunci')->pluck('bulan')->sort()->values()->all())->toBe([1, 2, 3, 4, 5])
+        ->and(RekapPeriode::count())->toBeGreaterThan(0);
 
     $this->artisan('keuangan:rekonsiliasi')->assertSuccessful();
 });

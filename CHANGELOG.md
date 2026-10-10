@@ -5,6 +5,15 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.9.0] - 2026-10-10
+
+### Ditambahkan
+- Kunci periode (BR-19): `KunciPeriode` oleh admin-keuangan secara berurutan dengan pra-cek (SPJ belum diterima, pengembalian menunggu), snapshot `rekap_periode`/`rekap_periode_akun` dari `RekapPeriodeQuery` (SUM SQL atas DECIMAL), versi kunci, dan riwayat status.
+- `BukaKunciPeriode` oleh wadek-keuangan dengan alasan ≥ 20 karakter, berurutan dari periode terbaru; snapshot lama dipertahankan sampai dikunci ulang.
+- Penutupan tahun anggaran oleh wadek-keuangan (`TutupTahunAnggaran`): semua periode terkunci, tanpa pengajuan dalam proses, konfirmasi bila masih ada pengajuan dicairkan (BR-20).
+- Relation manager periode dengan aksi Kunci (pra-cek), Buka kunci, dan Lihat snapshot; uji arsitektur model transaksi memakai `MenjagaPeriodeTerkunci`.
+- DemoSeeder mengunci periode Januari s.d. bulan lalu.
+
 ## [0.8.0] - 2026-10-10
 
 ### Ditambahkan
