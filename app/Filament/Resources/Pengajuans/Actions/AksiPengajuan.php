@@ -69,7 +69,7 @@ class AksiPengajuan
             ->label('Batalkan')
             ->icon(Heroicon::OutlinedXCircle)
             ->color('danger')
-            ->visible(fn (Pengajuan $record): bool => $record->status->dapatDiubah() && (auth()->user()?->can('update', $record) ?? false))
+            ->visible(fn (Pengajuan $record): bool => auth()->user()?->can('batalkan', $record) ?? false)
             ->schema([
                 Textarea::make('alasan')->label('Alasan pembatalan')->required()->minLength(BatalkanPengajuan::MIN_ALASAN),
             ])

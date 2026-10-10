@@ -129,6 +129,14 @@ class Pengajuan extends Model implements PemilikTautan
     }
 
     /**
+     * Ada pencairan berstatus dicatat (BR-23). Dilengkapi F6.1 setelah tabel pencairan ada.
+     */
+    public function punyaPencairanAktif(): bool
+    {
+        return false;
+    }
+
+    /**
      * Tahap persetujuan yang sedang menunggu tindakan, mengikuti snapshot pengaturan (BR-06).
      */
     public function tahapBerjalan(): ?TahapPersetujuan

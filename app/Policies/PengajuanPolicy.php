@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Peran;
 use App\Enums\StatusPengajuan;
 use App\Enums\TahapPersetujuan;
 use App\Models\Pengajuan;
@@ -57,6 +58,34 @@ class PengajuanPolicy
     {
         return $pengajuan->tahapBerjalan() === TahapPersetujuan::Wadek
             && $this->bolehBertindak($user, $pengajuan, TahapPersetujuan::Wadek);
+    }
+
+    /** Kembalikan/tolak oleh pemegang tahap yang sedang berjalan. */
+    public function kembalikan(User $user, Pengajuan $pengajuan): bool
+    {
+        $tahap = $pengajuan->tahapBerjalan();
+
+        return $tahap !== null && $this->bolehBertindak($user, $pengajuan, $tahap);
+    }
+
+    public function tolak(User $user, Pengajuan $pengajuan): bool
+    {
+        return $this->kembalikan($user, $pengajuan);
+    }
+
+    /**
+     * BR-23: admin-unit unitnya saat draf/dikembalikan; admin-keuangan saat diajukan s.d. disetujui
+     * tanpa pencairan aktif.
+     */
+    public function batalkan(User $user, Pengajuan $pengajuan): bool
+    {
+        if ($pengajuan->status->dapatDiubah()) {
+            return $this->update($user, $pengajuan);
+        }
+
+        return $user->hasRole(Peran::AdminKeuangan->value)
+            && in_array($pengajuan->status, [StatusPengajuan::Diajukan, StatusPengajuan::DiverifikasiUnit, StatusPengajuan::DiverifikasiKeuangan, StatusPengajuan::Disetujui], true)
+            && ! $pengajuan->punyaPencairanAktif();
     }
 
     private function bolehBertindak(User $user, Pengajuan $pengajuan, TahapPersetujuan $tahap): bool
