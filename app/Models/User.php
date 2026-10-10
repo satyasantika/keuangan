@@ -14,15 +14,19 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
+ * @property string $id
+ * @property string|null $unit_id
+ * @property-read Unit|null $unit
  * @property string|null $app_authentication_secret
  * @property array<string>|null $app_authentication_recovery_codes
  */
-#[Fillable(['name', 'email', 'password', 'nip', 'no_hp', 'kode_eksternal', 'aktif'])]
+#[Fillable(['name', 'email', 'password', 'nip', 'no_hp', 'unit_id', 'kode_eksternal', 'aktif'])]
 #[Hidden(['password', 'remember_token', 'app_authentication_secret', 'app_authentication_recovery_codes'])]
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
@@ -45,6 +49,20 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             'app_authentication_secret' => 'encrypted',
             'app_authentication_recovery_codes' => 'encrypted:array',
         ];
+    }
+
+    /** @return BelongsTo<Unit, $this> */
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    /**
+     * Pengguna berperan fakultas (tidak dibatasi unit, BR-21).
+     */
+    public function lingkupFakultas(): bool
+    {
+        return $this->hasAnyRole(array_map(fn (Peran $p) => $p->value, Peran::fakultas()));
     }
 
     public function canAccessPanel(Panel $panel): bool

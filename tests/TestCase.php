@@ -8,6 +8,17 @@ use Illuminate\Support\Uri;
 abstract class TestCase extends BaseTestCase
 {
     /**
+     * Tabel khusus uji (tests/Migrations) ikut dimigrasi bersama migrasi aplikasi.
+     */
+    public function createApplication()
+    {
+        $app = parent::createApplication();
+        $app->make('migrator')->path(__DIR__.'/Migrations');
+
+        return $app;
+    }
+
+    /**
      * Di produksi reverse proxy memotong awalan subpath sebelum ke aplikasi, sehingga
      * rute aplikasi tidak berawalan /keuangan. Permintaan uji meniru itu: jalur diambil
      * apa adanya, tidak melalui URL::forceRootUrl() milik APP_URL.

@@ -2,7 +2,24 @@
 
 namespace App\Providers;
 
+use App\Models\Akun;
+use App\Models\BarisImporGagal;
+use App\Models\Ekspor;
+use App\Models\Impor;
+use App\Models\JenisPajak;
+use App\Models\JenisPencairan;
+use App\Models\KategoriPenggunaanDana;
+use App\Models\Pagu;
+use App\Models\PaguAkun;
+use App\Models\Pengaturan;
+use App\Models\Periode;
+use App\Models\TahunAnggaran;
+use App\Models\TarifPajak;
+use App\Models\Unit;
 use App\Models\User;
+use Filament\Actions\Exports\Models\Export;
+use Filament\Actions\Imports\Models\FailedImportRow;
+use Filament\Actions\Imports\Models\Import;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +33,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Model impor/ekspor Filament memakai UUIDv7.
+        $this->app->bind(Import::class, Impor::class);
+        $this->app->bind(FailedImportRow::class, BarisImporGagal::class);
+        $this->app->bind(Export::class, Ekspor::class);
     }
 
     /**
@@ -31,6 +51,17 @@ class AppServiceProvider extends ServiceProvider
         // Alias morph wajib; alias lain ditambahkan saat modelnya dibuat.
         Relation::enforceMorphMap([
             'user' => User::class,
+            'tahun_anggaran' => TahunAnggaran::class,
+            'periode' => Periode::class,
+            'unit' => Unit::class,
+            'akun' => Akun::class,
+            'kategori_penggunaan_dana' => KategoriPenggunaanDana::class,
+            'jenis_pencairan' => JenisPencairan::class,
+            'jenis_pajak' => JenisPajak::class,
+            'tarif_pajak' => TarifPajak::class,
+            'pengaturan' => Pengaturan::class,
+            'pagu' => Pagu::class,
+            'pagu_akun' => PaguAkun::class,
         ]);
 
         $this->siapkanSubpath();
