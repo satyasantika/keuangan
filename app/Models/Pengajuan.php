@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Concerns\DibatasiUnit;
 use App\Concerns\MemilikiRiwayatStatus;
+use App\Concerns\MemilikiTautanBerkas;
 use App\Concerns\TercatatAktivitas;
+use App\Contracts\PemilikTautan;
 use App\Enums\StatusPengajuan;
 use App\Exceptions\KesalahanDomain;
 use Database\Factories\PengajuanFactory;
@@ -54,10 +56,10 @@ use Illuminate\Support\Carbon;
  * @property-read Rab|null $rabAktif
  * @property-read Rab|null $rabAwal
  */
-class Pengajuan extends Model
+class Pengajuan extends Model implements PemilikTautan
 {
     /** @use HasFactory<PengajuanFactory> */
-    use DibatasiUnit, HasFactory, HasUuids, MemilikiRiwayatStatus, SoftDeletes, TercatatAktivitas;
+    use DibatasiUnit, HasFactory, HasUuids, MemilikiRiwayatStatus, MemilikiTautanBerkas, SoftDeletes, TercatatAktivitas;
 
     /** Kolom data inti yang terkunci sejak diajukan (BR-03). */
     public const KOLOM_INTI = [
@@ -116,6 +118,12 @@ class Pengajuan extends Model
                 throw new KesalahanDomain('Pengajuan berstatus '.$statusLama->getLabel().' tidak dapat diubah.');
             }
         });
+    }
+
+    /** Tautan TOR/surat tugas hanya dapat diubah selama data inti dapat diubah. */
+    public function tautanDapatDiubah(): bool
+    {
+        return $this->status->dapatDiubah();
     }
 
     /** @return BelongsTo<TahunAnggaran, $this> */

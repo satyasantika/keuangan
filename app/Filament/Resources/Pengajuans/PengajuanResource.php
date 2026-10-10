@@ -6,6 +6,7 @@ use App\Filament\Resources\Pengajuans\Pages\CreatePengajuan;
 use App\Filament\Resources\Pengajuans\Pages\EditPengajuan;
 use App\Filament\Resources\Pengajuans\Pages\ListPengajuans;
 use App\Filament\Resources\Pengajuans\Pages\ViewPengajuan;
+use App\Filament\Resources\Pengajuans\RelationManagers\TautanBerkasRelationManager;
 use App\Filament\Resources\Pengajuans\Schemas\PengajuanForm;
 use App\Filament\Resources\Pengajuans\Schemas\PengajuanInfolist;
 use App\Filament\Resources\Pengajuans\Tables\PengajuansTable;
@@ -81,6 +82,13 @@ class PengajuanResource extends Resource
         $query = parent::getEloquentQuery();
 
         return $query;
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            TautanBerkasRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
