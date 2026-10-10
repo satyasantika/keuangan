@@ -26,9 +26,11 @@ use App\Services\Berkas\TautanEksternal;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Actions\Imports\Models\FailedImportRow;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
@@ -82,6 +84,9 @@ class AppServiceProvider extends ServiceProvider
             'rab_item' => RabItem::class,
             'tautan_berkas' => TautanBerkas::class,
         ]);
+
+        // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).
+        RateLimiter::for('periksa-tautan', fn () => Limit::perMinute(60));
 
         $this->siapkanSubpath();
     }

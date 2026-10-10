@@ -6,6 +6,7 @@ use App\Contracts\PemilikTautan;
 use App\Contracts\PenyimpananBerkas;
 use App\Enums\JenisTautan;
 use App\Exceptions\KesalahanDomain;
+use App\Jobs\PeriksaTautanBerkas;
 use App\Models\TautanBerkas;
 use App\Models\User;
 use App\Rules\TautanBerkasValid;
@@ -56,6 +57,11 @@ class SimpanTautanBerkas
 
         RateLimiter::hit($kunci, 60);
 
-        return $this->penyimpanan->simpan($pemilik, $jenis, $url, $label, $aksesTerbatasDikonfirmasi, $oleh);
+        $tautan = $this->penyimpanan->simpan($pemilik, $jenis, $url, $label, $aksesTerbatasDikonfirmasi, $oleh);
+
+        // Pemeriksaan keteraksesan bersifat informatif dan berjalan setelah commit.
+        PeriksaTautanBerkas::dispatch($tautan)->afterCommit();
+
+        return $tautan;
     }
 }

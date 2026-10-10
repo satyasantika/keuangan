@@ -19,11 +19,14 @@ use App\Services\Berkas\PenguraiTautanDrive;
 use App\Services\Berkas\TautanEksternal;
 use Database\Seeders\UnitContohSeeder;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Spatie\Activitylog\Models\Activity;
 
 beforeEach(function () {
+    // Pemeriksaan keteraksesan: berkas ada dan aksesnya terbatas.
+    Http::fake(['*' => Http::response('', 403)]);
     $this->seed(UnitContohSeeder::class);
     $this->tahun = buatTahun(2027);
     $this->pmat = Unit::where('kode', 'PMAT')->firstOrFail();
@@ -122,7 +125,8 @@ test('perubahan URL tercatat activitylog', function () {
     $tautan = $this->simpan->handle($this->pengajuan, JenisTautan::Tor, 'https://drive.google.com/file/d/1Lama/view', 'TOR', false, $this->adminPmat);
     $tautan->update(['url' => 'https://drive.google.com/file/d/1Baru/view']);
 
-    $log = Activity::where('subject_type', 'tautan_berkas')->where('subject_id', $tautan->id)->where('event', 'updated')->latest()->first();
+    $log = Activity::where('subject_type', 'tautan_berkas')->where('subject_id', $tautan->id)->where('event', 'updated')->get()
+        ->first(fn (Activity $a) => isset($a->attribute_changes['old']['url']));
     expect($log->attribute_changes['old']['url'])->toBe('https://drive.google.com/file/d/1Lama/view')
         ->and($log->attribute_changes['attributes']['url'])->toBe('https://drive.google.com/file/d/1Baru/view');
 });

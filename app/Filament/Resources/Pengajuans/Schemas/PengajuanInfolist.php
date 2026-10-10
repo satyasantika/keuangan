@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pengajuans\Schemas;
 
+use App\Filament\Infolists\DaftarTautanBerkas;
 use App\Support\Uang;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -35,6 +36,9 @@ class PengajuanInfolist
                         TextEntry::make('total_disetujui')->label('Total disetujui')->formatStateUsing($rupiah),
                         TextEntry::make('batas_spj')->label('Batas SPJ')->date('d F Y')->placeholder('—'),
                     ]),
+                Section::make('Berkas (tautan)')
+                    ->collapsible()
+                    ->schema([DaftarTautanBerkas::make()]),
                 Section::make('RAB aktif')
                     ->description(fn ($record): string => 'Versi '.($record->rabAktif->nomor_revisi ?? 0).' · Total '.Uang::format((string) ($record->rabAktif->total ?? '0')))
                     ->schema([
