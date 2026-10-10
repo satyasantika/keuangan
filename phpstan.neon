@@ -10,7 +10,7 @@ parameters:
         - routes/
     tmpDir: build/phpstan
     ignoreErrors:
-        # Trait fondasi yang baru dipakai model pada fase berikutnya.
+        # Trait fondasi yang baru dipakai model transaksi mulai F6 (pencairan).
         -
             identifier: trait.unused
-            path: app/Concerns/MemilikiRiwayatStatus.php
+            path: app/Concerns/MenjagaPeriodeTerkunci.php

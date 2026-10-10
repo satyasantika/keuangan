@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Periode;
+use App\Models\TahunAnggaran;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -31,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
         // Alias morph wajib; alias lain ditambahkan saat modelnya dibuat.
         Relation::enforceMorphMap([
             'user' => User::class,
+            'tahun_anggaran' => TahunAnggaran::class,
+            'periode' => Periode::class,
         ]);
 
         $this->siapkanSubpath();
