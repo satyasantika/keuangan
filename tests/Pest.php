@@ -226,3 +226,11 @@ function buatSpjDenganRealisasi(object $k, string $bruto = '300000'): Spj
 
     return app(CatatRealisasi::class)->handle($pengajuan, $data, $tautan, $k->adminPmat)->spj->fresh();
 }
+
+/**
+ * Menutup tahun anggaran langsung (untuk menguji guard BR-20 tanpa menyiapkan seluruh syarat penutupan).
+ */
+function tutupTahunPaksa(TahunAnggaran $tahun): void
+{
+    $tahun->fresh()->forceFill(['status' => StatusTahunAnggaran::Ditutup])->save();
+}
