@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Channels\WhatsAppChannel;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification as NotifikasiFilament;
 use Illuminate\Bus\Queueable;
@@ -38,7 +39,29 @@ abstract class NotifikasiKeuangan extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $kanal = ['database', 'mail'];
+
+        if ($this->mendesak() && WhatsAppChannel::aktifUntuk($notifiable)) {
+            $kanal[] = WhatsAppChannel::class;
+        }
+
+        return $kanal;
+    }
+
+    /**
+     * Notifikasi mendesak juga dikirim lewat WhatsApp bila kanal aktif.
+     */
+    public function mendesak(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Teks pendek WhatsApp (≤ 300 karakter): tanpa URL tautan bukti dan tanpa data penerima.
+     */
+    public function toWhatsApp(object $notifiable): string
+    {
+        return mb_substr('[Keuangan FKIP] '.$this->judul().($this->url() !== null ? ' '.$this->url() : ''), 0, 300);
     }
 
     /**
@@ -46,7 +69,7 @@ abstract class NotifikasiKeuangan extends Notification implements ShouldQueue
      */
     public function viaQueues(): array
     {
-        return ['database' => 'notifikasi', 'mail' => 'notifikasi', 'whatsapp' => 'notifikasi'];
+        return ['database' => 'notifikasi', 'mail' => 'notifikasi', WhatsAppChannel::class => 'notifikasi'];
     }
 
     /**

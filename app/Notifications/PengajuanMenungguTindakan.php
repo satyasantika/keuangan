@@ -28,4 +28,9 @@ class PengajuanMenungguTindakan extends NotifikasiKeuangan
     {
         return TautanAplikasi::pengajuan($this->pengajuan->id);
     }
+
+    public function mendesak(): bool
+    {
+        return true;
+    }
 }

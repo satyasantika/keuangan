@@ -27,4 +27,9 @@ class SpjMenungguVerifikasi extends NotifikasiKeuangan
     {
         return TautanAplikasi::spj($this->spj->id);
     }
+
+    public function mendesak(): bool
+    {
+        return true;
+    }
 }
