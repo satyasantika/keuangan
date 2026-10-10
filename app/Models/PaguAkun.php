@@ -56,7 +56,7 @@ class PaguAkun extends Model
         });
 
         static::deleting(function (PaguAkun $rincian): void {
-            if ($rincian->pagu()->value('status') !== StatusPagu::Draf->value) {
+            if ($rincian->pagu()->toBase()->value('status') !== StatusPagu::Draf->value) {
                 throw new KesalahanDomain('Rincian akun hanya dapat dihapus selama pagu berstatus draf.');
             }
         });

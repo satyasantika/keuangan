@@ -5,6 +5,18 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.4.0] - 2026-10-10
+
+### Ditambahkan
+- Tabel `pengajuan`, `rab`, `rab_item` (RAB berversi, FULLTEXT judul) dengan `StatusPengajuan`/`StatusRab` beserta tabel transisi, `dapatDiubah()`, dan `menghitungKomitmen()` (BR-04); `Akun::sedangDipakai()`.
+- `SimpanDrafPengajuan` + `HitungTotalRab`: jumlah item dan total RAB dihitung server dengan `Uang` (HALF_UP), nilai klien diabaikan; guard model mengunci data inti dan item RAB setelah diajukan (BR-02, BR-03); `PengajuanPolicy` berbatas unit.
+- `PengajuanResource` (form kegiatan + Repeater RAB dengan jumlah/total tampilan saja, sisa pagu reaktif, infolist RAB aktif, pencarian nomor/judul) dan widget `RingkasanPaguWidget`; `HitungSisaPagu` (unit & akun); `UbahPaguDitetapkan` menolak jumlah di bawah komitmen.
+- Tautan berkas pengganti unggahan: `config/berkas.php` (`BERKAS_MODE=tautan`), tabel `tautan_berkas`, `TautanBerkasValid`, `PenguraiTautanDrive`, kontrak `PenyimpananBerkas` + `TautanEksternal`, `SimpanTautanBerkas`/`HapusTautanBerkas`, konfirmasi akses terbatas untuk bukti keuangan, kunci tautan mengikuti pemilik, relation manager TOR/KAK, uji arsitektur tanpa unggahan.
+- Job `PeriksaTautanBerkas` (HEAD/Range tanpa cookie, rate limit global) dengan notifikasi `TautanBerkasBermasalah`, pratinjau Drive, dan daftar tautan di halaman pengajuan.
+- `AjukanPengajuan` (lock Redis per pengajuan + per pagu unit, cek sisa pagu unit/akun, wajib TOR, nomor `PGJ/{tahun}/{urut}` dipertahankan saat diajukan ulang, snapshot tahap persetujuan) dan `BatalkanPengajuan` beralasan.
+- Lembar pengajuan PDF (dompdf, di-stream) dengan QR ke halaman publik `/verifikasi/{id}` (ringkas, noindex, 30/menit per IP).
+- `DemoSeeder` (hanya local): pengguna per peran `*@demo.test`, pagu ditetapkan, 10 pengajuan draf/diajukan.
+
 ## [0.3.0] - 2026-10-10
 
 ### Ditambahkan

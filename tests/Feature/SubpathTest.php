@@ -39,10 +39,10 @@ test('halaman login panel memasang cookie sesi keuangan_session ber-path /keuang
 });
 
 test('redirect tamu ke login tetap di bawah subpath', function () {
-    Route::middleware('web')->get('/masuk', fn () => 'masuk')->name('login');
     Route::middleware(['web', 'auth'])->get('/_uji/terlindung', fn () => 'rahasia');
     app('router')->getRoutes()->refreshNameLookups();
 
+    // Tamu diarahkan ke halaman login panel (bootstrap/app.php redirectGuestsTo).
     $this->get('/_uji/terlindung')
-        ->assertRedirect('https://supportfkip.unsil.ac.id/keuangan/masuk');
+        ->assertRedirect('https://supportfkip.unsil.ac.id/keuangan/panel/login');
 });

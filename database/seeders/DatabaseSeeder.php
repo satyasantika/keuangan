@@ -26,5 +26,10 @@ class DatabaseSeeder extends Seeder
                 UnitContohSeeder::class,
             ]);
         }
+
+        // Pengguna & transaksi demo hanya di lokal.
+        if (app()->environment('local')) {
+            $this->call([DemoSeeder::class]);
+        }
     }
 }

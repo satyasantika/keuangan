@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Uri;
 
 abstract class TestCase extends BaseTestCase
@@ -16,6 +17,14 @@ abstract class TestCase extends BaseTestCase
         $app->make('migrator')->path(__DIR__.'/Migrations');
 
         return $app;
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Uji tidak boleh menghubungi Drive/situs luar sungguhan.
+        Http::preventStrayRequests();
     }
 
     /**

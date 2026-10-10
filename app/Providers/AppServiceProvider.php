@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Contracts\PenyimpananBerkas;
 use App\Models\Akun;
 use App\Models\BarisImporGagal;
 use App\Models\Ekspor;
@@ -11,20 +12,29 @@ use App\Models\JenisPencairan;
 use App\Models\KategoriPenggunaanDana;
 use App\Models\Pagu;
 use App\Models\PaguAkun;
+use App\Models\Pengajuan;
 use App\Models\Pengaturan;
 use App\Models\Periode;
+use App\Models\Rab;
+use App\Models\RabItem;
 use App\Models\TahunAnggaran;
 use App\Models\TarifPajak;
+use App\Models\TautanBerkas;
 use App\Models\Unit;
 use App\Models\User;
+use App\Services\Berkas\TautanEksternal;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Actions\Imports\Models\FailedImportRow;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +47,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(Import::class, Impor::class);
         $this->app->bind(FailedImportRow::class, BarisImporGagal::class);
         $this->app->bind(Export::class, Ekspor::class);
+
+        // Kebijakan berkas (STANDAR-TEKNIS §1a.7): hanya mode tautan yang didukung saat ini.
+        $this->app->bind(PenyimpananBerkas::class, function ($app): PenyimpananBerkas {
+            return match (config('berkas.mode')) {
+                'tautan' => $app->make(TautanEksternal::class),
+                default => throw new RuntimeException('Mode berkas belum didukung: '.config('berkas.mode')),
+            };
+        });
     }
 
     /**
@@ -62,7 +80,15 @@ class AppServiceProvider extends ServiceProvider
             'pengaturan' => Pengaturan::class,
             'pagu' => Pagu::class,
             'pagu_akun' => PaguAkun::class,
+            'pengajuan' => Pengajuan::class,
+            'rab' => Rab::class,
+            'rab_item' => RabItem::class,
+            'tautan_berkas' => TautanBerkas::class,
         ]);
+
+        // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).
+        RateLimiter::for('periksa-tautan', fn () => Limit::perMinute(60));
+        RateLimiter::for('verifikasi-publik', fn (Request $request) => Limit::perMinute(30)->by((string) $request->ip()));
 
         $this->siapkanSubpath();
     }
