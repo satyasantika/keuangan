@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\StatusPengajuan;
+use App\Enums\TahapPersetujuan;
 use App\Models\Pengajuan;
 use App\Models\User;
 
@@ -40,6 +41,27 @@ class PengajuanPolicy
             && $this->unitSama($user, $pengajuan)
             && $pengajuan->status === StatusPengajuan::Draf
             && $pengajuan->nomor === null;
+    }
+
+    /** Tombol "Verifikasi" (tahap kepala unit/keuangan), termasuk pemisahan tugas (BR-06, BR-07). */
+    public function verifikasi(User $user, Pengajuan $pengajuan): bool
+    {
+        $tahap = $pengajuan->tahapBerjalan();
+
+        return in_array($tahap, [TahapPersetujuan::KepalaUnit, TahapPersetujuan::Keuangan], true)
+            && $this->bolehBertindak($user, $pengajuan, $tahap);
+    }
+
+    /** Tombol "Setujui" (tahap wadek). */
+    public function setujui(User $user, Pengajuan $pengajuan): bool
+    {
+        return $pengajuan->tahapBerjalan() === TahapPersetujuan::Wadek
+            && $this->bolehBertindak($user, $pengajuan, TahapPersetujuan::Wadek);
+    }
+
+    private function bolehBertindak(User $user, Pengajuan $pengajuan, TahapPersetujuan $tahap): bool
+    {
+        return $pengajuan->pemegangTahap($user, $tahap) && ! $pengajuan->melanggarPemisahanTugas($user, $tahap);
     }
 
     private function unitSama(User $user, Pengajuan $pengajuan): bool

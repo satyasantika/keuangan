@@ -7,7 +7,9 @@ use App\Concerns\MemilikiRiwayatStatus;
 use App\Concerns\MemilikiTautanBerkas;
 use App\Concerns\TercatatAktivitas;
 use App\Contracts\PemilikTautan;
+use App\Enums\Peran;
 use App\Enums\StatusPengajuan;
+use App\Enums\TahapPersetujuan;
 use App\Exceptions\KesalahanDomain;
 use Database\Factories\PengajuanFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -124,6 +126,54 @@ class Pengajuan extends Model implements PemilikTautan
     public function tautanDapatDiubah(): bool
     {
         return $this->status->dapatDiubah();
+    }
+
+    /**
+     * Tahap persetujuan yang sedang menunggu tindakan, mengikuti snapshot pengaturan (BR-06).
+     */
+    public function tahapBerjalan(): ?TahapPersetujuan
+    {
+        return match ($this->status) {
+            StatusPengajuan::Diajukan => $this->wajib_kepala_unit ? TahapPersetujuan::KepalaUnit : TahapPersetujuan::Keuangan,
+            StatusPengajuan::DiverifikasiUnit => TahapPersetujuan::Keuangan,
+            StatusPengajuan::DiverifikasiKeuangan => TahapPersetujuan::Wadek,
+            default => null,
+        };
+    }
+
+    /**
+     * Pengguna memegang peran & cakupan untuk tahap tersebut (tanpa pemeriksaan pemisahan tugas).
+     */
+    public function pemegangTahap(User $pengguna, TahapPersetujuan $tahap): bool
+    {
+        if (! $pengguna->can('persetujuan.setujui')) {
+            return false;
+        }
+
+        return match ($tahap) {
+            TahapPersetujuan::KepalaUnit => $pengguna->hasRole(Peran::KepalaUnit->value) && $pengguna->unit_id !== null && $pengguna->unit_id === $this->unit_id,
+            TahapPersetujuan::Keuangan => $pengguna->hasRole(Peran::AdminKeuangan->value),
+            TahapPersetujuan::Wadek => $pengguna->hasRole(Peran::WadekKeuangan->value),
+            TahapPersetujuan::Bendahara => false,
+        };
+    }
+
+    /**
+     * BR-07: pembuat tidak boleh menyetujui; satu pengguna hanya bertindak pada satu tahap.
+     */
+    public function melanggarPemisahanTugas(User $pengguna, TahapPersetujuan $tahap): bool
+    {
+        if ($pengguna->getKey() === $this->dibuat_oleh) {
+            return true;
+        }
+
+        return RiwayatStatus::query()
+            ->where('model_type', $this->getMorphClass())
+            ->where('model_id', $this->getKey())
+            ->where('user_id', $pengguna->getKey())
+            ->whereNotNull('tahap')
+            ->where('tahap', '!=', $tahap->value)
+            ->exists();
     }
 
     /** @return BelongsTo<TahunAnggaran, $this> */
