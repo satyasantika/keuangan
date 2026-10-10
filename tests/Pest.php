@@ -6,10 +6,13 @@ use App\Actions\Master\TetapkanPagu;
 use App\Actions\Master\UbahStatusTahunAnggaran;
 use App\Actions\Pengajuan\AjukanPengajuan;
 use App\Actions\Pengajuan\SimpanDrafPengajuan;
+use App\Actions\Persetujuan\SetujuiPengajuan;
+use App\Actions\Persetujuan\VerifikasiPengajuan;
 use App\Enums\JenisTautan;
 use App\Enums\Peran;
 use App\Enums\StatusTahunAnggaran;
 use App\Models\Akun;
+use App\Models\JenisPencairan;
 use App\Models\Pagu;
 use App\Models\Pengajuan;
 use App\Models\Role;
@@ -21,6 +24,7 @@ use Database\Seeders\PeranDanIzinSeeder;
 use Database\Seeders\UnitContohSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
@@ -150,4 +154,33 @@ function buatPengajuanDraf(object $k, string $volume = '2', string $harga = '150
 function buatPengajuanDiajukan(object $k, string $volume = '2', string $harga = '150000'): Pengajuan
 {
     return app(AjukanPengajuan::class)->handle(buatPengajuanDraf($k, $volume, $harga), $k->adminPmat)->fresh();
+}
+
+/**
+ * Pengajuan yang sudah disetujui penuh (kepala unit → keuangan → wadek).
+ */
+function buatPengajuanDisetujui(object $k, string $volume = '2', string $harga = '150000', array $kegiatan = []): Pengajuan
+{
+    $pengajuan = app(SimpanDrafPengajuan::class)->handle(dataKegiatan($k->tahun->id, $kegiatan), [itemRab($k->akun->id, $volume, $harga)], $k->adminPmat);
+    app(SimpanTautanBerkas::class)->handle($pengajuan, JenisTautan::Tor, 'https://drive.google.com/file/d/1TorContoh/view', 'TOR', false, $k->adminPmat);
+    $pengajuan = app(AjukanPengajuan::class)->handle($pengajuan->fresh(), $k->adminPmat);
+    $pengajuan = app(VerifikasiPengajuan::class)->handle($pengajuan, $k->kepalaPmat);
+    $pengajuan = app(VerifikasiPengajuan::class)->handle($pengajuan, $k->keu);
+
+    return app(SetujuiPengajuan::class)->handle($pengajuan, $k->wadek)->fresh();
+}
+
+/**
+ * Data pencairan sah beserta satu tautan bukti terkonfirmasi.
+ *
+ * @return array{0: array<string, mixed>, 1: array<int, array<string, mixed>>}
+ */
+function dataPencairan(string $jumlah, string $tanggal = '2027-06-15', bool $konfirmasi = true): array
+{
+    $jenis = JenisPencairan::firstOrCreate(['kode' => 'LS'], ['nama' => 'Pembayaran Langsung']);
+
+    return [
+        ['jenis_pencairan_id' => $jenis->id, 'tanggal' => $tanggal, 'jumlah' => $jumlah, 'nomor_bukti' => 'KW-001', 'penerima' => 'Penyedia'],
+        [['label' => 'Bukti transfer', 'url' => 'https://drive.google.com/file/d/1Bukti'.Str::random(6).'/view', 'akses_terbatas_dikonfirmasi' => $konfirmasi]],
+    ];
 }

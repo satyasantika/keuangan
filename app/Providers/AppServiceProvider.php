@@ -12,6 +12,7 @@ use App\Models\JenisPencairan;
 use App\Models\KategoriPenggunaanDana;
 use App\Models\Pagu;
 use App\Models\PaguAkun;
+use App\Models\Pencairan;
 use App\Models\Pengajuan;
 use App\Models\Pengaturan;
 use App\Models\Periode;
@@ -84,6 +85,7 @@ class AppServiceProvider extends ServiceProvider
             'rab' => Rab::class,
             'rab_item' => RabItem::class,
             'tautan_berkas' => TautanBerkas::class,
+            'pencairan' => Pencairan::class,
         ]);
 
         // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).

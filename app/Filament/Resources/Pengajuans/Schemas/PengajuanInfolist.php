@@ -36,6 +36,20 @@ class PengajuanInfolist
                         TextEntry::make('total_disetujui')->label('Total disetujui')->formatStateUsing($rupiah),
                         TextEntry::make('batas_spj')->label('Batas SPJ')->date('d F Y')->placeholder('—'),
                     ]),
+                Section::make('Ringkasan dana')
+                    ->columns(['default' => 2, 'md' => 4])
+                    ->visible(fn ($record): bool => in_array($record->status->value, ['disetujui', 'dicairkan', 'selesai'], true))
+                    ->schema([
+                        TextEntry::make('total_disetujui')->label('Disetujui')->formatStateUsing($rupiah),
+                        TextEntry::make('total_dicairkan')->label('Dicairkan')->formatStateUsing($rupiah),
+                        TextEntry::make('sisa_belum_dicairkan')->label('Sisa belum dicairkan')->state(fn ($record): string => Uang::format($record->sisaBelumDicairkan())),
+                        TextEntry::make('batas_spj')
+                            ->label('Batas SPJ')
+                            ->date('d F Y')
+                            ->placeholder('—')
+                            ->color(fn ($record): ?string => $record->batas_spj?->isPast() ? 'danger' : null)
+                            ->weight(fn ($record): ?string => $record->batas_spj?->isPast() ? 'bold' : null),
+                    ]),
                 Section::make('Berkas (tautan)')
                     ->collapsible()
                     ->schema([DaftarTautanBerkas::make()]),

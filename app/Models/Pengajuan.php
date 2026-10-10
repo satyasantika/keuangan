@@ -8,9 +8,11 @@ use App\Concerns\MemilikiTautanBerkas;
 use App\Concerns\TercatatAktivitas;
 use App\Contracts\PemilikTautan;
 use App\Enums\Peran;
+use App\Enums\StatusPencairan;
 use App\Enums\StatusPengajuan;
 use App\Enums\TahapPersetujuan;
 use App\Exceptions\KesalahanDomain;
+use App\Support\Uang;
 use Database\Factories\PengajuanFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -129,11 +131,41 @@ class Pengajuan extends Model implements PemilikTautan
     }
 
     /**
-     * Ada pencairan berstatus dicatat (BR-23). Dilengkapi F6.1 setelah tabel pencairan ada.
+     * Ada pencairan berstatus dicatat (BR-23).
      */
     public function punyaPencairanAktif(): bool
     {
+        return $this->pencairan()->where('status', StatusPencairan::Dicatat->value)->exists();
+    }
+
+    /**
+     * SPJ pengajuan sudah diterima. Sementara false; dilengkapi F7.1 setelah tabel spj ada.
+     */
+    public function spjSudahDiterima(): bool
+    {
         return false;
+    }
+
+    /**
+     * Sudah ada realisasi SPJ tercatat. Sementara false; dilengkapi F7.1.
+     */
+    public function punyaRealisasi(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Sisa yang belum dicairkan = total RAB aktif − total dicairkan.
+     */
+    public function sisaBelumDicairkan(): string
+    {
+        return Uang::kurang((string) ($this->rabAktif->total ?? '0'), (string) $this->total_dicairkan);
+    }
+
+    /** @return HasMany<Pencairan, $this> */
+    public function pencairan(): HasMany
+    {
+        return $this->hasMany(Pencairan::class)->orderBy('tanggal');
     }
 
     /**
