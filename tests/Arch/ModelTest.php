@@ -48,6 +48,8 @@ test('kolom uang di $casts bertipe decimal:2', function () {
     $pelanggaran = [];
     // Model paket Filament (hitungan baris impor/ekspor, bukan uang).
     $paket = [Impor::class, Ekspor::class, BarisImporGagal::class];
+    // Kolom hitungan (bukan uang) yang kebetulan berawalan jumlah_.
+    $bukanUang = ['jumlah_kegiatan'];
 
     foreach (array_diff(semuaModelAplikasi(), $paket) as $kelas) {
         foreach ((new $kelas)->getCasts() as $kolom => $cast) {
@@ -55,7 +57,7 @@ test('kolom uang di $casts bertipe decimal:2', function () {
                 || str_starts_with($kolom, 'total')
                 || str_starts_with($kolom, 'jumlah_');
 
-            if ($kolomUang && $cast !== 'decimal:2') {
+            if ($kolomUang && ! in_array($kolom, $bukanUang, true) && $cast !== 'decimal:2') {
                 $pelanggaran[] = "{$kelas}::{$kolom} ({$cast})";
             }
         }

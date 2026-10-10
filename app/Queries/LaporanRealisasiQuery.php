@@ -66,6 +66,18 @@ class LaporanRealisasiQuery
         ];
     }
 
+    /**
+     * Baris terpisah "Honor ujian (impor fkipapp)": tidak digabung ke realisasi kegiatan (BR-24).
+     */
+    public static function honorUjian(ParameterLaporan $parameter, User $pengguna): string
+    {
+        if (! $pengguna->lingkupFakultas() && $pengguna->unit_id === null) {
+            return '0.00';
+        }
+
+        return VersiCacheDasbor::ingat('honor:'.$parameter->kunciCache().':'.($pengguna->lingkupFakultas() ? 'fak' : $pengguna->unit_id), fn (): string => RekapHonorQuery::totalBruto($parameter, $pengguna));
+    }
+
     public static function serapan(string $realisasi, string $pagu): ?string
     {
         if (Uang::bandingkan($pagu, '0') <= 0) {

@@ -22,6 +22,7 @@ use App\Models\PotonganPajak;
 use App\Models\Rab;
 use App\Models\RabItem;
 use App\Models\RealisasiItem;
+use App\Models\RekapHonorEksternal;
 use App\Models\RekapPeriode;
 use App\Models\RekapPeriodeAkun;
 use App\Models\Spj;
@@ -102,6 +103,7 @@ class AppServiceProvider extends ServiceProvider
             'rekap_periode' => RekapPeriode::class,
             'rekap_periode_akun' => RekapPeriodeAkun::class,
             'laporan_ekspor' => LaporanEkspor::class,
+            'rekap_honor_eksternal' => RekapHonorEksternal::class,
         ]);
 
         // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).

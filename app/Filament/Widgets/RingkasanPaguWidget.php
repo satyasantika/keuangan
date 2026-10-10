@@ -45,8 +45,9 @@ class RingkasanPaguWidget extends StatsOverviewWidget
         }
 
         $total = LaporanRealisasiQuery::total(LaporanRealisasiQuery::untuk($parameter, $pengguna));
+        $honor = LaporanRealisasiQuery::honorUjian($parameter, $pengguna);
 
-        return [
+        $stat = [
             Stat::make('Pagu', Uang::format($total['pagu']))->description('Sisa '.Uang::format($total['sisa_pagu'])),
             Stat::make('Disetujui', Uang::format($total['disetujui'])),
             Stat::make('Dicairkan', Uang::format($total['dicairkan']))->description($parameter->label()),
@@ -55,5 +56,13 @@ class RingkasanPaguWidget extends StatsOverviewWidget
                 ->description('Realisasi kumulatif / pagu')
                 ->color('success'),
         ];
+
+        if (Uang::bandingkan($honor, '0') > 0) {
+            $stat[] = Stat::make('Honor ujian (impor fkipapp)', Uang::format($honor))
+                ->description('Rekap baca-saja, terpisah dari realisasi kegiatan')
+                ->color('gray');
+        }
+
+        return $stat;
     }
 }

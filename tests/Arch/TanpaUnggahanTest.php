@@ -9,7 +9,7 @@ use Illuminate\Http\UploadedFile;
 arch('aplikasi tidak memakai komponen unggah berkas')
     ->expect('App')
     ->not->toUse([FileUpload::class, UploadedFile::class])
-    ->ignoring(['App\Filament\Imports', 'App\Jobs\Impor']);
+    ->ignoring(['App\Filament\Imports', 'App\Jobs\Impor', 'App\Filament\Resources\RekapHonorEksternals']);
 
 test('aplikasi tidak menulis berkas pengguna lewat Storage::put*', function () {
     $pelanggaran = [];

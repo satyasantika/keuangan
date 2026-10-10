@@ -11,6 +11,7 @@ use App\Models\TahunAnggaran;
 use App\Models\User;
 use App\Queries\LaporanRealisasiQuery;
 use App\Queries\PenggunaanDanaQuery;
+use App\Queries\RekapHonorQuery;
 use App\Queries\RekapPajakQuery;
 use App\Queries\RekapPengajuanQuery;
 use App\Queries\RekapPengembalianQuery;
@@ -41,6 +42,7 @@ class KatalogLaporan
             'LAP-06' => 'LAP-06 Rekap Pengembalian Sisa Dana',
             'LAP-07' => 'LAP-07 Snapshot Periode Terkunci',
             'LAP-08' => 'LAP-08 Penggunaan Dana per Prodi (Akreditasi)',
+            'LAP-09' => 'LAP-09 Rekap Honor Ujian (impor fkipapp)',
         ];
     }
 
@@ -66,6 +68,7 @@ class KatalogLaporan
             'LAP-05', 'LAP-06' => $pengguna->hasAnyRole([Peran::AdminKeuangan->value, Peran::Bpp->value]),
             'LAP-07' => $pengguna->hasAnyRole([Peran::AdminKeuangan->value, Peran::WadekKeuangan->value]),
             'LAP-08' => $pengguna->hasAnyRole([Peran::AdminKeuangan->value, Peran::KepalaUnit->value]),
+            'LAP-09' => $pengguna->can('impor.lihat'),
             default => false,
         };
     }
@@ -94,6 +97,7 @@ class KatalogLaporan
             'LAP-06' => self::rekapPengembalian($tahun, $pengguna),
             'LAP-07' => self::snapshot($tahun, $parameter, $pengguna),
             'LAP-08' => self::penggunaanDana($tahun, $parameter, $pengguna),
+            'LAP-09' => self::rekapHonor($tahun, $parameter, $pengguna),
             default => throw new InvalidArgumentException('Jenis laporan tidak dikenal.'),
         };
     }
@@ -119,6 +123,12 @@ class KatalogLaporan
         $data = LaporanRealisasiQuery::untuk($param, $pengguna);
         $total = LaporanRealisasiQuery::total($data);
         $snapshot = $data->contains('sumber', 'snapshot');
+        $honor = LaporanRealisasiQuery::honorUjian($param, $pengguna);
+        $catatan = $snapshot ? ['Angka periode terkunci berasal dari snapshot saat periode dikunci.'] : [];
+
+        if (Uang::bandingkan($honor, '0') > 0) {
+            $catatan[] = 'Honor ujian (impor fkipapp): '.Uang::format($honor).' — rekap baca-saja, tidak termasuk realisasi kegiatan di atas.';
+        }
 
         return new DataLaporan(
             kode: 'LAP-01',
@@ -131,7 +141,7 @@ class KatalogLaporan
             ])->values()->all(),
             total: ['TOTAL', '', $total['pagu'], $total['komitmen'], $total['disetujui'], $total['dicairkan'], $total['realisasi'], $total['realisasi_kumulatif'], $total['sisa_pagu'], $total['serapan_persen']],
             kolomUang: [2, 3, 4, 5, 6, 7, 8],
-            catatan: $snapshot ? ['Angka periode terkunci berasal dari snapshot saat periode dikunci.'] : [],
+            catatan: $catatan,
         );
     }
 
@@ -279,6 +289,26 @@ class KatalogLaporan
             total: ['TOTAL', $jumlah('pagu'), $jumlah('total_disetujui_kumulatif'), $jumlah('total_pencairan'), $jumlah('total_realisasi'), $jumlah('total_pajak'), $jumlah('total_pengembalian')],
             kolomUang: [1, 2, 3, 4, 5, 6],
             catatan: ['Angka berasal dari snapshot saat periode dikunci.'],
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $parameter
+     */
+    private static function rekapHonor(TahunAnggaran $tahun, array $parameter, User $pengguna): DataLaporan
+    {
+        $param = self::parameterLaporan($tahun, $parameter);
+        $data = RekapHonorQuery::untuk($param, $pengguna);
+
+        return new DataLaporan(
+            kode: 'LAP-09',
+            judul: 'Rekap Honor Ujian (impor fkipapp)',
+            subjudul: "{$tahun->nama} — {$param->label()}",
+            kolom: ['Bulan', 'Unit', 'Jenis ujian', 'Jumlah kegiatan', 'Bruto', 'Pajak', 'Neto'],
+            baris: $data->map(fn (array $b): array => [$b['bulan'], $b['unit'], $b['jenis_ujian'], $b['jumlah_kegiatan'], $b['bruto'], $b['pajak'], $b['neto']])->values()->all(),
+            total: ['TOTAL', '', '', $data->sum('jumlah_kegiatan'), Uang::jumlahkan($data->pluck('bruto')->all()), Uang::jumlahkan($data->pluck('pajak')->all()), Uang::jumlahkan($data->pluck('neto')->all())],
+            kolomUang: [4, 5, 6],
+            catatan: ['Rekap total dari fkipapp; honor ujian tidak dihitung di sistem ini (BR-24).'],
         );
     }
 }
