@@ -5,6 +5,15 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.6.0] - 2026-10-10
+
+### Ditambahkan
+- Tabel `pencairan` dengan `StatusPencairan`, guard periode terkunci (`MenjagaPeriodeTerkunci`, `periode_id` otomatis) dan tautan bukti pencairan wajib berakses terbatas.
+- `CatatPencairan` oleh BPP (BR-12 Σ ≤ total RAB aktif, BR-13 batas SPJ disimpan saat pencairan pertama, BR-07c pencatat ≠ penyetuju akhir, BR-19), status pengajuan → `dicairkan`.
+- `BatalkanPencairan` beralasan (tanpa hapus); pengajuan kembali `disetujui` bila tidak ada pencairan aktif.
+- `HitungUlangTotalPengajuan` (total dicairkan) + `VersiCacheDasbor`; perintah `keuangan:rekonsiliasi` (`--perbaiki`).
+- `PencairanResource` (grup Bendahara, filter jenis/periode/status/unit), aksi "Catat pencairan" di halaman pengajuan, relation manager pencairan, dan ringkasan dana (batas SPJ merah bila lewat).
+
 ## [0.5.0] - 2026-10-10
 
 ### Ditambahkan
