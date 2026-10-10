@@ -13,6 +13,4 @@ parameters:
         # Trait fondasi yang baru dipakai model transaksi mulai F6 (pencairan).
         -
             identifier: trait.unused
-            paths:
-                - app/Concerns/MenjagaPeriodeTerkunci.php
-                - app/Concerns/DibatasiUnit.php
+            path: app/Concerns/MenjagaPeriodeTerkunci.php

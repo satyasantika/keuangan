@@ -17,11 +17,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Livewire\Livewire;
 use Tests\Support\ModelUji;
 
-function buatTahun(int $tahun = 2027): TahunAnggaran
-{
-    return app(BuatTahunAnggaran::class)->handle($tahun, penggunaDenganPeran(Peran::AdminKeuangan));
-}
-
 test('membuat tahun 2027 menghasilkan 12 periode terbuka dengan tanggal benar', function () {
     $tahun = buatTahun(2027);
 

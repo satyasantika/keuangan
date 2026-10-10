@@ -1,7 +1,9 @@
 <?php
 
+use App\Actions\Master\BuatTahunAnggaran;
 use App\Enums\Peran;
 use App\Models\Role;
+use App\Models\TahunAnggaran;
 use App\Models\User;
 use Database\Seeders\PeranDanIzinSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,4 +35,12 @@ function penggunaDenganPeran(Peran|string $peran, array $atribut = [], bool $mfa
     }
 
     return $pengguna;
+}
+
+/**
+ * Tahun anggaran beserta 12 periode, dibuat lewat Action oleh admin-keuangan baru.
+ */
+function buatTahun(int $tahun = 2027): TahunAnggaran
+{
+    return app(BuatTahunAnggaran::class)->handle($tahun, penggunaDenganPeran(Peran::AdminKeuangan));
 }

@@ -9,6 +9,8 @@ use App\Models\Impor;
 use App\Models\JenisPajak;
 use App\Models\JenisPencairan;
 use App\Models\KategoriPenggunaanDana;
+use App\Models\Pagu;
+use App\Models\PaguAkun;
 use App\Models\Pengaturan;
 use App\Models\Periode;
 use App\Models\TahunAnggaran;
@@ -58,6 +60,8 @@ class AppServiceProvider extends ServiceProvider
             'jenis_pajak' => JenisPajak::class,
             'tarif_pajak' => TarifPajak::class,
             'pengaturan' => Pengaturan::class,
+            'pagu' => Pagu::class,
+            'pagu_akun' => PaguAkun::class,
         ]);
 
         $this->siapkanSubpath();
