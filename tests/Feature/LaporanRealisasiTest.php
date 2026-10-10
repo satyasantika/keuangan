@@ -12,12 +12,17 @@ use App\Actions\Spj\CatatRealisasi;
 use App\Data\ParameterLaporan;
 use App\Enums\JenisTautan;
 use App\Enums\Peran;
+use App\Filament\Widgets\RingkasanPaguWidget;
+use App\Laporan\KatalogLaporan;
 use App\Models\Pagu;
+use App\Models\Pengajuan;
 use App\Models\Periode;
 use App\Queries\LaporanRealisasiQuery;
 use App\Queries\SpjTerlambatQuery;
+use App\Support\Uang;
 use App\Support\VersiCacheDasbor;
 use Illuminate\Support\Facades\DB;
+use Livewire\Livewire;
 
 beforeEach(function () {
     $this->travelTo('2027-03-01 10:00:00');
@@ -120,4 +125,15 @@ test('SPJ terlambat hanya unit sendiri untuk admin-unit', function () {
     expect(SpjTerlambatQuery::untuk($this->pimpinan)->pluck('unit')->sort()->values()->all())->toBe(['PBIO', 'PMAT'])
         ->and(SpjTerlambatQuery::untuk($this->k->adminPmat)->pluck('unit')->all())->toBe(['PMAT'])
         ->and(SpjTerlambatQuery::untuk($this->k->adminPmat)->first()['hari_terlambat'])->toBeGreaterThan(0);
+});
+
+test('konsistensi: realisasi LAP-01 tahunan = Σ total_realisasi pengajuan = angka dasbor', function () {
+    $lap01 = KatalogLaporan::bangun('LAP-01', ['tahun_anggaran_id' => $this->k->tahun->id], $this->k->keu);
+    $totalLap01 = $lap01->total[6];
+    $totalPengajuan = Uang::jumlahkan(Pengajuan::query()->where('tahun_anggaran_id', $this->k->tahun->id)->pluck('total_realisasi')->map(fn ($n): string => (string) $n)->all());
+
+    expect($totalLap01)->toBe('900000.00')
+        ->and($totalPengajuan)->toBe($totalLap01);
+
+    Livewire::actingAs($this->k->keu)->test(RingkasanPaguWidget::class)->assertSee(Uang::format($totalLap01));
 });

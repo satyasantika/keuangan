@@ -5,6 +5,16 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.11.0] - 2026-10-10
+
+### Ditambahkan
+- `LaporanRealisasiQuery` (pagu, komitmen, disetujui, dicairkan, realisasi, kumulatif, sisa, serapan) per bulan/semester/tahun dengan cache berversi (`VersiCacheDasbor`); rentang yang seluruhnya terkunci memakai snapshot `rekap_periode`.
+- Dasbor per peran (filter tahun & periode): ringkasan anggaran, serapan per unit, tren realisasi bulanan, SPJ jatuh tempo; pengguna unit hanya melihat unitnya.
+- Katalog laporan LAP-01 s.d. LAP-09 dengan hak akses per peran, pratinjau, ekspor XLSX/PDF di-*stream* (≤ 2.000 baris) atau lewat antrean `ekspor` ke `storage/app/tmp` dengan tautan unduh bertanda tangan, riwayat ekspor, dan pembatas laju.
+- Kartu kegiatan (PDF), rekap potongan pajak (informasi), rekap pengembalian, snapshot periode, penggunaan dana per prodi (format akreditasi perlu verifikasi), SPJ terlambat.
+- Impor rekap honor ujian dari ekspor fkipapp (ADR 0001, BR-24): job `ImporRekapHonor` di antrean `impor`, satu batch per berkas (seluruhnya ditolak bila ada baris tidak valid), berkas sementara selalu dihapus; daftar per batch dan "Batalkan batch"; baris terpisah "Honor ujian (impor fkipapp)" di dasbor/LAP-01, LAP-09; mengurangi pagu hanya bila `honor_mengurangi_pagu` aktif.
+- Uji konsistensi angka: realisasi LAP-01 tahunan = Σ `total_realisasi` pengajuan = dasbor.
+
 ## [0.10.0] - 2026-10-10
 
 ### Ditambahkan
