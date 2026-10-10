@@ -5,6 +5,14 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.8.0] - 2026-10-10
+
+### Ditambahkan
+- Revisi RAB bernomor (BR-10, BR-11): `BuatRevisiRab` menyalin RAB aktif dengan asal item, `SimpanItemRevisi` (ubah/tambah/hapus; item ber-realisasi tidak boleh dihapus), `AjukanRevisiRab` (item ≥ realisasi, total ≥ realisasi, kenaikan ≤ sisa pagu, peringatan bila di bawah dana dicairkan).
+- Persetujuan revisi (`VerifikasiRevisiRab`, `SetujuiRevisiRab`, `KembalikanRevisiRab`, `TolakRevisiRab`) dengan pemisahan tugas; aktivasi versi: versi lama `digantikan`, `rab_aktif_id`/`total_disetujui` diperbarui, realisasi dipetakan ke item baru (pengecualian guard berflag yang selalu di-reset).
+- `RabPolicy`; relation manager versi RAB (buat/edit/ajukan/bandingkan), `RevisiRabResource`, antrean revisi di halaman "Menunggu tindakan", `PerbandinganRabQuery`, dan PDF lembar revisi.
+- Selama revisi berjalan, realisasi baru dan pengajuan SPJ ditolak.
+
 ## [0.7.0] - 2026-10-10
 
 ### Ditambahkan
