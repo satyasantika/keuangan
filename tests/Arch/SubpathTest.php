@@ -1,7 +1,7 @@
 <?php
 
 /**
- * STANDAR-TEKNIS §2.4: dilarang URL absolut berawalan "/" di Blade/JS.
+ * Dilarang URL absolut berawalan "/" di Blade/JS.
  * Semua URL lewat route(), url(), asset() atau path relatif.
  */
 function berkasFrontend(): array

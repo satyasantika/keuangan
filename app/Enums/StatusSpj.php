@@ -32,7 +32,7 @@ enum StatusSpj: string implements HasColor, HasLabel
         };
     }
 
-    /** PRD §6.3. */
+    /** Transisi status SPJ (BR-17). */
     public function bolehBerpindahKe(self $tujuan): bool
     {
         return in_array($tujuan, match ($this) {

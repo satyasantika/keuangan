@@ -1,6 +1,6 @@
 # Lembar hasil UAT — Keuangan FKIP Unsil
 
-Disalin dari `docs/vibecoding/05-UJI-PENERIMAAN.md` §1. Dijalankan di server uji (`APP_ENV=staging`) dengan data
+Lembar uji penerimaan pengguna (UAT). Dijalankan di server uji (`APP_ENV=staging`) dengan data
 `UatSeeder` (`php artisan db:seed --class=UatSeeder --force`; isi `UAT_PASSWORD` dan `UAT_EMAILS` di `.env`).
 Isi kolom Penguji, Tanggal, Hasil (**Lulus**/**Gagal**), dan Catatan; setiap Gagal dicatat di Daftar isu temuan.
 
@@ -42,7 +42,7 @@ Versi aplikasi diuji: ……  ·  Server uji: ……  ·  Periode UAT: …… s.
 ## 1.3 Admin Keuangan Fakultas (`admin-keuangan`)
 | No | Skenario | Langkah | Hasil diharapkan | Penguji | Tanggal | Hasil (Lulus/Gagal) | Catatan |
 |---|---|---|---|---|---|---|---|
-| AK-01 | MFA wajib | Login pertama | Diminta mengaktifkan autentikator sebelum memakai panel | | | | |
+| AK-01 | MFA (bila `MFA_WAJIB=true`) | Login pertama | Diminta mengaktifkan autentikator sebelum memakai panel; bila tidak diwajibkan, langsung masuk | | | | |
 | AK-02 | Tahun anggaran | Anggaran → Tahun anggaran → Buat 2027 | 12 periode Terbuka terbentuk | | | | |
 | AK-03 | Impor akun BAS | Master → Akun → Impor (berkas resmi) | Akun dibuat/diperbarui; baris tidak valid dilaporkan; lencana CONTOH hilang untuk akun resmi | | | | |
 | AK-04 | Pagu | Buat pagu PMAT + rincian akun > pagu | Ditolak; setelah benar, status Draf menunggu penetapan | | | | |

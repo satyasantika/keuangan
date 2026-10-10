@@ -7,7 +7,7 @@ use Database\Seeders\PeranDanIzinSeeder;
 use Database\Seeders\UnitContohSeeder;
 
 /**
- * Matriks izin 01-PRD §3.2 diuji per peran (MFA dianggap aktif) terhadap halaman & Resource Filament.
+ * Matriks izin per peran diuji per peran (MFA dianggap aktif) terhadap halaman & Resource Filament.
  */
 const SEMUA_PERAN = ['super-admin', 'admin-keuangan', 'bpp', 'wadek-keuangan', 'kepala-unit', 'admin-unit', 'pimpinan'];
 
@@ -74,7 +74,7 @@ test('halaman panel mengikuti matriks izin', function (string $peran, string $pa
     $boleh ? $respons->assertOk() : $respons->assertForbidden();
 })->with(datasetHalaman());
 
-test('izin per peran sama persis dengan matriks PRD §3.2', function (string $peran) {
+test('izin per peran sama persis dengan matriks izin', function (string $peran) {
     $matriks = [
         // Cakupan commit `auth` memakai prefiks izin `pengguna`; baris "Pengaturan" memakai prefiks `pengaturan`.
         'pengguna' => ['super-admin' => 'LBUH', 'admin-keuangan' => 'L', 'wadek-keuangan' => 'L'],

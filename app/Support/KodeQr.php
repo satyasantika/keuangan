@@ -7,7 +7,7 @@ use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 
 /**
- * QR dibangkitkan on-the-fly sebagai data URI PNG (tidak disimpan, STANDAR-TEKNIS §1a.6).
+ * QR dibangkitkan on-the-fly sebagai data URI PNG.
  */
 final class KodeQr
 {

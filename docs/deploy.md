@@ -1,8 +1,8 @@
 # Deploy produksi — Keuangan FKIP Unsil
 
-Pola `docker-apps` (STANDAR-TEKNIS §7): container `app` (PHP-FPM), `web` (Nginx), `queue` (Horizon),
+Pola `docker-apps`: container `app` (PHP-FPM), `web` (Nginx), `queue` (Horizon),
 `scheduler` (`schedule:work`), `mysql` (8.4) dan `redis` (7, AOF). Aplikasi dipasang di subpath
-`https://supportfkip.unsil.ac.id/keuangan` (STANDAR-TEKNIS §2.4).
+`https://supportfkip.unsil.ac.id/keuangan`.
 
 ## Prasyarat server
 
@@ -32,7 +32,8 @@ git clone <repo> keuangan && cd keuangan
 git checkout v1.0.0
 cp .env.production.example .env.production
 # isi APP_KEY (docker run --rm keuangan-app php artisan key:generate --show setelah build, atau php artisan key:generate --show di mesin dev),
-# DB_PASSWORD, DB_ROOT_PASSWORD, REDIS_PASSWORD, MAIL_*, TRUSTED_PROXIES, SEED_ADMIN_*
+# DB_PASSWORD, DB_ROOT_PASSWORD, REDIS_PASSWORD, MAIL_*, TRUSTED_PROXIES, SEED_ADMIN_* (bawaan: fkip@unsil.ac.id),
+# MFA_WAJIB (bawaan false)
 export APP_VERSION=1.0.0
 docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 docker compose --env-file .env.production -f docker-compose.prod.yml exec app php artisan db:seed --force   # peran, izin, super-admin, master contoh
@@ -101,6 +102,12 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d --bui
 Bila versi baru membawa migrasi yang tidak kompatibel ke belakang, pulihkan dump MySQL sebelum pembaruan
 (`docker/backup/restore.sh`, lihat runbook cadangan) — migrasi yang sudah dirilis tidak pernah diubah.
 
+## Akun awal
+
+`db:seed` membuat super-admin `fkip@unsil.ac.id` dengan kata sandi dari `SEED_ADMIN_PASSWORD`. **Ganti kata sandi segera setelah
+masuk pertama** (menu pengguna → Profil), atau tandai akun wajib ganti sandi. MFA tidak diwajibkan secara bawaan; setel
+`MFA_WAJIB=true` di `.env.production` (lalu `php artisan config:cache`) untuk mewajibkannya bagi super-admin, admin-keuangan, bpp, dan wadek-keuangan.
+
 ## Horizon & log
 
 - Dasbor antrean: `https://supportfkip.unsil.ac.id/keuangan/horizon` (hanya **super-admin**, login panel dulu).
@@ -116,7 +123,7 @@ Butir 05-UJI-PENERIMAAN §4 yang tidak dapat diverifikasi dari kode dan harus di
    verifikasi* di **Sistem → Pengaturan** menunjukkan butir yang masih terbuka.
 2. **G-03** — Muat master resmi: unit FKIP, impor akun BAS resmi, jenis pencairan (hapus tanda perlu verifikasi),
    tarif pajak referensi beserta dasar hukum (diisi bagian keuangan), kategori penggunaan dana.
-3. **G-04/G-05** — Buat pengguna per peran (unit benar, MFA aktif), tahun anggaran berjalan, dan tetapkan pagu semua unit.
+3. **G-04/G-05** — Buat pengguna per peran (unit benar; impor massal dengan salin-tempel di Sistem → Pengguna, dengan opsi wajib ganti kata sandi), tahun anggaran berjalan, dan tetapkan pagu semua unit.
 4. **G-06** — Server: sertifikat HTTPS valid, blok reverse proxy `/keuangan/`, `.env.production` (`APP_ENV=production`,
    `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, `TRUSTED_PROXIES` = IP proxy).
 5. **G-07** — `docker compose … up -d --build` di server; cek `/api/health` = ok, Horizon & scheduler berjalan.

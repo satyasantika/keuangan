@@ -39,7 +39,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Pemetaan perubahan status → notifikasi (02-ARSITEKTUR §9). Pengguna nonaktif tidak menerima notifikasi.
+ * Pemetaan perubahan status → notifikasi. Pengguna nonaktif tidak menerima notifikasi.
  */
 class KirimNotifikasiStatus implements ShouldQueue
 {

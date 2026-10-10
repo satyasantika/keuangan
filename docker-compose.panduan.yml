@@ -1,4 +1,4 @@
-# Tangkapan layar panduan (STANDAR-TEKNIS §2.5). Lokal saja:
+# Tangkapan layar panduan. Lokal saja:
 #   php artisan migrate:fresh --seeder=PanduanSeeder
 #   PANDUAN_PASSWORD=... docker compose -f docker-compose.panduan.yml --profile panduan run --rm keuangan-panduan
 # network_mode host: URL absolut aplikasi (APP_URL lokal) dapat dibuka dari container.

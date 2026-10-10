@@ -10,7 +10,7 @@ use Throwable;
 class HealthController extends Controller
 {
     /**
-     * Endpoint kesehatan untuk pemantauan dan deploy (STANDAR-TEKNIS §6).
+     * Endpoint kesehatan untuk pemantauan dan deploy.
      * Tidak membocorkan pesan exception.
      */
     public function __invoke(): JsonResponse

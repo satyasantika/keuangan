@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 /*
-| Penjadwal (zona Asia/Jakarta) — 02-ARSITEKTUR §8.
+| Penjadwal (zona Asia/Jakarta).
 */
 Schedule::command('keuangan:pengingat-spj')->dailyAt('07:00')->timezone('Asia/Jakarta')->withoutOverlapping()->onOneServer();
 Schedule::command('keuangan:rekap-mingguan')->weeklyOn(1, '07:30')->timezone('Asia/Jakarta')->withoutOverlapping()->onOneServer();

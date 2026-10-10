@@ -4,7 +4,7 @@ use App\Enums\Peran;
 use Database\Seeders\PanduanSeeder;
 
 /**
- * Panduan HTML per peran di public/panduan (STANDAR-TEKNIS §2.5).
+ * Panduan HTML per peran di public/panduan.
  */
 function folderPanduan(): string
 {
@@ -16,8 +16,12 @@ test('setiap peran memiliki halaman panduan dan tercantum di index.html', functi
     $index = (string) file_get_contents($folder.'/index.html');
 
     foreach (Peran::cases() as $peran) {
-        expect(is_file("{$folder}/{$peran->value}.html"))->toBeTrue("{$peran->value}.html tidak ada")
-            ->and($index)->toContain("href=\"{$peran->value}.html\"");
+        expect(is_file("{$folder}/{$peran->value}.html"))->toBeTrue("{$peran->value}.html tidak ada");
+
+        // Kartu super-admin sengaja tidak ditampilkan di indeks/landing; halamannya dibuka dari menu pengguna.
+        if ($peran !== Peran::SuperAdmin) {
+            expect($index)->toContain("href=\"{$peran->value}.html\"");
+        }
     }
 });
 
@@ -66,7 +70,7 @@ test('ukuran total public/panduan ≤ 15 MB', function () {
 });
 
 test('landing page (halaman masuk) memuat tautan panduan dan menu panel mengarah ke panduan peran', function () {
-    $this->get('/')->assertRedirect('/panel');
+    $this->get('/')->assertOk()->assertSee(asset('panduan/bpp.html'), false);
     $this->get('/panel/login')->assertOk()->assertSee(asset('panduan/index.html'), false)->assertSee('Panduan Pengguna');
 
     $this->actingAs(penggunaDenganPeran(Peran::Bpp))->get(route('panduan.pengguna'))->assertRedirect(asset('panduan/bpp.html'));

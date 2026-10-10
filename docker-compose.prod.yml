@@ -1,4 +1,4 @@
-# Compose produksi Keuangan FKIP Unsil (STANDAR-TEKNIS §7).
+# Compose produksi Keuangan FKIP Unsil.
 # Pakai: cp .env.production.example .env.production && isi; lalu
 #   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 # Variabel lingkungan (container & interpolasi compose) dari .env.production (TIDAK di-commit).

@@ -39,11 +39,27 @@ kbd{font-family:inherit;background:#f3f4f6;border:1px solid var(--garis);border-
 <ol>
 <li>Buka <a href="../panel/login">halaman masuk aplikasi</a> (alamat <kbd>https://supportfkip.unsil.ac.id/keuangan/panel</kbd>).</li>
 <li>Isi <b>Alamat email</b> dan <b>Kata sandi</b> akun Anda, lalu klik <b>Masuk</b>.</li>
-<li>Peran Anda <b>wajib MFA</b>: saat masuk pertama kali, pindai kode QR dengan aplikasi autentikator (Google/Microsoft Authenticator), masukkan kode 6 digit, lalu simpan <b>kode pemulihan</b> di tempat aman.</li>
+<li>Verifikasi dua langkah (autentikator) bersifat <b>sukarela</b>; Anda dapat mengaktifkannya dari halaman Profil. Bila diaktifkan, simpan <b>kode pemulihan</b> di tempat aman.</li>
 </ol>
 <h2>Langkah-langkah</h2>
 <ol class="langkah"><li><h3>Daftar pengguna</h3><p><b>Sistem → Pengguna</b>: aktifkan/nonaktifkan akun dan <b>Reset MFA</b> bila pengguna kehilangan perangkat.</p><figure><img src="img/super-admin/01-pengguna.png" alt="Tangkapan layar: Daftar pengguna (Admin TI)" loading="lazy"><figcaption>Daftar pengguna</figcaption></figure></li><li><h3>Membuat pengguna</h3><p><b>Buat</b>: nama, surel, NIP, nomor HP, peran, dan <b>unit</b> (wajib untuk kepala unit dan admin unit).</p><figure><img src="img/super-admin/02-buat-pengguna.png" alt="Tangkapan layar: Membuat pengguna (Admin TI)" loading="lazy"><figcaption>Membuat pengguna</figcaption></figure></li><li><h3>Pengaturan &amp; pemeliharaan</h3><p><b>Sistem → Pengaturan</b>. Antrean dipantau di <kbd>/keuangan/horizon</kbd>; prosedur deploy dan cadangan ada di dokumentasi TI (docs/deploy.md, docs/runbook-cadangan.md).</p><figure><img src="img/super-admin/03-pengaturan.png" alt="Tangkapan layar: Pengaturan &amp; pemeliharaan (Admin TI)" loading="lazy"><figcaption>Pengaturan &amp; pemeliharaan</figcaption></figure></li></ol>
 
+<h2>Profil dan kata sandi</h2>
+<p>Buka menu pengguna di pojok kanan atas, lalu pilih <b>Profil</b>. Di sana Anda dapat mengubah nama, NIP, dan nomor HP, serta mengganti kata sandi (masukkan kata sandi sekarang, lalu kata sandi baru dua kali).</p>
+<figure><img src="img/super-admin/profil.png" alt="Tangkapan layar: halaman profil dan ganti kata sandi" loading="lazy"><figcaption>Profil dan ganti kata sandi</figcaption></figure>
+<ul>
+<li>Setelah kata sandi diganti, perangkat lain yang sedang masuk dengan akun Anda <b>otomatis keluar</b>.</li>
+<li>Bila administrator menandai akun Anda <b>wajib ganti kata sandi</b>, Anda hanya dapat membuka halaman Profil sampai kata sandi diganti.</li>
+<li>Surel adalah identitas masuk dan hanya dapat diubah oleh administrator.</li>
+</ul>
+<h2>Mengelola pengguna</h2>
+<h3>Impor massal dengan salin-tempel</h3>
+<p>Di <b>Sistem → Pengguna</b> pilih <b>Impor massal (tempel)</b>. Salin baris dari Excel/Google Sheets dengan kolom berurutan <kbd>nama</kbd>, <kbd>surel</kbd>, <kbd>peran</kbd>, <kbd>kode unit</kbd>, <kbd>NIP</kbd>, <kbd>no. HP</kbd> (tiga kolom terakhir boleh kosong), tempel ke kotak, isi kata sandi awal, lalu <b>Impor</b>. Kode unit wajib untuk peran <kbd>kepala-unit</kbd> dan <kbd>admin-unit</kbd>. Satu baris yang salah membatalkan seluruh impor dan semua galat ditampilkan.</p>
+<figure><img src="img/super-admin/impor-tempel.png" alt="Tangkapan layar: dialog impor massal pengguna" loading="lazy"><figcaption>Dialog impor massal (tempel)</figcaption></figure>
+<h3>Wajib ganti kata sandi</h3>
+<p>Di formulir pengguna, nyalakan <b>Wajib ganti kata sandi saat masuk berikutnya</b>, atau pilih beberapa pengguna di daftar lalu gunakan aksi massal <b>Wajibkan ganti kata sandi</b> (dan <b>Cabut kewajiban</b> untuk membatalkan). Pengguna baru hasil impor dapat otomatis ditandai.</p>
+<h3>Masuk sebagai pengguna lain (darurat)</h3>
+<p>Pada baris pengguna aktif, pilih <b>Masuk sebagai</b> lalu konfirmasi. Spanduk oranye menandai mode ini; pilih <b>Kembali ke akun saya</b> untuk mengakhiri. Mulai dan akhir impersonasi tercatat di jejak audit, begitu pula setiap tindakan selama menyamar. Profil dan kata sandi pengguna tersebut tidak dapat diubah selama menyamar. Gunakan hanya bila benar-benar darurat.</p>
 <h2>Tanya-jawab</h2><dl class="tj"><dt>Pengguna pindah unit atau purnatugas?</dt><dd>Nonaktifkan akunnya (tidak dihapus) dan pastikan berkas Drive-nya dipindahkan ke Shared Drive unit.</dd></dl>
 <h2>Kontak</h2><p>Admin Keuangan FKIP (keuangan-fkip@unsil.ac.id) · Admin TI Fakultas untuk akun &amp; MFA.</p>
 </main>

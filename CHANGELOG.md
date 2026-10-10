@@ -5,11 +5,28 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+### Ditambahkan
+- **Landing page** di `/` (fitur, alur kerja, tautan panduan per peran tanpa kartu super-admin, tombol masuk) dengan tema bersama `public/css/keuangan.css`.
+- **Halaman masuk kiri-kanan** yang selaras dengan landing page.
+- **Halaman eror bertema** untuk 400, 401, 403, 404, 405, 408, 409, 410, 413, 414, 415, 419, 422, 423, 429, 500, 501, 502, 503, 504 beserta cadangan 4xx/5xx (teks di `lang/id/galat.php`), dan halaman statis nginx saat PHP-FPM tidak dapat dijangkau.
+- **Profil sendiri** (nama, NIP, no. HP) dan **ganti kata sandi**; mengganti kata sandi memutus sesi lain dan mengganti token "ingat saya".
+- **Wajib ganti kata sandi per akun** (diatur super-admin di form pengguna atau aksi massal); akun bertanda hanya dapat membuka halaman profil sampai sandinya diganti.
+- **Impor massal pengguna dengan salin-tempel** (tab/titik koma/koma; semua-atau-tidak-sama-sekali).
+- **Deploy otomatis dari GitHub**: tag `vX.Y.Z` → uji penuh → server menarik tag dan menjalankan `scripts/deploy.sh` (cadangan, build, health check, rollback). Lihat `docs/deploy.md`.
+- **Impersonasi darurat** oleh super-admin (aksi **Masuk sebagai** di daftar pengguna) dengan spanduk, audit mulai/akhir, dan penanda `diimpersonasi_oleh` pada entri audit.
+- `docs/aturan-bisnis.md` (ringkasan aturan bisnis BR-01 s.d. BR-26).
+
+### Diubah
+- Akun super-admin awal: `fkip@unsil.ac.id` (kata sandi awal diatur lewat `SEED_ADMIN_PASSWORD`; ganti segera setelah masuk).
+- MFA tidak lagi diwajibkan secara bawaan (`MFA_WAJIB=false`); tetap dapat diaktifkan sukarela dari profil. Setel `MFA_WAJIB=true` untuk mewajibkan kembali bagi peran keuangan.
+- Kartu super-admin dicabut dari indeks panduan/landing (halaman panduan super-admin tetap dibuka dari menu pengguna).
+- Berkas persiapan pengembangan dipisahkan ke folder yang tidak ikut repositori.
+
 ## [1.0.0] - 2026-10-10
 
 Rilis produksi pertama Keuangan FKIP Unsil. Ringkasan per modul (rincian di versi 0.1.0–0.11.0 di bawah):
 
-- **Autentikasi & pengguna**: panel Filament berbahasa Indonesia di subpath `/keuangan`, MFA wajib peran keuangan, 7 peran dengan matriks izin PRD §3.2, manajemen pengguna & reset MFA.
+- **Autentikasi & pengguna**: panel Filament berbahasa Indonesia di subpath `/keuangan`, MFA wajib peran keuangan, 7 peran dengan matriks izin per peran, manajemen pengguna & reset MFA.
 - **Master & anggaran**: tahun anggaran + 12 periode, unit/prodi, akun BAS (impor), kategori penggunaan dana, jenis pencairan, jenis & tarif pajak referensi, pengaturan; pagu unit (+ rincian akun) dengan penetapan Wadek.
 - **Pengajuan & persetujuan**: draf + RAB (uang DECIMAL, dihitung server), tautan TOR, penomoran `PGJ/{tahun}/{urut}` di bawah lock, persetujuan berjenjang dengan pemisahan tugas, PDF + QR verifikasi publik.
 - **Pencairan, SPJ, pajak, pengembalian**: pencairan berbukti, realisasi per item dengan tautan bukti terbatas, deteksi bukti ganda, potongan pajak sebagai informasi, SPJ dengan pernyataan berkas final & pembekuan tautan, setoran sisa dana & penyelesaian.
@@ -129,7 +146,7 @@ Rilis produksi pertama Keuangan FKIP Unsil. Ringkasan per modul (rincian di vers
 ### Ditambahkan
 - Panel Filament 5 `keuangan` di `/panel` (login, notifikasi basis data polling 30 detik, SPA, footer versi, grup navigasi); `/` diarahkan ke `/panel`.
 - Kolom pengguna `nip`, `no_hp`, `kode_eksternal`, `aktif`; `User` mengimplementasikan `FilamentUser` (akun nonaktif ditolak 403); tabel `notifications` (UUID).
-- Tujuh peran (`App\Enums\Peran`) dan izin `<modul>.<aksi>` menurut matriks PRD §3.2 lewat `PeranDanIzinSeeder` (idempoten) dan `PenggunaAwalSeeder` (`SEED_ADMIN_*`); model `Role`/`Permission` ber-UUID; cache izin di Redis.
+- Tujuh peran (`App\Enums\Peran`) dan izin `<modul>.<aksi>` menurut matriks izin per peran lewat `PeranDanIzinSeeder` (idempoten) dan `PenggunaAwalSeeder` (`SEED_ADMIN_*`); model `Role`/`Permission` ber-UUID; cache izin di Redis.
 - Jejak audit: `spatie/laravel-activitylog` (model `Aktivitas` ber-UUID, trait `TercatatAktivitas` tanpa kata sandi/rahasia MFA), tabel `riwayat_status`, `TahapPersetujuan`, `CatatRiwayatStatus` (wajib dalam transaksi) dan event `StatusBerubah` (setelah commit); morph map wajib.
 - Fondasi domain: `Uang` (brick/math, HALF_UP, menolak float), `DenganKunci` (lock Redis), `Penomoran` (lock + `lockForUpdate`), tabel `penomoran`, exception domain turunan `KesalahanDomain`.
 - Manajemen pengguna (`UserResource`, `UserPolicy`; surel wajib `@unsil.ac.id` kecuali local/testing; hanya super-admin yang boleh memberi peran super-admin; tidak bisa menghapus diri sendiri); gerbang Horizon hanya super-admin di semua environment.
@@ -141,7 +158,7 @@ Rilis produksi pertama Keuangan FKIP Unsil. Ringkasan per modul (rincian di vers
 ## [0.1.0] - 2026-10-07
 
 ### Ditambahkan
-- Inisialisasi repositori: `.gitignore`, `.editorconfig`, hook git (`commit-msg`, `pre-commit`), `CLAUDE.md`, dan salinan paket dokumen di `docs/vibecoding/`.
+- Inisialisasi repositori: `.gitignore`, `.editorconfig`, serta hook git (`commit-msg`, `pre-commit`).
 - ADR 0001 — batas cakupan sistem keuangan (`docs/keputusan/0001-batas-cakupan.md`).
 - ADR 0002 — parameter keuangan dan daftar "perlu verifikasi" (`docs/keputusan/0002-parameter-keuangan.md`).
 - Kerangka Laravel 13 (PHP 8.5) di container Docker FKIP, MariaDB native, locale `id`, zona waktu `Asia/Jakarta`, terjemahan Indonesia.
@@ -149,7 +166,6 @@ Rilis produksi pertama Keuangan FKIP Unsil. Ringkasan per modul (rincian di vers
 - Pest 4, Larastan level 6, Pint, dan hook git aktif (`commit-msg`, `pre-commit`).
 - Primary key UUIDv7 sejak awal beserta uji arsitektur.
 - Dukungan subpath `https://supportfkip.unsil.ac.id/keuangan` (URL, aset, cookie sesi, proxy tepercaya).
-- Laravel Boost (MCP berjalan di container) untuk agen AI.
 - Endpoint kesehatan `GET /api/health`.
-- Continuous Integration: `uji.yml` (MariaDB 10.11, Redis 7, PHP 8.5; pint, phpstan, pest) dan `deploy.yml` (SSH, `deploy.sh keuangan`).
+- Continuous Integration: `uji.yml` (MariaDB 10.11, Redis 7, PHP 8.5; pint, phpstan, pest) dan `deploy.yml` (SSH).
 - ADR 0003: lingkungan dan penyimpangan dari standar paket.

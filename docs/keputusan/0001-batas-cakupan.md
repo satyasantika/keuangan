@@ -6,7 +6,7 @@
 
 ## Konteks
 
-- Sistem baru mencakup siklus pagu → pengajuan + RAB → persetujuan → pencairan → SPJ → pengembalian → laporan (PRD §1, §9).
+- Sistem baru mencakup siklus pagu → pengajuan + RAB → persetujuan → pencairan → SPJ → pengembalian → laporan.
 - `fkipapp` sudah menangani honor ujian (proposal, seminar, sidang).
 - Portal Support System FKIP sudah menautkan aplikasi "Laporan Keuangan" (`/laporankeuangan/`) yang kodenya belum kita miliki, sehingga fungsinya belum dapat diinventarisasi.
 
@@ -14,7 +14,7 @@
 
 Diisi manusia setelah akses baca diperoleh.
 
-| Fitur | Pengguna | Data masukan | Keluaran/laporan | Dipakai siapa | Tumpang tindih dengan modul sistem baru (kode modul PRD) |
+| Fitur | Pengguna | Data masukan | Keluaran/laporan | Dipakai siapa | Tumpang tindih dengan modul sistem baru |
 |---|---|---|---|---|---|
 | (kosong) | | | | | |
 

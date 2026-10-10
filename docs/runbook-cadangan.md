@@ -1,6 +1,6 @@
 # Runbook cadangan & pemulihan — Keuangan FKIP Unsil
 
-Server **tidak menyimpan berkas pengguna** (STANDAR-TEKNIS §1a): yang dicadangkan hanya basis data MySQL.
+Server **tidak menyimpan berkas pengguna**: yang dicadangkan hanya basis data MySQL.
 Bukti keuangan berupa tautan Google Drive milik unit.
 
 ## Jadwal, lokasi, retensi

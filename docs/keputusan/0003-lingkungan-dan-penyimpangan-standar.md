@@ -3,7 +3,7 @@
 - Status: Diterima
 - Tanggal: 2026-10-07
 
-Keputusan pemilik yang menggantikan bagian paket vibecoding bila bertentangan:
+Keputusan pemilik tentang lingkungan dan standar teknis:
 
 | Topik | Paket | Keputusan |
 |---|---|---|

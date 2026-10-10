@@ -4,7 +4,7 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Http\UploadedFile;
 
 /**
- * Sistem tidak menerima unggahan berkas (STANDAR-TEKNIS §1a); pengecualian hanya impor Excel/CSV.
+ * Sistem tidak menerima unggahan berkas; pengecualian hanya impor Excel/CSV.
  */
 arch('aplikasi tidak memakai komponen unggah berkas')
     ->expect('App')

@@ -8,7 +8,7 @@ return [
     'lock_store' => env('KEUANGAN_LOCK_STORE', 'redis'),
 
     /*
-    | Reverse proxy tepercaya (STANDAR-TEKNIS §2.4): "*" (lokal) atau daftar IP dipisah koma (produksi).
+    | Reverse proxy tepercaya: "*" (lokal) atau daftar IP dipisah koma (produksi).
     | Dibaca lewat config karena .env belum dimuat saat bootstrap/app.php dievaluasi.
     */
     'trusted_proxies' => env('TRUSTED_PROXIES'),
@@ -17,10 +17,17 @@ return [
     | Akun super-admin pertama untuk PenggunaAwalSeeder (diisi lewat .env).
     */
     'seed_admin' => [
-        'email' => env('SEED_ADMIN_EMAIL'),
-        'password' => env('SEED_ADMIN_PASSWORD'),
+        'email' => env('SEED_ADMIN_EMAIL', 'fkip@unsil.ac.id'),
+        'password' => env('SEED_ADMIN_PASSWORD', 'siliwangi'),
         'nama' => env('SEED_ADMIN_NAMA', 'Admin TI Fakultas'),
     ],
+
+    /*
+    | Kewajiban MFA (autentikator) bagi super-admin, admin-keuangan, bpp, dan wadek-keuangan.
+    | Bawaan nonaktif agar akun langsung dapat dipakai; MFA tetap dapat diaktifkan sukarela dari halaman profil.
+    | Aktifkan dengan MFA_WAJIB=true bila sudah siap.
+    */
+    'mfa_wajib' => (bool) env('MFA_WAJIB', false),
 
     /*
     | Data UAT (UatSeeder, hanya APP_ENV=staging): kata sandi awal & pemetaan akun → surel penguji.

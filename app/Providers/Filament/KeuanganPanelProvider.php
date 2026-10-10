@@ -2,8 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfil;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dasbor;
+use App\Http\Middleware\WajibGantiSandi;
 use App\Http\Middleware\WajibMfa;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
@@ -33,7 +35,7 @@ class KeuanganPanelProvider extends PanelProvider
             ->id('keuangan')
             ->path('panel')
             ->login(Login::class)
-            ->profile()
+            ->profile(EditProfil::class, isSimple: false)
             ->multiFactorAuthentication(
                 [AppAuthentication::make()->recoverable()->brandName('Keuangan FKIP Unsil')],
                 isRequired: true,
@@ -68,6 +70,10 @@ class KeuanganPanelProvider extends PanelProvider
                 fn (): string => Blade::render('<p class="mt-4 text-center text-sm"><a href="{{ asset(\'panduan/index.html\') }}" class="font-semibold text-primary-600 hover:underline dark:text-primary-400">Panduan Pengguna</a></p>'),
             )
             ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): string => view('impersonasi.spanduk')->render(),
+            )
+            ->renderHook(
                 PanelsRenderHook::FOOTER,
                 fn (): string => Blade::render('<div class="py-3 text-center text-xs text-gray-500 dark:text-gray-400">Keuangan FKIP Unsil v{{ config(\'app.version\') }}</div>'),
             )
@@ -89,6 +95,7 @@ class KeuanganPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                WajibGantiSandi::class,
             ]);
     }
 }

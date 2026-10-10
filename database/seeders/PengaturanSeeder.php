@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Nilai awal pengaturan (03-SKEMA §4). Nilai yang sudah ada tidak ditimpa.
+ * Nilai awal pengaturan. Nilai yang sudah ada tidak ditimpa.
  */
 class PengaturanSeeder extends Seeder
 {

@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Peran dan izin sesuai matriks PRD §3.2. Cakupan "(u)" tetap diberi izin;
+ * Peran dan izin sesuai matriks izin per peran. Cakupan "(u)" tetap diberi izin;
  * pembatasan unit dilakukan Policy. Idempoten.
  *
  * Kode aksi: L lihat, B buat, U ubah, H hapus, S setujui, E ekspor.

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>413 Berkas terlalu besar — Keuangan FKIP Unsil</title>
+<style>/* Tema bersama Keuangan FKIP Unsil: landing, halaman masuk, dan halaman eror. */
+:root {
+    --k-biru: #12355b;
+    --k-biru-tua: #0a2240;
+    --k-biru-muda: #e8eef6;
+    --k-aksen: #f59e0b;
+    --k-aksen-tua: #b45309;
+    --k-aksen-muda: #fef3c7;
+    --k-teks: #0f172a;
+    --k-redup: #475569;
+    --k-garis: #e2e8f0;
+    --k-latar: #f8fafc;
+    --k-kartu: #ffffff;
+    --k-bayang: 0 1px 2px rgb(15 23 42 / .06), 0 8px 24px rgb(15 23 42 / .06);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --k-biru-muda: #17304f;
+        --k-aksen-muda: #3a2a08;
+        --k-teks: #f1f5f9;
+        --k-redup: #94a3b8;
+        --k-garis: #263449;
+        --k-latar: #0b1220;
+        --k-kartu: #111b2e;
+        --k-bayang: 0 1px 2px rgb(0 0 0 / .4);
+    }
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    color: var(--k-teks);
+    background: var(--k-latar);
+}
+a { color: var(--k-aksen-tua); }
+@media (prefers-color-scheme: dark) { a { color: var(--k-aksen); } }
+.k-wadah { width: 100%; max-width: 70rem; margin: 0 auto; padding: 0 1rem; }
+
+/* Tombol */
+.k-tombol {
+    display: inline-block; padding: .65rem 1.25rem; border-radius: .6rem; font-weight: 600;
+    text-decoration: none; border: 2px solid transparent; cursor: pointer; font-size: 1rem;
+    background: var(--k-aksen); color: #1c1203;
+}
+.k-tombol:hover { filter: brightness(1.07); }
+.k-tombol--garis { background: transparent; color: #fff; border-color: rgb(255 255 255 / .55); }
+.k-tombol--biru { background: var(--k-biru); color: #fff; }
+
+/* Bilah atas & hero */
+.k-atas { background: var(--k-biru-tua); color: #fff; }
+.k-atas .k-wadah { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: .75rem; padding-bottom: .75rem; }
+.k-merek { display: flex; align-items: center; gap: .6rem; font-weight: 700; color: #fff; text-decoration: none; }
+.k-logo {
+    width: 2.25rem; height: 2.25rem; border-radius: .6rem; background: var(--k-aksen); color: #1c1203;
+    display: grid; place-items: center; font-weight: 800; font-size: 1.1rem;
+}
+.k-atas nav { display: flex; gap: 1.1rem; align-items: center; font-size: .95rem; }
+.k-atas nav a { color: #dbe7f5; text-decoration: none; }
+.k-atas nav a:hover { color: #fff; }
+.k-hero {
+    background: radial-gradient(1200px 400px at 85% -10%, rgb(245 158 11 / .28), transparent 60%),
+        linear-gradient(160deg, var(--k-biru) 0%, var(--k-biru-tua) 100%);
+    color: #fff; padding: 4rem 0 5rem;
+}
+.k-hero .k-wadah { display: grid; gap: 2.5rem; grid-template-columns: 1.05fr .95fr; align-items: center; }
+.k-lencana { display: inline-block; background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .25); padding: .2rem .7rem; border-radius: 999px; font-size: .85rem; }
+.k-hero h1 { font-size: clamp(2rem, 4.2vw, 3rem); line-height: 1.15; margin: .9rem 0; }
+.k-hero p { color: #cfdcec; font-size: 1.1rem; max-width: 34rem; }
+.k-aksi { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.k-pratinjau { border-radius: .9rem; overflow: hidden; box-shadow: 0 20px 50px rgb(0 0 0 / .45); border: 1px solid rgb(255 255 255 / .2); background: #fff; }
+.k-pratinjau img { display: block; width: 100%; height: auto; }
+
+/* Bagian */
+.k-bagian { padding: 3.5rem 0; }
+.k-bagian--alt { background: var(--k-biru-muda); }
+.k-bagian h2 { font-size: 1.7rem; margin: 0 0 .4rem; color: var(--k-biru); }
+@media (prefers-color-scheme: dark) { .k-bagian h2 { color: #fff; } }
+.k-sub { color: var(--k-redup); margin: 0 0 1.75rem; max-width: 42rem; }
+.k-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); padding: 0; margin: 0; list-style: none; }
+.k-kartu { background: var(--k-kartu); border: 1px solid var(--k-garis); border-radius: .85rem; padding: 1.1rem 1.2rem; box-shadow: var(--k-bayang); }
+.k-kartu h3 { margin: 0 0 .3rem; font-size: 1.05rem; color: var(--k-biru); }
+@media (prefers-color-scheme: dark) { .k-kartu h3 { color: #fff; } }
+.k-kartu p { margin: 0; color: var(--k-redup); font-size: .95rem; }
+.k-ikon { font-size: 1.5rem; display: block; margin-bottom: .35rem; }
+a.k-kartu { display: block; text-decoration: none; color: inherit; transition: transform .12s, border-color .12s; }
+a.k-kartu:hover { transform: translateY(-2px); border-color: var(--k-aksen); }
+.k-peran small { display: inline-block; margin-top: .6rem; color: var(--k-aksen-tua); font-weight: 600; }
+@media (prefers-color-scheme: dark) { .k-peran small { color: var(--k-aksen); } }
+
+/* Alur */
+.k-alur { counter-reset: langkah; display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); padding: 0; margin: 0; list-style: none; }
+.k-alur li { counter-increment: langkah; background: var(--k-kartu); border: 1px solid var(--k-garis); border-radius: .75rem; padding: .8rem 1rem; font-weight: 600; }
+.k-alur li::before {
+    content: counter(langkah); display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-right: .5rem;
+    border-radius: 50%; background: var(--k-aksen); color: #1c1203; font-size: .85rem;
+}
+.k-catatan { background: var(--k-aksen-muda); border-left: 4px solid var(--k-aksen); padding: .6rem .9rem; border-radius: .3rem; }
+
+.k-kaki { background: var(--k-biru-tua); color: #b8c8dc; padding: 1.5rem 0; font-size: .9rem; }
+.k-kaki a { color: #fff; }
+
+/* Halaman masuk kiri-kanan */
+.k-pisah { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); background: var(--k-latar); }
+.k-pisah__kiri {
+    background: radial-gradient(900px 380px at 90% -10%, rgb(245 158 11 / .28), transparent 60%),
+        linear-gradient(160deg, var(--k-biru) 0%, var(--k-biru-tua) 100%);
+    color: #fff; padding: 3rem; display: flex; flex-direction: column; justify-content: space-between; gap: 2rem;
+}
+.k-pisah__kiri h1 { font-size: clamp(1.8rem, 3vw, 2.5rem); line-height: 1.2; margin: 1.5rem 0 .75rem; }
+.k-pisah__kiri p { color: #cfdcec; max-width: 30rem; }
+.k-pisah__kiri ul { padding-left: 1.1rem; color: #dbe7f5; }
+.k-pisah__kiri a { color: #fff; }
+.k-pisah__kanan { display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; }
+.k-pisah__form { width: 100%; max-width: 26rem; }
+.k-pisah__form .fi-simple-main { background: transparent; box-shadow: none; padding: 0; }
+@media (max-width: 860px) {
+    .k-hero .k-wadah { grid-template-columns: 1fr; }
+    .k-pisah { grid-template-columns: 1fr; }
+    .k-pisah__kiri { padding: 1.5rem; }
+    .k-pisah__kiri ul { display: none; }
+    .k-atas nav a.k-sembunyi { display: none; }
+}
+
+/* Halaman eror */
+.k-galat { min-height: 100vh; display: flex; flex-direction: column; }
+.k-galat main { flex: 1; display: grid; place-items: center; padding: 2rem 1rem; }
+.k-galat__kotak {
+    max-width: 36rem; width: 100%; text-align: center; background: var(--k-kartu); border: 1px solid var(--k-garis);
+    border-radius: 1rem; padding: 2.25rem 1.5rem; box-shadow: var(--k-bayang);
+}
+.k-galat__kode { font-size: 4.5rem; line-height: 1; font-weight: 800; margin: 0; color: var(--k-aksen); letter-spacing: -.02em; }
+.k-galat h1 { font-size: 1.4rem; margin: .5rem 0; color: var(--k-biru); }
+@media (prefers-color-scheme: dark) { .k-galat h1 { color: #fff; } }
+.k-galat p { color: var(--k-redup); margin: .4rem 0; }
+.k-galat__saran { text-align: left; margin: 1.25rem auto 0; max-width: 28rem; font-size: .95rem; color: var(--k-redup); }
+.k-galat__saran li { margin: .25rem 0; }
+.k-galat__aksi { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+.k-galat__rujukan { margin-top: 1.25rem; font-size: .8rem; color: var(--k-redup); }
+.k-galat__rujukan code { background: var(--k-biru-muda); padding: .1rem .4rem; border-radius: .25rem; }
+</style>
+</head>
+<body class="k-galat">
+<header class="k-atas"><div class="k-wadah"><span class="k-merek"><span class="k-logo">K</span> Keuangan FKIP Unsil</span></div></header>
+<main>
+<div class="k-galat__kotak">
+<p class="k-galat__kode">413</p>
+<h1>Berkas terlalu besar</h1>
+<p>Ukuran data yang dikirim melebihi batas. Impor dibatasi maksimal 10 MB.</p>
+<ul class="k-galat__saran"><li>Pecah berkas impor menjadi beberapa bagian yang lebih kecil.</li></ul>
+<div class="k-galat__aksi"></div>
+</div>
+</main>
+<footer class="k-kaki"><div class="k-wadah">Keuangan FKIP Unsil</div></footer>
+</body>
+</html>

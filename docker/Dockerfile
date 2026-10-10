@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Image produksi Keuangan FKIP Unsil (pola docker-apps; STANDAR-TEKNIS §7).
+# Image produksi Keuangan FKIP Unsil.
 # Bangun: docker build -f docker/Dockerfile --build-arg ASSET_URL=https://supportfkip.unsil.ac.id/keuangan -t keuangan:<tag> .
 
 ARG PHP_VERSION=8.5

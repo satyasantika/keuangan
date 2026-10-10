@@ -61,6 +61,12 @@ class UserForm
                 Toggle::make('aktif')
                     ->label('Aktif')
                     ->default(true),
+                Toggle::make('wajib_ganti_sandi')
+                    ->label('Wajib ganti kata sandi saat masuk berikutnya')
+                    ->helperText('Pengguna hanya dapat membuka halaman profil sampai kata sandinya diganti.')
+                    ->default(fn (string $operation): bool => $operation === 'create')
+                    ->visible(fn (): bool => (bool) auth()->user()?->hasRole(Peran::SuperAdmin->value))
+                    ->dehydrated(fn (): bool => (bool) auth()->user()?->hasRole(Peran::SuperAdmin->value)),
                 CheckboxList::make('roles')
                     ->label('Peran')
                     ->live()

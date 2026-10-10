@@ -47,7 +47,7 @@ enum StatusPengajuan: string implements HasColor, HasLabel
     }
 
     /**
-     * Tabel transisi sesuai PRD §6.1 (termasuk lompatan bila tahap kepala unit/wadek nonaktif, BR-06,
+     * Tabel transisi sesuai aturan bisnis (termasuk lompatan bila tahap kepala unit/wadek nonaktif, BR-06,
      * dan pembatalan oleh admin-keuangan, BR-23).
      */
     public function bolehBerpindahKe(self $tujuan): bool

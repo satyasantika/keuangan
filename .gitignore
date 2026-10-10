@@ -33,8 +33,6 @@ Thumbs.db
 /backup/
 /docs/referensi/rahasia/
 
-# CLAUDE.md wajib terlacak (abaikan ignore global)
-!CLAUDE.md
 
 # Tambahan dari kerangka Laravel 13
 .phpactor.json
@@ -44,3 +42,11 @@ Thumbs.db
 /public/fonts-manifest.dev.json
 /public/fonts/filament
 _ide_helper.php
+
+# Persiapan pengembangan terbantu AI (dokumen perancangan, konteks agen, konfigurasi alat) — tidak ikut repositori
+/_vibecoding/
+/CLAUDE.md
+/AGENTS.md
+/.claude/
+/.mcp.json
+/boost.json

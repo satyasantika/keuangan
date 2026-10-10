@@ -38,7 +38,7 @@ enum StatusRab: string implements HasColor, HasLabel
     }
 
     /**
-     * Tabel transisi sesuai PRD §6.2. RAB versi 0 mengikuti pengajuan: langsung diajukan → disetujui
+     * Tabel transisi sesuai aturan bisnis revisi RAB (BR-10/BR-11). RAB versi 0 mengikuti pengajuan: langsung diajukan → disetujui
      * bila tahap keuangan menjadi akhir, dan kembali ke draf saat pengajuan dikembalikan.
      */
     public function bolehBerpindahKe(self $tujuan): bool

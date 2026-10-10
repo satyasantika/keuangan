@@ -9,7 +9,7 @@ use App\Models\User;
 use RuntimeException;
 
 /**
- * Akun demo per peran + data rekaan untuk tangkapan layar panduan (STANDAR-TEKNIS §2.5). HANYA APP_ENV=local.
+ * Akun demo per peran + data rekaan untuk tangkapan layar panduan. HANYA APP_ENV=local.
  * Akun: panduan.<peran>@contoh.test, kata sandi dari PANDUAN_PASSWORD; MFA tidak diwajibkan untuk akun ini
  * di lingkungan local (lihat User::wajibMfa). Tidak memuat data pribadi asli.
  */

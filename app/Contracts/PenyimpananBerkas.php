@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Satu-satunya pintu akses berkas (STANDAR-TEKNIS §1a.7). Implementasi aktif: TautanEksternal.
+ * Satu-satunya pintu akses berkas. Implementasi aktif: TautanEksternal.
  */
 interface PenyimpananBerkas
 {

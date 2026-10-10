@@ -59,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FailedImportRow::class, BarisImporGagal::class);
         $this->app->bind(Export::class, Ekspor::class);
 
-        // Kebijakan berkas (STANDAR-TEKNIS §1a.7): hanya mode tautan yang didukung saat ini.
+        // Kebijakan berkas: hanya mode tautan yang didukung saat ini.
         $this->app->bind(PenyimpananBerkas::class, function ($app): PenyimpananBerkas {
             return match (config('berkas.mode')) {
                 'tautan' => $app->make(TautanEksternal::class),
@@ -108,7 +108,7 @@ class AppServiceProvider extends ServiceProvider
             'rekap_honor_eksternal' => RekapHonorEksternal::class,
         ]);
 
-        // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).
+        // Permintaan HTTP keluar ke Drive dibatasi global.
         RateLimiter::for('periksa-tautan', fn () => Limit::perMinute(60));
         RateLimiter::for('ekspor', fn (Request $request) => Limit::perMinute(5)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('verifikasi-publik', fn (Request $request) => Limit::perMinute(30)->by((string) $request->ip()));
@@ -131,7 +131,7 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Aplikasi berjalan di bawah awalan path (mis. /keuangan) di belakang reverse proxy
-     * (STANDAR-TEKNIS §2.4): semua URL dibangkitkan dengan awalan itu.
+     *: semua URL dibangkitkan dengan awalan itu.
      */
     private function siapkanSubpath(): void
     {

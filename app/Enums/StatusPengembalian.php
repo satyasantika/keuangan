@@ -29,7 +29,7 @@ enum StatusPengembalian: string implements HasColor, HasLabel
         };
     }
 
-    /** PRD §6.3. */
+    /** Transisi status pengembalian (BR-18). */
     public function bolehBerpindahKe(self $tujuan): bool
     {
         return $this === self::Diajukan && in_array($tujuan, [self::Diverifikasi, self::Ditolak], true);

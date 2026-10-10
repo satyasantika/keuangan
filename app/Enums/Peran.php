@@ -38,7 +38,7 @@ enum Peran: string implements HasLabel
     }
 
     /**
-     * Peran yang wajib memakai autentikasi dua langkah (PRD §3.1).
+     * Peran yang wajib memakai autentikasi dua langkah.
      *
      * @return list<self>
      */

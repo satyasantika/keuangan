@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Disesuaikan dari STANDAR-GIT §6: compose tidak berada di repo (lihat docs/keputusan/0003),
+# Compose tidak berada di repo (lihat docs/keputusan/0003),
 # sehingga memakai `docker exec` ke container PHP yang sudah berjalan.
 set -e
 root="$(git rev-parse --show-toplevel)"

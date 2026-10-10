@@ -3,13 +3,14 @@
 use App\Http\Controllers\CetakKartuKegiatanController;
 use App\Http\Controllers\CetakPengajuanController;
 use App\Http\Controllers\CetakRevisiController;
+use App\Http\Controllers\ImpersonasiController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\UnduhEksporController;
 use App\Http\Controllers\VerifikasiPublikController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->to('/panel'));
+Route::view('/', 'landing')->name('beranda');
 
 Route::get('/verifikasi/{id}', VerifikasiPublikController::class)
     ->whereUuid('id')
@@ -23,4 +24,5 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/laporan/ekspor', [LaporanController::class, 'ekspor'])->middleware('throttle:ekspor')->name('laporan.ekspor');
     Route::get('/ekspor/{laporanEkspor}', UnduhEksporController::class)->middleware('signed')->name('ekspor.unduh');
     Route::get('/panduan-pengguna', PanduanController::class)->name('panduan.pengguna');
+    Route::post('/impersonasi/berhenti', [ImpersonasiController::class, 'berhenti'])->name('impersonasi.berhenti');
 });

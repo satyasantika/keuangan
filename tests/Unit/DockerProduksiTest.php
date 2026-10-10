@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Berkas Docker produksi (STANDAR-TEKNIS §7; 05-UJI-PENERIMAAN K-19).
+ * Berkas Docker produksi.
  */
 $akar = dirname(__DIR__, 2);
 
@@ -38,7 +38,7 @@ test('entrypoint bermigrasi hanya bila RUN_MIGRATIONS=true dan tidak memakai sto
         ->not->toMatch('/^\s*php artisan storage:link/m');
 });
 
-test('contoh .env.production memakai subpath & cookie aman sesuai STANDAR-TEKNIS §2.4', function () use ($akar) {
+test('contoh .env.production memakai subpath & cookie aman', function () use ($akar) {
     $env = (string) file_get_contents($akar.'/.env.production.example');
 
     expect($env)->toContain('APP_ENV=production')

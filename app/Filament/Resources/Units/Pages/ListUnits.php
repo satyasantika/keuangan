@@ -21,7 +21,7 @@ class ListUnits extends ListRecords
                 ->label('Impor unit')
                 ->importer(UnitImporter::class)
                 ->authorize('import', Unit::class)
-                // Berkas impor hanya sementara (STANDAR-TEKNIS §1a): baris sudah dibaca ke job, berkas dihapus.
+                // Berkas impor hanya sementara: baris sudah dibaca ke job, berkas dihapus.
                 ->after(function (array $data): void {
                     if (($data['file'] ?? null) instanceof TemporaryUploadedFile) {
                         $data['file']->delete();
