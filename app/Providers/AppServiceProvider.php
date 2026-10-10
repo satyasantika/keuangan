@@ -11,8 +11,11 @@ use App\Models\JenisPencairan;
 use App\Models\KategoriPenggunaanDana;
 use App\Models\Pagu;
 use App\Models\PaguAkun;
+use App\Models\Pengajuan;
 use App\Models\Pengaturan;
 use App\Models\Periode;
+use App\Models\Rab;
+use App\Models\RabItem;
 use App\Models\TahunAnggaran;
 use App\Models\TarifPajak;
 use App\Models\Unit;
@@ -62,6 +65,9 @@ class AppServiceProvider extends ServiceProvider
             'pengaturan' => Pengaturan::class,
             'pagu' => Pagu::class,
             'pagu_akun' => PaguAkun::class,
+            'pengajuan' => Pengajuan::class,
+            'rab' => Rab::class,
+            'rab_item' => RabItem::class,
         ]);
 
         $this->siapkanSubpath();

@@ -84,10 +84,9 @@ class Akun extends Model
 
     /**
      * Akun yang sudah dipakai rab_item tidak boleh dihapus.
-     * Sementara selalu false; F4.1 melengkapinya setelah tabel rab_item ada.
      */
     public function sedangDipakai(): bool
     {
-        return false;
+        return RabItem::query()->where('akun_id', $this->getKey())->exists();
     }
 }
