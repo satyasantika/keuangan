@@ -12,6 +12,7 @@ use App\Models\Pagu;
 use App\Models\User;
 use App\Support\DenganKunci;
 use App\Support\Uang;
+use App\Support\VersiCacheDasbor;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
@@ -62,6 +63,7 @@ class UbahPaguDitetapkan
 
                 $catatan = 'Perubahan pagu dari '.Uang::format($lama).' menjadi '.Uang::format($baru).': '.trim($alasan);
                 $this->catatRiwayat->handle($terkini, StatusPagu::Ditetapkan, StatusPagu::Ditetapkan, $oleh, $catatan);
+                VersiCacheDasbor::naikkan();
 
                 return $terkini;
             });

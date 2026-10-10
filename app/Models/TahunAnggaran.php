@@ -41,6 +41,15 @@ class TahunAnggaran extends Model
         ];
     }
 
+    /**
+     * Tahun anggaran bawaan untuk dasbor/laporan: yang berjalan terbaru, atau yang terbaru.
+     */
+    public static function bawaanId(): ?string
+    {
+        return self::query()->where('status', StatusTahunAnggaran::Berjalan->value)->orderByDesc('tahun')->value('id')
+            ?? self::query()->orderByDesc('tahun')->value('id');
+    }
+
     /** @return HasMany<Periode, $this> */
     public function periode(): HasMany
     {

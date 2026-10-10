@@ -14,13 +14,13 @@ final class VersiCacheDasbor
 
     public static function versi(): int
     {
-        return (int) Cache::get(self::KUNCI, 0);
+        return (int) Cache::get(self::KUNCI, 1);
     }
 
     public static function naikkan(): int
     {
         if (! Cache::has(self::KUNCI)) {
-            Cache::forever(self::KUNCI, 0);
+            Cache::forever(self::KUNCI, 1);
         }
 
         return (int) Cache::increment(self::KUNCI);

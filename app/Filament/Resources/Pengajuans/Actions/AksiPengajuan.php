@@ -63,6 +63,17 @@ class AksiPengajuan
             ->openUrlInNewTab();
     }
 
+    public static function kartuKegiatan(): Action
+    {
+        return Action::make('kartuKegiatan')
+            ->label('Kartu kegiatan')
+            ->icon(Heroicon::OutlinedRectangleStack)
+            ->color('gray')
+            ->visible(fn (Pengajuan $record): bool => $record->nomor !== null && (auth()->user()?->can('view', $record) ?? false))
+            ->url(fn (Pengajuan $record): string => route('pengajuan.kartu', $record))
+            ->openUrlInNewTab();
+    }
+
     public static function batalkan(): Action
     {
         return Action::make('batalkan')

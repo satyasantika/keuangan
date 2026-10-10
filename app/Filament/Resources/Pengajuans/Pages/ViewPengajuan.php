@@ -25,6 +25,7 @@ class ViewPengajuan extends ViewRecord
             AksiSpj::buka(),
             AksiPengembalian::catat(),
             AksiPengajuan::cetakPdf(),
+            AksiPengajuan::kartuKegiatan(),
             EditAction::make(),
             AksiPengajuan::batalkan(),
         ];

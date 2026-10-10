@@ -10,6 +10,7 @@ use App\Models\Impor;
 use App\Models\JenisPajak;
 use App\Models\JenisPencairan;
 use App\Models\KategoriPenggunaanDana;
+use App\Models\LaporanEkspor;
 use App\Models\Pagu;
 use App\Models\PaguAkun;
 use App\Models\Pencairan;
@@ -21,6 +22,7 @@ use App\Models\PotonganPajak;
 use App\Models\Rab;
 use App\Models\RabItem;
 use App\Models\RealisasiItem;
+use App\Models\RekapHonorEksternal;
 use App\Models\RekapPeriode;
 use App\Models\RekapPeriodeAkun;
 use App\Models\Spj;
@@ -100,10 +102,13 @@ class AppServiceProvider extends ServiceProvider
             'tautan_berkas_beku' => TautanBerkasBeku::class,
             'rekap_periode' => RekapPeriode::class,
             'rekap_periode_akun' => RekapPeriodeAkun::class,
+            'laporan_ekspor' => LaporanEkspor::class,
+            'rekap_honor_eksternal' => RekapHonorEksternal::class,
         ]);
 
         // Permintaan HTTP keluar ke Drive dibatasi global (02-ARSITEKTUR §3.4).
         RateLimiter::for('periksa-tautan', fn () => Limit::perMinute(60));
+        RateLimiter::for('ekspor', fn (Request $request) => Limit::perMinute(5)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('verifikasi-publik', fn (Request $request) => Limit::perMinute(30)->by((string) $request->ip()));
 
         $this->siapkanSubpath();

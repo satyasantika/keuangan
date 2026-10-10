@@ -8,6 +8,7 @@ use App\Exceptions\TransisiStatusTidakSahException;
 use App\Models\Pagu;
 use App\Models\User;
 use App\Support\DenganKunci;
+use App\Support\VersiCacheDasbor;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +41,7 @@ class TetapkanPagu
                 ])->save();
 
                 $this->catatRiwayat->handle($terkini, $dari, StatusPagu::Ditetapkan, $oleh, $catatan);
+                VersiCacheDasbor::naikkan();
 
                 return $terkini;
             });

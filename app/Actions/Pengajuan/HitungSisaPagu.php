@@ -7,11 +7,14 @@ use App\Models\Pagu;
 use App\Models\PaguAkun;
 use App\Models\Pengajuan;
 use App\Models\RabItem;
+use App\Models\RekapHonorEksternal;
+use App\Support\Pengaturan;
 use App\Support\Uang;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Sisa pagu unit = pagu ditetapkan − Σ komitmen pengajuan (BR-04).
+ * Sisa pagu unit = pagu ditetapkan − Σ komitmen pengajuan (BR-04); rekap honor fkipapp aktif ikut
+ * mengurangi hanya bila pengaturan honor_mengurangi_pagu = true (BR-24).
  */
 class HitungSisaPagu
 {
@@ -58,6 +61,18 @@ class HitungSisaPagu
             if ($kolom !== null) {
                 $nilai[] = (string) $pengajuan->getAttribute($kolom);
             }
+        }
+
+        if ((bool) Pengaturan::get('honor_mengurangi_pagu', false)) {
+            $nilai[] = Uang::jumlahkan(
+                RekapHonorEksternal::query()
+                    ->where('tahun_anggaran_id', $tahunAnggaranId)
+                    ->where('unit_id', $unitId)
+                    ->where('status', 'aktif')
+                    ->pluck('jumlah_bruto')
+                    ->map(fn ($j): string => (string) $j)
+                    ->all(),
+            );
         }
 
         return Uang::jumlahkan($nilai);

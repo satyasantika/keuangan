@@ -16,11 +16,16 @@ class AntreanPersetujuanWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 2;
 
+    protected int|string|array $columnSpan = 'full';
+
     protected ?string $pollingInterval = '60s';
 
+    /**
+     * Dasbor: admin-keuangan & bpp (F11.2); penyetuju lain memakai halaman "Menunggu tindakan".
+     */
     public static function canView(): bool
     {
-        return auth()->user()?->can('persetujuan.setujui') ?? false;
+        return auth()->user()?->hasAnyRole([Peran::AdminKeuangan->value, Peran::Bpp->value]) ?? false;
     }
 
     protected function getHeading(): ?string
