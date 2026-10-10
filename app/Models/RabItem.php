@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\TercatatAktivitas;
 use App\Enums\StatusRab;
 use App\Exceptions\KesalahanDomain;
 use Database\Factories\RabItemFactory;
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RabItem extends Model
 {
     /** @use HasFactory<RabItemFactory> */
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, TercatatAktivitas;
 
     protected $table = 'rab_item';
 

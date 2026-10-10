@@ -5,6 +5,18 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.5.0] - 2026-10-10
+
+### Ditambahkan
+- Persetujuan berjenjang (BR-06): `VerifikasiPengajuan` (kepala unit → keuangan; langsung disetujui bila tahap wadek nonaktif menurut snapshot) dan `SetujuiPengajuan` (wadek, cek ulang sisa pagu di bawah lock pagu unit, `total_disetujui`, RAB awal disetujui).
+- Pemisahan tugas (BR-07) lewat `MemeriksaPemisahanTugas`: pembuat tidak boleh menyetujui; satu pengguna satu tahap; deteksi aksi basi ("sudah diproses pengguna lain").
+- `KembalikanPengajuan` (RAB awal kembali draf) dan `TolakPengajuan` (final) dengan catatan wajib; `BatalkanPengajuan` oleh admin-keuangan untuk status diajukan s.d. disetujui tanpa pencairan aktif.
+- Tombol keputusan di halaman pengajuan (berbasis Policy), linimasa status, log perubahan (peran fakultas), halaman "Menunggu tindakan saya" dengan lencana jumlah, dan widget antrean persetujuan.
+- Uji arsitektur aksi persetujuan (DenganKunci, CatatRiwayatStatus); DemoSeeder memuat pengajuan di setiap status persetujuan.
+
+### Diubah
+- Batas memori uji 512M (`phpunit.xml`).
+
 ## [0.4.0] - 2026-10-10
 
 ### Ditambahkan

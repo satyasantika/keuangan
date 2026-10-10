@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pengajuans\Pages;
 
 use App\Filament\Resources\Pengajuans\Actions\AksiPengajuan;
+use App\Filament\Resources\Pengajuans\Actions\AksiPersetujuan;
 use App\Filament\Resources\Pengajuans\PengajuanResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -15,6 +16,8 @@ class ViewPengajuan extends ViewRecord
     {
         return [
             AksiPengajuan::ajukan(),
+            ...AksiPersetujuan::semua(),
+            AksiPersetujuan::batalkanKeuangan(),
             AksiPengajuan::cetakPdf(),
             EditAction::make(),
             AksiPengajuan::batalkan(),

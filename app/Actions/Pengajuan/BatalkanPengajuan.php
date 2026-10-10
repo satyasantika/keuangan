@@ -4,6 +4,7 @@ namespace App\Actions\Pengajuan;
 
 use App\Actions\Audit\CatatRiwayatStatus;
 use App\Enums\StatusPengajuan;
+use App\Enums\TahapPersetujuan;
 use App\Exceptions\KesalahanDomain;
 use App\Exceptions\TransisiStatusTidakSahException;
 use App\Models\Pengajuan;
@@ -13,7 +14,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Pembatalan beralasan (BR-22, BR-23). Tahap ini: admin-unit pada status draf/dikembalikan.
+ * Pembatalan beralasan (BR-22, BR-23): admin-unit saat draf/dikembalikan; admin-keuangan saat
+ * diajukan s.d. disetujui tanpa pencairan aktif. Komitmen pagu terlepas karena status dibatalkan.
  */
 class BatalkanPengajuan
 {
@@ -29,7 +31,7 @@ class BatalkanPengajuan
             throw new KesalahanDomain('Alasan pembatalan wajib diisi minimal '.self::MIN_ALASAN.' karakter.');
         }
 
-        if (! $oleh->can('update', $pengajuan)) {
+        if (! $oleh->can('batalkan', $pengajuan)) {
             throw new AuthorizationException('Anda tidak berhak membatalkan pengajuan ini.');
         }
 
@@ -38,12 +40,18 @@ class BatalkanPengajuan
                 $terkini = Pengajuan::query()->lockForUpdate()->findOrFail($pengajuan->getKey());
                 $dari = $terkini->status;
 
-                if (! $dari->dapatDiubah()) {
-                    throw new TransisiStatusTidakSahException('Pengajuan berstatus '.$dari->getLabel().' tidak dapat dibatalkan oleh unit.');
+                if (! $oleh->can('batalkan', $terkini) || ! $dari->bolehBerpindahKe(StatusPengajuan::Dibatalkan)) {
+                    throw new TransisiStatusTidakSahException('Pengajuan berstatus '.$dari->getLabel().' tidak dapat dibatalkan.');
                 }
 
+                if ($terkini->punyaPencairanAktif()) {
+                    throw new KesalahanDomain('Pengajuan yang memiliki pencairan aktif tidak dapat dibatalkan.');
+                }
+
+                $tahap = $dari->dapatDiubah() ? null : TahapPersetujuan::Keuangan;
+
                 $terkini->forceFill(['status' => StatusPengajuan::Dibatalkan, 'alasan_batal' => $alasan])->save();
-                $this->catatRiwayat->handle($terkini, $dari, StatusPengajuan::Dibatalkan, $oleh, $alasan);
+                $this->catatRiwayat->handle($terkini, $dari, StatusPengajuan::Dibatalkan, $oleh, $alasan, $tahap);
 
                 return $terkini;
             });

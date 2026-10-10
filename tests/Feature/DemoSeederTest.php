@@ -18,8 +18,10 @@ test('DemoSeeder di lokal membuat pengguna per peran, pagu ditetapkan, dan 10 pe
         ->and(User::where('email', 'admin-pmat@demo.test')->first()->hasRole('admin-unit'))->toBeTrue()
         ->and(Pagu::query()->berlaku()->count())->toBe(3)
         ->and(Pengajuan::count())->toBe(10)
-        ->and(Pengajuan::where('status', StatusPengajuan::Diajukan)->count())->toBe(5)
-        ->and(Pengajuan::where('status', StatusPengajuan::Draf)->count())->toBe(5)
+        ->and(Pengajuan::where('status', StatusPengajuan::Draf)->count())->toBe(4)
+        ->and(Pengajuan::pluck('status')->map->value->unique()->sort()->values()->all())->toBe([
+            'diajukan', 'dikembalikan', 'disetujui', 'ditolak', 'diverifikasi_keuangan', 'diverifikasi_unit', 'draf',
+        ])
         ->and(TautanBerkas::count())->toBe(10);
 });
 

@@ -6,6 +6,8 @@ use App\Filament\Resources\Pengajuans\Pages\CreatePengajuan;
 use App\Filament\Resources\Pengajuans\Pages\EditPengajuan;
 use App\Filament\Resources\Pengajuans\Pages\ListPengajuans;
 use App\Filament\Resources\Pengajuans\Pages\ViewPengajuan;
+use App\Filament\Resources\Pengajuans\RelationManagers\LogPerubahanRelationManager;
+use App\Filament\Resources\Pengajuans\RelationManagers\RiwayatStatusRelationManager;
 use App\Filament\Resources\Pengajuans\RelationManagers\TautanBerkasRelationManager;
 use App\Filament\Resources\Pengajuans\Schemas\PengajuanForm;
 use App\Filament\Resources\Pengajuans\Schemas\PengajuanInfolist;
@@ -88,6 +90,8 @@ class PengajuanResource extends Resource
     {
         return [
             TautanBerkasRelationManager::class,
+            RiwayatStatusRelationManager::class,
+            LogPerubahanRelationManager::class,
         ];
     }
 
