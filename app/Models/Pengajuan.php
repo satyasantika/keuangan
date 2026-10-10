@@ -10,6 +10,7 @@ use App\Contracts\PemilikTautan;
 use App\Enums\Peran;
 use App\Enums\StatusPencairan;
 use App\Enums\StatusPengajuan;
+use App\Enums\StatusSpj;
 use App\Enums\TahapPersetujuan;
 use App\Exceptions\KesalahanDomain;
 use App\Support\Uang;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -139,19 +141,45 @@ class Pengajuan extends Model implements PemilikTautan
     }
 
     /**
-     * SPJ pengajuan sudah diterima. Sementara false; dilengkapi F7.1 setelah tabel spj ada.
+     * SPJ pengajuan sudah diterima (BR-17).
      */
     public function spjSudahDiterima(): bool
     {
-        return false;
+        return $this->spj()->where('status', StatusSpj::Diterima->value)->exists();
+    }
+
+    /** @return HasOne<Spj, $this> */
+    public function spj(): HasOne
+    {
+        return $this->hasOne(Spj::class);
+    }
+
+    /** @return HasMany<Pengembalian, $this> */
+    public function pengembalian(): HasMany
+    {
+        return $this->hasMany(Pengembalian::class)->orderBy('tanggal_setor');
+    }
+
+    /** @return HasManyThrough<RealisasiItem, Spj, $this> */
+    public function realisasiItem(): HasManyThrough
+    {
+        return $this->hasManyThrough(RealisasiItem::class, Spj::class);
     }
 
     /**
-     * Sudah ada realisasi SPJ tercatat. Sementara false; dilengkapi F7.1.
+     * Sisa dana = dicairkan − realisasi; negatif berarti kurang bayar (BR-18).
+     */
+    public function sisaDana(): string
+    {
+        return Uang::kurang((string) $this->total_dicairkan, (string) $this->total_realisasi);
+    }
+
+    /**
+     * Sudah ada realisasi SPJ tercatat.
      */
     public function punyaRealisasi(): bool
     {
-        return false;
+        return $this->realisasiItem()->exists();
     }
 
     /**

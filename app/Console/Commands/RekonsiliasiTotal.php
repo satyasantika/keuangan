@@ -37,6 +37,24 @@ class RekonsiliasiTotal extends Command
                     }
                 }
 
+                $spj = $pengajuan->spj()->first();
+
+                if ($spj !== null) {
+                    $hitungSpj = $hitungUlang->hitungSpj($spj);
+
+                    foreach ($hitungSpj as $kolom => $seharusnya) {
+                        $tersimpan = (string) $spj->getAttribute($kolom);
+
+                        if (Uang::bandingkan($tersimpan, $seharusnya) !== 0) {
+                            $selisih[] = [($pengajuan->nomor ?? $pengajuan->id).' (SPJ)', $kolom, $tersimpan, $seharusnya, Uang::kurang($seharusnya, $tersimpan)];
+
+                            if ($perbaiki) {
+                                $spj->forceFill($hitungSpj)->saveQuietly();
+                            }
+                        }
+                    }
+                }
+
                 if ($beda && $perbaiki) {
                     $pengajuan->forceFill($hitung)->saveQuietly();
                 }
