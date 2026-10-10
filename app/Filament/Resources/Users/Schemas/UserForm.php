@@ -6,8 +6,10 @@ use App\Enums\Peran;
 use App\Models\Role;
 use App\Rules\EmailUnsil;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -43,6 +45,16 @@ class UserForm
                     ->label('No. HP')
                     ->tel()
                     ->maxLength(20),
+                Select::make('unit_id')
+                    ->label('Unit')
+                    ->relationship('unit', 'nama')
+                    ->getOptionLabelFromRecordUsing(fn ($record): string => "{$record->kode} — {$record->nama}")
+                    ->searchable()
+                    ->preload()
+                    ->live()
+                    ->required(fn (Get $get): bool => self::perluUnit((array) $get('roles')))
+                    ->validationMessages(['required' => 'Unit wajib diisi untuk peran admin-unit/kepala-unit'])
+                    ->helperText('Wajib untuk peran admin-unit dan kepala-unit.'),
                 TextInput::make('kode_eksternal')
                     ->label('Kode eksternal')
                     ->maxLength(50),
@@ -51,6 +63,7 @@ class UserForm
                     ->default(true),
                 CheckboxList::make('roles')
                     ->label('Peran')
+                    ->live()
                     ->relationship(
                         name: 'roles',
                         titleAttribute: 'name',
@@ -70,5 +83,15 @@ class UserForm
                     ])
                     ->columns(2),
             ]);
+    }
+
+    /**
+     * @param  array<int, string>  $idPeran
+     */
+    public static function perluUnit(array $idPeran): bool
+    {
+        $nama = array_map(fn (Peran $p) => $p->value, Peran::wajibUnit());
+
+        return Role::query()->whereIn('id', $idPeran)->whereIn('name', $nama)->exists();
     }
 }

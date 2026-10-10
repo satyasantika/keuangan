@@ -2,9 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\BarisImporGagal;
+use App\Models\Ekspor;
+use App\Models\Impor;
 use App\Models\Periode;
 use App\Models\TahunAnggaran;
+use App\Models\Unit;
 use App\Models\User;
+use Filament\Actions\Exports\Models\Export;
+use Filament\Actions\Imports\Models\FailedImportRow;
+use Filament\Actions\Imports\Models\Import;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Model impor/ekspor Filament memakai UUIDv7.
+        $this->app->bind(Import::class, Impor::class);
+        $this->app->bind(FailedImportRow::class, BarisImporGagal::class);
+        $this->app->bind(Export::class, Ekspor::class);
     }
 
     /**
@@ -35,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'tahun_anggaran' => TahunAnggaran::class,
             'periode' => Periode::class,
+            'unit' => Unit::class,
         ]);
 
         $this->siapkanSubpath();

@@ -24,7 +24,7 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with('roles'))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['roles', 'unit']))
             ->columns([
                 TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 TextColumn::make('email')->label('Surel')->searchable()->sortable(),
@@ -33,6 +33,7 @@ class UsersTable
                     ->label('Peran')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => Peran::tryFrom($state)?->getLabel() ?? $state),
+                TextColumn::make('unit.kode')->label('Unit')->placeholder('—')->sortable(),
                 ToggleColumn::make('aktif')
                     ->label('Aktif')
                     ->disabled(fn (User $record): bool => ! auth()->user()?->can('update', $record)),
