@@ -43,7 +43,7 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment('local')) {
+        if (! $this->lingkunganDiizinkan()) {
             return;
         }
 
@@ -214,11 +214,26 @@ class DemoSeeder extends Seeder
         };
     }
 
+    protected function lingkunganDiizinkan(): bool
+    {
+        return app()->environment('local');
+    }
+
+    protected function surel(string $nama): string
+    {
+        return "{$nama}@demo.test";
+    }
+
+    protected function kataSandi(): string
+    {
+        return 'password';
+    }
+
     private function pengguna(string $nama, string $namaLengkap, Peran $peran, ?string $unitId = null): User
     {
         $pengguna = User::query()->firstOrCreate(
-            ['email' => "{$nama}@demo.test"],
-            ['name' => $namaLengkap, 'password' => 'password', 'aktif' => true, 'unit_id' => $unitId],
+            ['email' => $this->surel($nama)],
+            ['name' => $namaLengkap, 'password' => $this->kataSandi(), 'aktif' => true, 'unit_id' => $unitId],
         );
 
         $pengguna->forceFill(['email_verified_at' => $pengguna->email_verified_at ?? now()])->save();

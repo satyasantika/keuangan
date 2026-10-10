@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dasbor;
 use App\Http\Middleware\WajibMfa;
+use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -13,6 +14,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -40,6 +42,14 @@ class KeuanganPanelProvider extends PanelProvider
             ->brandName('Keuangan FKIP Unsil')
             ->colors([
                 'primary' => Color::Amber,
+            ])
+            ->userMenuItems([
+                Action::make('panduan')
+                    ->label('Panduan')
+                    ->icon(Heroicon::OutlinedBookOpen)
+                    ->url(fn (): string => route('panduan.pengguna'))
+                    ->extraAttributes(['rel' => 'noopener noreferrer'])
+                    ->openUrlInNewTab(),
             ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')

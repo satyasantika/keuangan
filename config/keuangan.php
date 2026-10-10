@@ -22,4 +22,12 @@ return [
         'nama' => env('SEED_ADMIN_NAMA', 'Admin TI Fakultas'),
     ],
 
+    /*
+    | Data UAT (UatSeeder, hanya APP_ENV=staging): kata sandi awal & pemetaan akun → surel penguji.
+    */
+    'uat' => [
+        'password' => env('UAT_PASSWORD'),
+        'emails' => env('UAT_EMAILS', ''),
+    ],
+
 ];

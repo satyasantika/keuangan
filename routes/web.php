@@ -4,6 +4,7 @@ use App\Http\Controllers\CetakKartuKegiatanController;
 use App\Http\Controllers\CetakPengajuanController;
 use App\Http\Controllers\CetakRevisiController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\UnduhEksporController;
 use App\Http\Controllers\VerifikasiPublikController;
 use Illuminate\Support\Facades\Route;
@@ -21,4 +22,5 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/revisi/{rab}/pdf', CetakRevisiController::class)->name('revisi.pdf');
     Route::get('/laporan/ekspor', [LaporanController::class, 'ekspor'])->middleware('throttle:ekspor')->name('laporan.ekspor');
     Route::get('/ekspor/{laporanEkspor}', UnduhEksporController::class)->middleware('signed')->name('ekspor.unduh');
+    Route::get('/panduan-pengguna/{halaman?}', PanduanController::class)->where('halaman', '[A-Za-z0-9-]+')->name('panduan.pengguna');
 });
