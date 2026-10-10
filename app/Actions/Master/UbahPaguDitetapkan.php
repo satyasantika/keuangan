@@ -3,8 +3,10 @@
 namespace App\Actions\Master;
 
 use App\Actions\Audit\CatatRiwayatStatus;
+use App\Actions\Pengajuan\HitungSisaPagu;
 use App\Enums\StatusPagu;
 use App\Exceptions\KesalahanDomain;
+use App\Exceptions\PaguTidakCukupException;
 use App\Exceptions\TransisiStatusTidakSahException;
 use App\Models\Pagu;
 use App\Models\User;
@@ -15,11 +17,14 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Perubahan jumlah pagu yang sudah ditetapkan, beralasan, oleh wadek-keuangan.
- * Validasi terhadap komitmen pengajuan (BR-04) ditambahkan di F4.3 lewat HitungSisaPagu.
+ * Jumlah baru tidak boleh lebih kecil dari komitmen pengajuan unit (BR-04).
  */
 class UbahPaguDitetapkan
 {
-    public function __construct(private readonly CatatRiwayatStatus $catatRiwayat) {}
+    public function __construct(
+        private readonly CatatRiwayatStatus $catatRiwayat,
+        private readonly HitungSisaPagu $hitungSisaPagu,
+    ) {}
 
     public function handle(Pagu $pagu, string $jumlahBaru, string $alasan, User $oleh): Pagu
     {
@@ -35,7 +40,9 @@ class UbahPaguDitetapkan
             throw new KesalahanDomain('Jumlah pagu harus angka desimal tidak negatif.');
         }
 
-        return DenganKunci::jalankan("aksi:pagu:{$pagu->id}", function () use ($pagu, $jumlahBaru, $alasan, $oleh): Pagu {
+        $tahun = $pagu->tahunAnggaran()->value('tahun');
+
+        return DenganKunci::jalankan("pagu:{$tahun}:{$pagu->unit_id}", fn (): Pagu => DenganKunci::jalankan("aksi:pagu:{$pagu->id}", function () use ($pagu, $jumlahBaru, $alasan, $oleh): Pagu {
             return DB::transaction(function () use ($pagu, $jumlahBaru, $alasan, $oleh): Pagu {
                 $terkini = Pagu::query()->lockForUpdate()->findOrFail($pagu->getKey());
 
@@ -45,6 +52,11 @@ class UbahPaguDitetapkan
 
                 $lama = (string) $terkini->jumlah;
                 $baru = Uang::jumlahkan([$jumlahBaru]);
+                $komitmen = $this->hitungSisaPagu->handle($terkini->tahun_anggaran_id, $terkini->unit_id)['komitmen'] ?? '0.00';
+
+                if (Uang::bandingkan($baru, $komitmen) < 0) {
+                    throw new PaguTidakCukupException('Pagu baru ('.Uang::format($baru).') lebih kecil dari komitmen pengajuan unit ('.Uang::format($komitmen).').');
+                }
 
                 $terkini->forceFill(['jumlah' => $baru])->save();
 
@@ -53,6 +65,6 @@ class UbahPaguDitetapkan
 
                 return $terkini;
             });
-        });
+        }));
     }
 }
