@@ -6,9 +6,13 @@ use App\Models\Akun;
 use App\Models\BarisImporGagal;
 use App\Models\Ekspor;
 use App\Models\Impor;
+use App\Models\JenisPajak;
+use App\Models\JenisPencairan;
 use App\Models\KategoriPenggunaanDana;
+use App\Models\Pengaturan;
 use App\Models\Periode;
 use App\Models\TahunAnggaran;
+use App\Models\TarifPajak;
 use App\Models\Unit;
 use App\Models\User;
 use Filament\Actions\Exports\Models\Export;
@@ -50,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
             'unit' => Unit::class,
             'akun' => Akun::class,
             'kategori_penggunaan_dana' => KategoriPenggunaanDana::class,
+            'jenis_pencairan' => JenisPencairan::class,
+            'jenis_pajak' => JenisPajak::class,
+            'tarif_pajak' => TarifPajak::class,
+            'pengaturan' => Pengaturan::class,
         ]);
 
         $this->siapkanSubpath();
