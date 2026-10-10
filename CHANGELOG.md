@@ -5,6 +5,14 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [0.10.0] - 2026-10-10
+
+### Ditambahkan
+- Notifikasi database (format Filament, tombol "Buka") dan surel ("[Keuangan FKIP] …", tanpa URL tautan bukti/data penerima) dari event `StatusBerubah` lewat listener antrean `notifikasi`: menunggu tindakan per tahap (tanpa pengguna yang terlarang bertindak), dikembalikan/ditolak/disetujui/selesai, pencairan dicatat, revisi, SPJ, pengembalian, kunci/buka periode, indikasi bukti ganda; `TautanBerkasBermasalah` kini juga via surel. Pengguna nonaktif tidak menerima notifikasi.
+- Kanal WhatsApp opsional (`services.whatsapp`, `WhatsAppChannel`: nomor dinormalisasi 62…, batas per menit, token hanya dari env) untuk notifikasi mendesak.
+- Perintah terjadwal: `keuangan:pengingat-spj` (H-n dan interval terlambat, `--dry-run`), `keuangan:rekap-mingguan`, `keuangan:pengingat-kunci-periode`, `keuangan:periksa-ulang-tautan` (lewati tautan beku), `keuangan:bersihkan-sementara`; `keuangan:rekonsiliasi` memberi tahu super-admin bila ada selisih; jadwal di `routes/console.php`.
+- Uji arsitektur: semua notifikasi & listener diantrekan. README: penjadwal lokal & Mailpit.
+
 ## [0.9.0] - 2026-10-10
 
 ### Ditambahkan
