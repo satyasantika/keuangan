@@ -79,3 +79,25 @@ Bila versi baru membawa migrasi yang tidak kompatibel ke belakang, pulihkan dump
 - Log aplikasi: volume `logs` (`storage/logs`, kanal `daily`, data sensitif disamarkan).
 - Status layanan: `docker compose --env-file .env.production -f docker-compose.prod.yml ps` — `web` sehat bila
   `/api/health` mengembalikan `ok`; `app` sehat bila ping PHP-FPM membalas `pong`.
+
+## Checklist go-live (tugas manusia)
+
+Butir 05-UJI-PENERIMAAN §4 yang tidak dapat diverifikasi dari kode dan harus dikerjakan/ditandatangani:
+
+1. **G-01/G-02** — Sahkan ADR 0001 (nama, tanggal, paraf) dan konfirmasi parameter ADR 0002; lencana *Perlu
+   verifikasi* di **Sistem → Pengaturan** menunjukkan butir yang masih terbuka.
+2. **G-03** — Muat master resmi: unit FKIP, impor akun BAS resmi, jenis pencairan (hapus tanda perlu verifikasi),
+   tarif pajak referensi beserta dasar hukum (diisi bagian keuangan), kategori penggunaan dana.
+3. **G-04/G-05** — Buat pengguna per peran (unit benar, MFA aktif), tahun anggaran berjalan, dan tetapkan pagu semua unit.
+4. **G-06** — Server: sertifikat HTTPS valid, blok reverse proxy `/keuangan/`, `.env.production` (`APP_ENV=production`,
+   `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, `TRUSTED_PROXIES` = IP proxy).
+5. **G-07** — `docker compose … up -d --build` di server; cek `/api/health` = ok, Horizon & scheduler berjalan.
+6. **G-08** — Uji SMTP kampus (surel uji diterima); putuskan WhatsApp aktif/nonaktif.
+7. **G-09** — Pastikan cadangan harian tercipta di `./backup/mysql`, salin ke luar server, uji pulih pertama dan catat di runbook.
+8. **G-09a** — Shared Drive per unit dengan berbagi default *Terbatas/Universitas Siliwangi*; sosialisasi panduan berbagi.
+9. **G-10/G-11** — Jalankan UAT (`docs/uat/hasil-uat.md`, data `UatSeeder` di staging), tanda tangani berita acara,
+   pelatihan per peran memakai panduan `/keuangan/panduan/`.
+10. **G-12** — Tambah kartu/tautan portal Support System FKIP ke `keuangan/` dan `keuangan/panduan/` (ADR 0001 opsi b:
+    tautan baru berlabel jelas, `/laporankeuangan/` tetap).
+11. **G-14** — Jadwalkan pendampingan bulan pertama dan jalur pelaporan isu.
+12. **G-15** — Dorong tag `v1.0.0` ke remote kampus dan bangun image produksi dari tag tersebut (job CI `docker`).

@@ -5,6 +5,34 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+## [1.0.0] - 2026-10-10
+
+Rilis produksi pertama Keuangan FKIP Unsil. Ringkasan per modul (rincian di versi 0.1.0–0.11.0 di bawah):
+
+- **Autentikasi & pengguna**: panel Filament berbahasa Indonesia di subpath `/keuangan`, MFA wajib peran keuangan, 7 peran dengan matriks izin PRD §3.2, manajemen pengguna & reset MFA.
+- **Master & anggaran**: tahun anggaran + 12 periode, unit/prodi, akun BAS (impor), kategori penggunaan dana, jenis pencairan, jenis & tarif pajak referensi, pengaturan; pagu unit (+ rincian akun) dengan penetapan Wadek.
+- **Pengajuan & persetujuan**: draf + RAB (uang DECIMAL, dihitung server), tautan TOR, penomoran `PGJ/{tahun}/{urut}` di bawah lock, persetujuan berjenjang dengan pemisahan tugas, PDF + QR verifikasi publik.
+- **Pencairan, SPJ, pajak, pengembalian**: pencairan berbukti, realisasi per item dengan tautan bukti terbatas, deteksi bukti ganda, potongan pajak sebagai informasi, SPJ dengan pernyataan berkas final & pembekuan tautan, setoran sisa dana & penyelesaian.
+- **Revisi RAB, kunci periode, notifikasi**: revisi bernomor, kunci/buka periode dengan snapshot, tutup tahun, notifikasi database/surel/WhatsApp opsional, penjadwal pengingat & rekonsiliasi.
+- **Dasbor & laporan**: dasbor per peran, LAP-01 s.d. LAP-09 (Excel/PDF, ekspor besar lewat antrean), impor rekap honor ujian fkipapp (baca-saja).
+
+### Ditambahkan
+- Uji otorisasi menyeluruh: matriks izin 7 peran × halaman, IDOR lintas unit, pemisahan tugas BR-07, konkurensi lock Redis (fork paralel) dan penomoran 100 nomor unik.
+- Pengerasan keamanan: header keamanan & CSP (frame hanya Google Drive/Docs), HSTS di produksi, sesi `secure`/`http_only`/`lax`, penyamaran data sensitif di log, halaman galat berbahasa Indonesia, route unggah `storage.local` dinonaktifkan.
+- Docker produksi (`docker/Dockerfile`, `docker-compose.prod.yml`: app, web, queue/Horizon, scheduler, MySQL 8.4, Redis 7, backup), `docs/deploy.md`, job CI pembangunan image pada tag.
+- Cadangan harian MySQL (retensi 30 hari, sha256) & skrip pemulihan yang menolak production, `docs/runbook-cadangan.md`; pemeriksaan format ekspor Excel (pengganti migrasi historis sesuai ADR 0001 opsi b).
+- Panduan pengguna HTML per peran dengan tangkapan layar Playwright di `/keuangan/panduan/` (tautan di halaman masuk & menu pengguna), `PanduanSeeder` (lokal), `UatSeeder` (staging), lembar hasil UAT.
+- Lencana "Perlu verifikasi" di halaman Pengaturan (ADR 0002, jenis pencairan, tarif pajak, akun contoh, kategori akreditasi) untuk super-admin & admin-keuangan.
+
+### Diubah
+- Seeder production hanya menjalankan peran & izin, super-admin pertama, pengaturan, jenis pencairan, dan jenis pajak; data contoh dilewati dengan pesan.
+
+### Diperbaiki
+- Proxy tepercaya dibaca dari config (sebelumnya `env()` di `bootstrap/app.php` dievaluasi sebelum `.env` dimuat sehingga `X-Forwarded-*` diabaikan).
+- URL update Livewire tidak lagi menggandakan awalan `/keuangan` saat diakses tanpa `X-Forwarded-Prefix`.
+- Data dasbor/laporan dan master tercache disimpan sebagai larik; sebelumnya Collection kembali sebagai `__PHP_Incomplete_Class` pada store Redis/file.
+- Pemisahan tugas revisi RAB melempar `PelanggaranPemisahanTugasException` yang jelas.
+
 ## [0.11.0] - 2026-10-10
 
 ### Ditambahkan
