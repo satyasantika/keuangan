@@ -4,6 +4,7 @@ use App\Actions\Berkas\SimpanTautanBerkas;
 use App\Actions\Master\BuatTahunAnggaran;
 use App\Actions\Master\TetapkanPagu;
 use App\Actions\Master\UbahStatusTahunAnggaran;
+use App\Actions\Pencairan\CatatPencairan;
 use App\Actions\Pengajuan\AjukanPengajuan;
 use App\Actions\Pengajuan\SimpanDrafPengajuan;
 use App\Actions\Persetujuan\SetujuiPengajuan;
@@ -182,5 +183,33 @@ function dataPencairan(string $jumlah, string $tanggal = '2027-06-15', bool $kon
     return [
         ['jenis_pencairan_id' => $jenis->id, 'tanggal' => $tanggal, 'jumlah' => $jumlah, 'nomor_bukti' => 'KW-001', 'penerima' => 'Penyedia'],
         [['label' => 'Bukti transfer', 'url' => 'https://drive.google.com/file/d/1Bukti'.Str::random(6).'/view', 'akses_terbatas_dikonfirmasi' => $konfirmasi]],
+    ];
+}
+
+/**
+ * Pengajuan yang sudah dicairkan penuh (2 × 150.000 = 300.000) pada 15 Juni 2027.
+ */
+function buatPengajuanDicairkan(object $k, string $volume = '2', string $harga = '150000'): Pengajuan
+{
+    $pengajuan = buatPengajuanDisetujui($k, $volume, $harga);
+    [$data, $tautan] = dataPencairan((string) $pengajuan->total_disetujui);
+    app(CatatPencairan::class)->handle($pengajuan, $data, $tautan, $k->bpp);
+
+    return $pengajuan->fresh();
+}
+
+/**
+ * Data realisasi sah untuk item RAB aktif pertama, dengan tautan kuitansi terkonfirmasi.
+ *
+ * @return array{0: array<string, mixed>, 1: array<int, array<string, mixed>>}
+ */
+function dataRealisasi(Pengajuan $pengajuan, string $volume = '1', string $harga = '150000', ?string $driveId = null, string $tanggal = '2027-06-16'): array
+{
+    $item = $pengajuan->rabAktif()->firstOrFail()->item()->firstOrFail();
+    $driveId ??= '1Kw'.Str::random(10);
+
+    return [
+        ['rab_item_id' => $item->id, 'tanggal_bukti' => $tanggal, 'nomor_bukti' => 'KW-01', 'uraian' => 'Konsumsi', 'penerima' => 'Katering', 'volume' => $volume, 'harga_satuan' => $harga],
+        [['jenis' => 'kuitansi', 'label' => 'Kuitansi konsumsi', 'url' => "https://drive.google.com/file/d/{$driveId}/view", 'akses_terbatas_dikonfirmasi' => true]],
     ];
 }
