@@ -62,3 +62,25 @@ test('cadangan harian 01:30 WIB dengan retensi bawaan 30 hari dan pemulihan meno
         ->toContain('RETENSI_HARI="${RETENSI_HARI:-30}"')->toContain('sha256sum')
         ->and($restore)->toContain('"${APP_ENV:-}" = "production"')->toContain('--paksa');
 });
+
+test('auto-pull: deploy dipicu tag rilis, lolos uji penuh, dan skrip rilis menjaga cadangan, kesehatan, rollback', function () use ($akar) {
+    $alur = (string) file_get_contents($akar.'/.github/workflows/deploy.yml');
+    $uji = (string) file_get_contents($akar.'/.github/workflows/uji.yml');
+    $skrip = (string) file_get_contents($akar.'/scripts/deploy.sh');
+
+    expect($alur)->toContain("tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]")
+        ->toContain('needs: uji')
+        ->toContain('cancel-in-progress: false')
+        ->toContain('git fetch --tags')
+        ->toContain('bash scripts/deploy.sh')
+        ->not->toContain('branches:')
+        ->and($uji)->toContain('workflow_call:')->toContain('scripts/*.sh')
+        ->and($skrip)->toContain('set -euo pipefail')
+        ->toContain('git merge-base --is-ancestor')
+        ->toContain('backup.sh')
+        ->toContain('/api/health')
+        ->toContain('--rollback')
+        ->toContain('--no-build')
+        ->not->toContain('--no-verify')
+        ->and(is_executable($akar.'/scripts/deploy.sh'))->toBeTrue();
+});

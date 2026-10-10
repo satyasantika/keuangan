@@ -1,16 +1,48 @@
+# Penggelaran otomatis: server menarik (git pull) tag rilis vX.Y.Z lalu menjalankan scripts/deploy.sh.
+# Hanya tag yang lolos uji penuh (pint, phpstan, pest) yang sampai ke server; rilis dipicu dengan
+#   git tag -a vX.Y.Z -m "..." && git push origin vX.Y.Z
+# Rahasia repositori (diisi manusia): SERVER_HOST, SERVER_USER, SSH_PRIVATE_KEY.
 name: Deploy keuangan
 on:
   push:
-    branches: [ main ]
+    tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag rilis yang di-deploy ulang (mis. v1.0.0)'
+        required: true
+
+concurrency:
+  group: deploy-keuangan
+  cancel-in-progress: false
+
 jobs:
+  uji:
+    uses: ./.github/workflows/uji.yml
+
   deploy:
+    needs: uji
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      - name: Deploy ke server via SSH
+      - name: Validasi nama tag
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Tag tidak valid: $TAG"; exit 1; }
+
+      - name: Tarik tag di server dan rilis
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          TAG: ${{ env.TAG }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: TAG
+          script_stop: true
           script: |
-            ~/docker-apps/deploy.sh keuangan
+            cd ~/docker-apps/keuangan
+            git fetch --tags --prune --force origin
+            git fetch origin main
+            git checkout --detach "refs/tags/$TAG"
+            bash scripts/deploy.sh

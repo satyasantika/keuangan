@@ -7,6 +7,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_call:
 
 jobs:
   uji:
@@ -74,7 +75,7 @@ jobs:
           npm run build
 
       - name: Shellcheck skrip docker & cadangan
-        run: shellcheck docker/entrypoint.sh docker/backup/*.sh
+        run: shellcheck docker/entrypoint.sh docker/backup/*.sh scripts/*.sh
 
       - name: Pint
         run: ./vendor/bin/pint --test

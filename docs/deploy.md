@@ -62,6 +62,34 @@ curl -fsS http://127.0.0.1:8035/api/health
 Sebelum memperbarui, pastikan cadangan MySQL terbaru ada (lihat `docs/runbook-cadangan.md`; service `backup`
 membuat dump harian 01:30 WIB ke `./backup/mysql`).
 
+## Auto-pull dari GitHub (CD)
+
+Pola mengikuti `sigap`/`puspresma`/`alias` (GitHub Actions → SSH ke server) dengan skrip rilis yang ikut di repo
+seperti `silogy` (`scripts/deploy.sh`), bukan salinan di `~/docker-apps/deploy.sh`.
+
+Alur: `git tag -a vX.Y.Z -m "..." && git push origin vX.Y.Z` → job `uji` (pint, phpstan, pest, shellcheck; dipakai ulang
+dari `uji.yml`) → job `deploy` masuk ke server dan menjalankan:
+
+```bash
+cd ~/docker-apps/keuangan
+git fetch --tags --prune --force origin && git fetch origin main
+git checkout --detach "refs/tags/$TAG"
+bash scripts/deploy.sh
+```
+
+`scripts/deploy.sh`: menolak bila HEAD bukan tag `vX.Y.Z`, tag tidak ada di riwayat `origin/main`, atau working tree
+kotor → cadangan MySQL pra-migrasi (service `backup`) → build → `up -d` (migrasi di `app`) → health check
+`/api/health` (maks. 2 menit; gagal = job merah + 50 baris log `app`) → `horizon:terminate` → hapus image lama
+(3 versi terakhir disimpan). Push biasa ke `main` **tidak** menggelar apa pun; hanya tag yang dirilis.
+
+- Rahasia repositori (diisi manusia): `SERVER_HOST`, `SERVER_USER`, `SSH_PRIVATE_KEY` (kunci khusus deploy; publiknya di `authorized_keys`).
+- Server: clone repo ke `~/docker-apps/keuangan` (perlu verifikasi dengan UPT TIK), `.env.production` di sana, akun deploy boleh menjalankan `docker`.
+  Pakai *deploy key* GitHub baca-saja bila repo privat agar `git fetch` jalan tanpa kata sandi.
+- Deploy ulang/rollback dari GitHub: *Actions → Deploy keuangan → Run workflow* dengan tag tujuan. Rollback cepat di server
+  tanpa build ulang: `bash scripts/deploy.sh --rollback X.Y.Z` (`--list` menampilkan versi tersedia). Rollback hanya
+  mengembalikan kode, bukan skema — lihat bagian Rollback.
+- Aktif setelah repo punya remote GitHub (ADR 0003: saat ini belum ada remote; tidak ada push dilakukan).
+
 ## Rollback ke tag sebelumnya
 
 ```bash
