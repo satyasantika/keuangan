@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Spjs;
 
 use App\Filament\Resources\Spjs\Pages\ListSpjs;
 use App\Filament\Resources\Spjs\Pages\ViewSpj;
+use App\Filament\Resources\Spjs\RelationManagers\RealisasiItemRelationManager;
 use App\Filament\Resources\Spjs\RelationManagers\TautanBekuRelationManager;
 use App\Filament\Resources\Spjs\Schemas\SpjInfolist;
 use App\Filament\Resources\Spjs\Tables\SpjsTable;
@@ -75,6 +76,7 @@ class SpjResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RealisasiItemRelationManager::class,
             TautanBekuRelationManager::class,
         ];
     }
