@@ -104,7 +104,7 @@ Bila versi baru membawa migrasi yang tidak kompatibel ke belakang, pulihkan dump
 
 ## Akun awal
 
-`db:seed` membuat super-admin `fkip@unsil.ac.id` dengan kata sandi dari `SEED_ADMIN_PASSWORD`. **Ganti kata sandi segera setelah
+`db:seed` membuat super-admin `fkip@unsil.ac.id` dengan kata sandi dari `SEED_ADMIN_PASSWORD` (isi manual di `.env.production` sebelum `db:seed`; tidak ada nilai bawaan). **Ganti kata sandi segera setelah
 masuk pertama** (menu pengguna → Profil), atau tandai akun wajib ganti sandi. MFA tidak diwajibkan secara bawaan; setel
 `MFA_WAJIB=true` di `.env.production` (lalu `php artisan config:cache`) untuk mewajibkannya bagi super-admin, admin-keuangan, bpp, dan wadek-keuangan.
 

@@ -162,9 +162,9 @@ describe('impor massal pengguna dari tempel', function () {
     });
 });
 
-test('super-admin awal: fkip@unsil.ac.id / siliwangi, tanpa MFA, langsung bisa masuk panel', function () {
+test('super-admin awal: fkip@unsil.ac.id dengan sandi dari konfigurasi, tanpa MFA, langsung bisa masuk panel', function () {
     $this->seed(PeranDanIzinSeeder::class);
-    config(['keuangan.mfa_wajib' => false]);
+    config(['keuangan.mfa_wajib' => false, 'keuangan.seed_admin.password' => 'siliwangi']);
 
     (new PenggunaAwalSeeder)->run();
 

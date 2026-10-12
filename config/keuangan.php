@@ -18,7 +18,7 @@ return [
     */
     'seed_admin' => [
         'email' => env('SEED_ADMIN_EMAIL', 'fkip@unsil.ac.id'),
-        'password' => env('SEED_ADMIN_PASSWORD', 'siliwangi'),
+        'password' => env('SEED_ADMIN_PASSWORD'),
         'nama' => env('SEED_ADMIN_NAMA', 'Admin TI Fakultas'),
     ],
 

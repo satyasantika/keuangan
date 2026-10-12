@@ -48,7 +48,7 @@ Data contoh lokal: `kup php artisan db:seed --class=DemoSeeder`.
 
 ### Akun super-admin awal
 
-Seeder membuat `fkip@unsil.ac.id` (kata sandi awal dari `SEED_ADMIN_PASSWORD`, bawaan di `.env.example`).
+Seeder membuat `fkip@unsil.ac.id` (kata sandi awal diisi manual lewat `SEED_ADMIN_PASSWORD` di `.env` sebelum `db:seed`).
 **Ganti kata sandi segera setelah masuk pertama** lewat menu pengguna → Profil.
 MFA tidak diwajibkan secara bawaan (`MFA_WAJIB=false`); setel `MFA_WAJIB=true` bila peran keuangan harus memakai autentikator.
 
