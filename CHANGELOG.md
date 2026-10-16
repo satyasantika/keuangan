@@ -5,6 +5,23 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+### Dihapus (Profil Ringan)
+- Horizon (`laravel/horizon`, `laravel/sentinel`, `symfony/polyfill-php83`), `config/horizon.php`, `HorizonServiceProvider`, gerbang `viewHorizon`, rute `/horizon`, dan `horizon:snapshot`.
+- Redis: `/api/health` tidak lagi memeriksa Redis; variabel `REDIS_*` dan `HORIZON_*` dihapus dari contoh env; phpredis dihapus dari `docker/Dockerfile`.
+- Container `queue`, `redis`, dan `mysql` dari `docker-compose.prod.yml` (basis data kini MariaDB native di host); `DB_ROOT_PASSWORD`.
+
+### Ditambahkan (Profil Ringan)
+- Antrean database dua jalur (`database` dan `database-berat`, `retry_after` 960), worker dinyalakan penjadwal tiap menit, detak penjadwal, `queue:prune-failed` dan `queue:prune-batches`.
+- `/api/health` memuat `job_tertunda` (> 10 menit), `job_gagal_24j`, dan `detak_penjadwal`; 503 hanya bila DB gagal.
+- `APP_KODE`; `extra_hosts` host-gateway, `mem_limit`, dan rotasi log (`json-file` 10m x 3) pada setiap container produksi.
+- Gerbang uji: skema UUID native (tipe kolom, FK, urutan 100 id UUIDv7, morph), larangan `char`/`binary` eksplisit untuk id, antrean hanya `default`/`berat`, tanpa Redis/Horizon, compose produksi tanpa container database.
+- Peralihan produksi dari v1.0.0 (`docs/deploy.md`) dan ADR 0004.
+
+### Diubah (Profil Ringan)
+- `composer.json` PHP `^8.5`. Nama antrean `notifikasi` menjadi `default`; ekspor laporan dan impor memakai koneksi `database-berat`. Sesi, cache, antrean, dan lock memakai driver `database`.
+- Lock aksi (`DenganKunci`) memakai store cache `database` (`KEUANGAN_LOCK_STORE`). Cadangan memakai `mariadb-dump`; nama database `db_keuangan`.
+- **Ubah `.env.production` di server dan pindahkan data sebelum merge/rilis** (`docs/deploy.md`, "Peralihan dari v1.0.0").
+
 ### Diubah (keputusan pemilik 16 Oktober 2026, lanjutan)
 - Dokumen diselaraskan: nama database seragam `db_<app>` (`db_keuangan`, `db_keuangan_testing`); kolom UUID bertipe UUID native MariaDB lewat Blueprint Laravel (klaim `CHAR(36)` dihapus; `char('id', 36)`/`binary(16)` eksplisit dilarang; gerbang uji urutan UUIDv7 100 id, FK, dan morph ditambahkan pada prompt F1.4); produksi memakai MariaDB native di host lewat `host.docker.internal` (prompt F12.3/F12.4 dan G-07 ditulis ulang tanpa container database; CI boleh service container sementara); alat dump `mariadb-dump`.
 - Butir Fase B tambahan (kode/Compose belum disesuaikan): hapus service `mysql` dari `docker-compose.prod.yml` dan tambahkan `extra_hosts` host-gateway; ganti `mysqldump` dengan `mariadb-dump` di `docker/backup/*.sh`; naikkan `composer.json` dari `^8.3` ke `^8.5`; perluas `tests/Feature/UuidTest.php` dengan uji urutan, FK, dan morph.

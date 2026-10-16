@@ -43,7 +43,7 @@ kup php artisan migrate --seed  # peran, izin, pengaturan, dan super-admin awal
 npm install && npm run build
 ```
 
-> **Profil Ringan berlaku setelah Fase B; kondisi saat ini:** `/home/satya/code/docker-compose.yml` masih mendefinisikan `keuangan-horizon` dan kode/`.env.example` masih memakai Redis. Perintah `up -d` di atas (tanpa `keuangan-horizon`) dan keterangan antrean berbasis database baru benar setelah Fase B; sebelum itu tambahkan `keuangan-horizon` dan jalankan Redis bersama.
+> Lokal: `/home/satya/code/docker-compose.yml` (di luar repo ini) masih mendefinisikan `keuangan-horizon`; setelah Horizon dicabut, service itu harus dihapus dari berkas tersebut (kerjakan di sana, bukan di repo ini).
 
 Aplikasi: http://localhost:8035/keuangan/ · Kesehatan: `/api/health` · Antrean: `kup php artisan queue:failed` / `queue:retry <id>` (dijalankan penjadwal, STANDAR-TEKNIS §1b).
 Data contoh lokal: `kup php artisan db:seed --class=DemoSeeder`.
