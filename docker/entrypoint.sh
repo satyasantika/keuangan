@@ -1,5 +1,5 @@
 #!/bin/sh
-# Entrypoint container app/queue/scheduler. Migrasi hanya bila RUN_MIGRATIONS=true (container app).
+# Entrypoint container app/scheduler. Migrasi hanya bila RUN_MIGRATIONS=true (container app).
 set -eu
 
 cd /var/www/html

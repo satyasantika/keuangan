@@ -75,7 +75,7 @@ bersihkan_image() {
 }
 
 muat_ulang_pekerja() {
-  "${COMPOSE[@]}" exec -T queue php artisan horizon:terminate || true
+  "${COMPOSE[@]}" exec -T scheduler php artisan queue:restart || true
 }
 
 rollback() {

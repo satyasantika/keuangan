@@ -1,5 +1,5 @@
 #!/bin/sh
-# Cadangan harian MySQL Keuangan FKIP Unsil (runbook: docs/runbook-cadangan.md).
+# Cadangan harian MariaDB Keuangan FKIP Unsil (runbook: docs/runbook-cadangan.md).
 # Hanya basis data: berkas bukti berada di Google Drive unit, server tidak menyimpan berkas pengguna.
 #
 # Variabel: DB_HOST, DB_PORT (3306), DB_DATABASE, DB_USERNAME, DB_PASSWORD,
@@ -29,14 +29,14 @@ trap 'rm -f "$OPSI" "$SEMENTARA"' EXIT
 chmod 600 "$OPSI"
 printf '[client]\nhost=%s\nport=%s\nuser=%s\npassword=%s\n' "$DB_HOST" "$DB_PORT" "$DB_USERNAME" "$DB_PASSWORD" > "$OPSI"
 
-# pipefail tidak tersedia di semua sh: status mysqldump diperiksa lewat berkas penanda.
+# pipefail tidak tersedia di semua sh: status mariadb-dump diperiksa lewat berkas penanda.
 GAGAL="$(mktemp)"
 trap 'rm -f "$OPSI" "$SEMENTARA" "$GAGAL"' EXIT
-{ mysqldump --defaults-extra-file="$OPSI" --single-transaction --routines --triggers --no-tablespaces \
+{ mariadb-dump --defaults-extra-file="$OPSI" --single-transaction --routines --triggers --no-tablespaces \
     --default-character-set=utf8mb4 "$DB_DATABASE" || echo gagal > "$GAGAL"; } | gzip -9 > "$SEMENTARA"
 
 if [ -s "$GAGAL" ]; then
-    echo "mysqldump gagal" >&2
+    echo "mariadb-dump gagal" >&2
     exit 1
 fi
 

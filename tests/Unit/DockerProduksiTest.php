@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * Berkas Docker produksi.
  */
@@ -12,20 +14,80 @@ test('.dockerignore mengecualikan rahasia, dump, dan berkas sementara', function
         ->not->toContain('!.env');
 });
 
-test('compose produksi memuat app, web, queue (horizon), scheduler, mysql 8.4, dan redis 7', function () use ($akar) {
-    $compose = (string) file_get_contents($akar.'/docker-compose.prod.yml');
+/**
+ * Produksi Profil Ringan (STANDAR-TEKNIS §1b dan §7): MariaDB NATIVE di host, tanpa container database,
+ * Redis, atau Horizon; setiap container berbatas memori dan lognya dirotasi.
+ *
+ * @return array<string, mixed>
+ */
+function komposProduksi(): array
+{
+    return Yaml::parseFile(dirname(__DIR__, 2).'/docker-compose.prod.yml');
+}
 
-    foreach (['app:', 'web:', 'queue:', 'scheduler:', 'mysql:', 'redis:', 'backup:'] as $layanan) {
-        expect($compose)->toContain("\n  {$layanan}");
+test('compose produksi hanya memuat app, web, scheduler, dan backup', function () {
+    expect(array_keys(komposProduksi()['services']))->toEqualCanonicalizing(['app', 'web', 'scheduler', 'backup']);
+});
+
+test('compose produksi tidak memuat container database, redis, atau queue', function () {
+    $kompos = komposProduksi();
+
+    foreach (['queue', 'redis', 'db', 'mysql', 'mariadb', 'meilisearch'] as $layanan) {
+        expect($kompos['services'])->not->toHaveKey($layanan);
     }
 
-    expect($compose)->toContain('"php", "artisan", "horizon"')
-        ->toContain('"php", "artisan", "schedule:work"')
-        ->toContain('image: mysql:8.4')
-        ->toContain('image: redis:7-alpine')
-        ->toContain('--appendonly", "yes"')
-        ->toContain('/api/health')
-        ->toContain('env_file: .env.production');
+    foreach (['redis', 'mysql', 'redis-data', 'db-data'] as $volume) {
+        expect($kompos['volumes'] ?? [])->not->toHaveKey($volume);
+    }
+
+    // hasil parse (tanpa komentar): tidak ada image/perintah Redis atau Horizon
+    expect(json_encode($kompos))->not->toMatch('/horizon|redis/i');
+});
+
+test('image mariadb hanya dipakai backup (klien dump), bukan server basis data', function () {
+    foreach (komposProduksi()['services'] as $nama => $layanan) {
+        expect((string) ($layanan['image'] ?? ''))->not->toMatch('/^(mysql|mariadb)(:|$)/');
+    }
+
+    $dockerfile = (string) file_get_contents(dirname(__DIR__, 2).'/docker/backup/Dockerfile');
+
+    expect($dockerfile)->toContain('mariadb-client')->not->toContain('mysql-client');
+});
+
+test('container aplikasi menjangkau basis data host lewat host-gateway', function () {
+    foreach (['app', 'scheduler', 'backup'] as $nama) {
+        expect(komposProduksi()['services'][$nama]['extra_hosts'])->toContain('host.docker.internal:host-gateway');
+    }
+
+    expect(file_get_contents(dirname(__DIR__, 2).'/.env.production.example'))
+        ->toContain("\nDB_CONNECTION=mariadb\n")
+        ->toContain("\nDB_HOST=host.docker.internal\n")
+        ->toContain("\nDB_DATABASE=db_keuangan\n")
+        ->not->toContain('DB_ROOT_PASSWORD');
+});
+
+test('penjadwal menjadi pemicu worker tanpa bergantung pada layanan lain', function () {
+    $penjadwal = komposProduksi()['services']['scheduler'];
+
+    expect($penjadwal['command'])->toBe(['php', 'artisan', 'schedule:work'])
+        ->and($penjadwal)->not->toHaveKey('depends_on')
+        ->and($penjadwal['stop_grace_period'])->toBe('60s');
+});
+
+test('setiap container berbatas memori dan lognya dirotasi 10m x 3', function () {
+    foreach (komposProduksi()['services'] as $layanan) {
+        expect($layanan)->toHaveKey('mem_limit')
+            ->and($layanan['logging']['driver'])->toBe('json-file')
+            ->and($layanan['logging']['options'])->toBe(['max-size' => '10m', 'max-file' => '3']);
+    }
+});
+
+test('Dockerfile berbasis PHP 8.5 tanpa phpredis dan skrip cadangan memakai mariadb-dump', function () use ($akar) {
+    $dockerfile = (string) file_get_contents($akar.'/docker/Dockerfile');
+    $backup = (string) file_get_contents($akar.'/docker/backup/backup.sh');
+
+    expect($dockerfile)->toContain('ARG PHP_VERSION=8.5')->toContain('pdo_mysql')->not->toMatch('/redis|horizon/i')
+        ->and($backup)->toContain('mariadb-dump')->not->toMatch('/\bmysqldump\b/');
 });
 
 test('entrypoint bermigrasi hanya bila RUN_MIGRATIONS=true dan tidak memakai storage:link', function () use ($akar) {

@@ -1,6 +1,6 @@
-# Container cadangan harian MySQL (cron 01:30 WIB). Lihat docs/runbook-cadangan.md.
+# Container cadangan harian MariaDB (cron 01:30 WIB); hanya klien dump, server basis data ada di host. Lihat docs/runbook-cadangan.md.
 FROM alpine:3.20
-RUN apk add --no-cache mysql-client mariadb-connector-c gzip coreutils tzdata findutils \
+RUN apk add --no-cache mariadb-client mariadb-connector-c gzip coreutils tzdata findutils \
  && cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && echo "Asia/Jakarta" > /etc/timezone
 COPY --chmod=755 docker/backup/backup.sh /usr/local/bin/backup.sh
 COPY --chmod=755 docker/backup/restore.sh /usr/local/bin/restore.sh
