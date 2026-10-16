@@ -3,20 +3,14 @@
 Server **tidak menyimpan berkas pengguna**: yang dicadangkan hanya basis data MariaDB.
 Bukti keuangan berupa tautan Google Drive milik unit.
 
-> **Keputusan 16 Oktober 2026 berlaku setelah Fase B; kondisi saat ini:** service `backup` di `docker-compose.prod.yml` masih mencadangkan
-> container `mysql` (8.4) dengan `mysqldump`. Keputusan menetapkan MariaDB 10.11+ native di host; skrip cadangan dan pemulihan
-> disesuaikan pada Fase B (di MariaDB, `mysqldump` tersedia sebagai alias `mariadb-dump`).
->
-> **Lanjutan keputusan 16 Oktober 2026 (Fase B untuk skrip):** alat dump menjadi `mariadb-dump` terhadap MariaDB native di host
-> (`host.docker.internal`), basis data `db_keuangan`; service `backup` hanya klien tanpa container database. Tabel dan perintah di
-> bawah masih menggambarkan kondisi saat ini (`mysqldump`, basis data `keuangan`) sampai skrip diganti.
+> Basis data adalah MariaDB 10.11+ native di host (`host.docker.internal`), database `db_keuangan`; service `backup` hanya klien dump (`mariadb-dump`), tanpa container database.
 
 ## Jadwal, lokasi, retensi
 
 | Hal | Ketentuan |
 |---|---|
 | Jadwal | Harian pukul **01:30 WIB** (service `backup` di `docker-compose.prod.yml`) |
-| Isi | `mysqldump --single-transaction --routines --triggers` basis data `keuangan`, dikompresi gzip |
+| Isi | `mariadb-dump --single-transaction --routines --triggers` basis data `db_keuangan`, dikompresi gzip |
 | Lokasi | Volume host `./backup/mysql/keuangan-{Y-m-d-His}.sql.gz` + berkas `.sha256` |
 | Retensi | `RETENSI_HARI` (bawaan **30 hari**); berkas lebih lama dihapus otomatis |
 | Salinan luar server | Salin harian `./backup/mysql` ke penyimpanan TI fakultas (rsync/NAS) — tanggung jawab TI |

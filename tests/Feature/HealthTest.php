@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 beforeEach(function () {
     $this->freezeTime();
     config(['app.version' => '9.9.9']);
-    cache()->put(config('app.kode').':detak-penjadwal', now(), 600);
+    cache()->put(config('app.kode').':detak-penjadwal', now()->getTimestamp(), 600);
 });
 
 test('health mengembalikan 200 dengan struktur json lengkap tanpa redis', function () {
@@ -44,7 +44,7 @@ test('health menghitung job gagal dalam 24 jam terakhir', function () {
 });
 
 test('health menandai detak penjadwal terlambat, ok, atau belum ada tanpa menurunkan status', function () {
-    cache()->put(config('app.kode').':detak-penjadwal', now()->subMinutes(6), 600);
+    cache()->put(config('app.kode').':detak-penjadwal', now()->subMinutes(6)->getTimestamp(), 600);
     $this->getJson('/api/health')->assertOk()->assertJsonPath('detak_penjadwal', 'terlambat');
 
     cache()->forget(config('app.kode').':detak-penjadwal');
