@@ -43,7 +43,7 @@ use Illuminate\Support\Facades\Notification;
  */
 class KirimNotifikasiStatus implements ShouldQueue
 {
-    public string $queue = 'notifikasi';
+    public string $queue = 'default';
 
     public function handle(StatusBerubah $event): void
     {

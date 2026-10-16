@@ -9,7 +9,7 @@ class RevisiRabDiputuskan extends NotifikasiKeuangan
 {
     public function __construct(public Rab $rab, public ?string $catatan = null)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

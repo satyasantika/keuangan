@@ -9,7 +9,7 @@ class EksporSiap extends NotifikasiKeuangan
 {
     public function __construct(public LaporanEkspor $ekspor)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     /**

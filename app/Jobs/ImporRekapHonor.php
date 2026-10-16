@@ -47,7 +47,7 @@ class ImporRekapHonor implements ShouldQueue
 
     public function __construct(public string $jalur, public string $namaBerkas, public User $oleh)
     {
-        $this->onQueue('impor');
+        $this->onConnection('database-berat')->onQueue('berat');
     }
 
     public function handle(): void

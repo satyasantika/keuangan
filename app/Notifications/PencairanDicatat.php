@@ -10,7 +10,7 @@ class PencairanDicatat extends NotifikasiKeuangan
 {
     public function __construct(public Pencairan $pencairan)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

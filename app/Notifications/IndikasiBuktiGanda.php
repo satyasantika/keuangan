@@ -9,7 +9,7 @@ class IndikasiBuktiGanda extends NotifikasiKeuangan
 {
     public function __construct(public RealisasiItem $realisasi)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

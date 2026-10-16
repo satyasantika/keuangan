@@ -10,7 +10,7 @@ class PengembalianMenungguVerifikasi extends NotifikasiKeuangan
 {
     public function __construct(public Pengembalian $pengembalian)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

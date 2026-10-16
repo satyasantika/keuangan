@@ -136,7 +136,7 @@ test('admin-keuangan mengunggah berkas lewat panel → job antre, admin-unit tid
         ->callMountedAction()
         ->assertHasNoFormErrors();
 
-    Queue::assertPushedOn('impor', ImporRekapHonor::class);
+    Queue::assertPushedOn('berat', ImporRekapHonor::class);
 
     Livewire::actingAs($this->k->kepalaPmat)->test(ListRekapHonorEksternals::class)->assertActionHidden('imporRekapHonor');
 });

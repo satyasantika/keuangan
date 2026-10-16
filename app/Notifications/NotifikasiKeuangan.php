@@ -11,7 +11,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Dasar notifikasi aplikasi: antrean 'notifikasi', kanal database (format Filament) + surel.
+ * Dasar notifikasi aplikasi: antrean 'default', kanal database (format Filament) + surel.
  * Isi TIDAK memuat URL tautan bukti maupun data penerima/vendor; cukup tombol ke halaman aplikasi.
  */
 abstract class NotifikasiKeuangan extends Notification implements ShouldQueue
@@ -69,7 +69,7 @@ abstract class NotifikasiKeuangan extends Notification implements ShouldQueue
      */
     public function viaQueues(): array
     {
-        return ['database' => 'notifikasi', 'mail' => 'notifikasi', WhatsAppChannel::class => 'notifikasi'];
+        return ['database' => 'default', 'mail' => 'default', WhatsAppChannel::class => 'default'];
     }
 
     /**

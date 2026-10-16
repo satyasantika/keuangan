@@ -10,7 +10,7 @@ class RevisiRabMenungguTindakan extends NotifikasiKeuangan
 {
     public function __construct(public Rab $rab)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

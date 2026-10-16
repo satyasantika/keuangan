@@ -19,6 +19,8 @@ beforeEach(function () {
     $p = buatPengajuanDicairkan($this->k);
     [$d, $t] = dataRealisasi($p, '1', '250000', tanggal: '2027-06-16');
     app(CatatRealisasi::class)->handle($p, $d, $t, $this->k->adminPmat);
+    // job berat diarahkan ke koneksi database-berat; tes menjalankannya inline
+    config(['queue.connections.database-berat' => ['driver' => 'sync']]);
     $this->param = ['tahun_anggaran_id' => $this->k->tahun->id, 'jenis_periode' => 'tahunan'];
 });
 

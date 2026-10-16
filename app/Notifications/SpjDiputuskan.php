@@ -9,7 +9,7 @@ class SpjDiputuskan extends NotifikasiKeuangan
 {
     public function __construct(public Spj $spj, public ?string $catatan = null)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

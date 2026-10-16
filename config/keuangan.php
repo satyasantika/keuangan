@@ -3,9 +3,9 @@
 return [
 
     /*
-    | Store cache untuk lock aksi (DenganKunci). Produksi: redis; test: array.
+    | Store cache untuk lock aksi (DenganKunci). Profil Ringan: store cache `database` (tabel cache_locks); test: array.
     */
-    'lock_store' => env('KEUANGAN_LOCK_STORE', 'redis'),
+    'lock_store' => env('KEUANGAN_LOCK_STORE', 'database'),
 
     /*
     | Reverse proxy tepercaya: "*" (lokal) atau daftar IP dipisah koma (produksi).
