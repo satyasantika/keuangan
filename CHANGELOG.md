@@ -5,6 +5,18 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+### Diubah (keputusan pemilik 16 Oktober 2026, lanjutan)
+- Dokumen diselaraskan: nama database seragam `db_<app>` (`db_keuangan`, `db_keuangan_testing`); kolom UUID bertipe UUID native MariaDB lewat Blueprint Laravel (klaim `CHAR(36)` dihapus; `char('id', 36)`/`binary(16)` eksplisit dilarang; gerbang uji urutan UUIDv7 100 id, FK, dan morph ditambahkan pada prompt F1.4); produksi memakai MariaDB native di host lewat `host.docker.internal` (prompt F12.3/F12.4 dan G-07 ditulis ulang tanpa container database; CI boleh service container sementara); alat dump `mariadb-dump`.
+- Butir Fase B tambahan (kode/Compose belum disesuaikan): hapus service `mysql` dari `docker-compose.prod.yml` dan tambahkan `extra_hosts` host-gateway; ganti `mysqldump` dengan `mariadb-dump` di `docker/backup/*.sh`; naikkan `composer.json` dari `^8.3` ke `^8.5`; perluas `tests/Feature/UuidTest.php` dengan uji urutan, FK, dan morph.
+
+### Diubah (keputusan pemilik 16 Oktober 2026)
+- Dokumen diselaraskan ke PHP 8.5 dan MariaDB 10.11 LTS atau lebih baru (native di host; kolasi `utf8mb4_unicode_ci`; SQLite tidak dipakai): `_vibecoding/CLAUDE.md`, `_vibecoding/docs/` (CLAUDE, README, 01-PRD, 02-ARSITEKTUR, 03-SKEMA-DATABASE, 04-PROMPT-BERTAHAP, 05-UJI-PENERIMAAN), `README.md`, `docs/deploy.md`, `docs/runbook-cadangan.md`, dan catatan pada ADR 0003.
+- Kode dan Compose belum disesuaikan (Fase B): `docker-compose.prod.yml` masih memuat `mysql:8.4`; entri riwayat di bawah dibiarkan apa adanya.
+
+### Diubah (Profil Ringan, keputusan 15 Oktober 2026)
+- Dokumen non-spesifikasi diselaraskan ke Profil Ringan (STANDAR-TEKNIS §1b): `docs/deploy.md`, `docs/aturan-bisnis.md` (BR-05, BR-09 memakai `lockForUpdate`, bukan kunci Redis), catatan penyesuaian pada ADR 0003, dan `README.md`. Tanpa Redis, Horizon, maupun Octane; antrean, cache, sesi, dan lock di MySQL; satu container `scheduler` menyalakan worker; kesehatan lewat `/api/health`.
+- Penyesuaian kode dan Compose (Fase B) belum dilakukan; sampai selesai, produksi masih memakai Horizon dan Redis. Entri riwayat di bawah dibiarkan apa adanya.
+
 ### Ditambahkan
 - **Landing page** di `/` (fitur, alur kerja, tautan panduan per peran tanpa kartu super-admin, tombol masuk) dengan tema bersama `public/css/keuangan.css`.
 - **Halaman masuk kiri-kanan** yang selaras dengan landing page.

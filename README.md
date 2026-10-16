@@ -24,17 +24,17 @@ Aturan bisnis lengkap: [docs/aturan-bisnis.md](docs/aturan-bisnis.md). Keputusan
 
 ## Teknologi
 
-PHP 8.5 · Laravel 13 · Filament 5 (Livewire 4) · Tailwind CSS 4 · MySQL 8.4 / MariaDB · Redis 7 · Horizon ·
+PHP 8.5 · Laravel 13 · Filament 5 (Livewire 4) · Tailwind CSS 4 · MariaDB 10.11+ (cache, sesi, antrean, lock: driver database; Profil Ringan tanpa Redis/Horizon) ·
 spatie/laravel-permission · spatie/laravel-activitylog · Pest 4 · Larastan (level 6) · Pint. Locale `id`, zona waktu `Asia/Jakarta`.
 
 ## Menjalankan lokal
 
-Prasyarat: Docker (WSL2), Git, Node 22, MariaDB di host, dan Redis bersama. PHP dan Composer dijalankan di container, bukan di host
+Prasyarat: Docker (WSL2), Git, Node 22, dan MariaDB native di host (database `db_keuangan` dan `db_keuangan_testing`). PHP dan Composer dijalankan di container, bukan di host
 (lihat `docs/keputusan/0003-lingkungan-dan-penyimpangan-standar.md`).
 
 ```bash
 alias kup='docker exec keuangan-php'
-cd /home/satya/code && docker compose up -d --build keuangan-php keuangan-nginx keuangan-scheduler keuangan-horizon
+cd /home/satya/code && docker compose up -d --build keuangan-php keuangan-nginx keuangan-scheduler
 cd keuangan
 cp .env.example .env            # isi DB_PASSWORD
 kup composer install
@@ -43,7 +43,9 @@ kup php artisan migrate --seed  # peran, izin, pengaturan, dan super-admin awal
 npm install && npm run build
 ```
 
-Aplikasi: http://localhost:8035/keuangan/ · Kesehatan: `/api/health` · Horizon: `/keuangan/horizon` (super-admin).
+> **Profil Ringan berlaku setelah Fase B; kondisi saat ini:** `/home/satya/code/docker-compose.yml` masih mendefinisikan `keuangan-horizon` dan kode/`.env.example` masih memakai Redis. Perintah `up -d` di atas (tanpa `keuangan-horizon`) dan keterangan antrean berbasis database baru benar setelah Fase B; sebelum itu tambahkan `keuangan-horizon` dan jalankan Redis bersama.
+
+Aplikasi: http://localhost:8035/keuangan/ · Kesehatan: `/api/health` · Antrean: `kup php artisan queue:failed` / `queue:retry <id>` (dijalankan penjadwal, STANDAR-TEKNIS §1b).
 Data contoh lokal: `kup php artisan db:seed --class=DemoSeeder`.
 
 ### Akun super-admin awal

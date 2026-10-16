@@ -1,7 +1,15 @@
 # Runbook cadangan & pemulihan — Keuangan FKIP Unsil
 
-Server **tidak menyimpan berkas pengguna**: yang dicadangkan hanya basis data MySQL.
+Server **tidak menyimpan berkas pengguna**: yang dicadangkan hanya basis data MariaDB.
 Bukti keuangan berupa tautan Google Drive milik unit.
+
+> **Keputusan 16 Oktober 2026 berlaku setelah Fase B; kondisi saat ini:** service `backup` di `docker-compose.prod.yml` masih mencadangkan
+> container `mysql` (8.4) dengan `mysqldump`. Keputusan menetapkan MariaDB 10.11+ native di host; skrip cadangan dan pemulihan
+> disesuaikan pada Fase B (di MariaDB, `mysqldump` tersedia sebagai alias `mariadb-dump`).
+>
+> **Lanjutan keputusan 16 Oktober 2026 (Fase B untuk skrip):** alat dump menjadi `mariadb-dump` terhadap MariaDB native di host
+> (`host.docker.internal`), basis data `db_keuangan`; service `backup` hanya klien tanpa container database. Tabel dan perintah di
+> bawah masih menggambarkan kondisi saat ini (`mysqldump`, basis data `keuangan`) sampai skrip diganti.
 
 ## Jadwal, lokasi, retensi
 
@@ -56,7 +64,7 @@ Dilakukan tiap Januari dan Juli (05-UJI-PENERIMAAN G-09).
   pindah atau purnatugas.
 - Bila bukti terlanjur di Drive pribadi: **pindahkan kepemilikan** ke akun unit/Shared Drive sebelum pegawai
   pindah/purnatugas; tautan Drive tetap sama bila berkas dipindah ke Shared Drive.
-- `tautan_berkas_beku` (bagian dari dump MySQL) adalah **jejak audit URL + waktu** saat SPJ/pengembalian diterima;
+- `tautan_berkas_beku` (bagian dari dump MariaDB) adalah **jejak audit URL + waktu** saat SPJ/pengembalian diterima;
   isi berkas tidak ikut dicadangkan oleh sistem ini.
 
 ## Data aplikasi lama `laporankeuangan`

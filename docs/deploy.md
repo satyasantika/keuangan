@@ -1,8 +1,24 @@
 # Deploy produksi — Keuangan FKIP Unsil
 
-Pola `docker-apps`: container `app` (PHP-FPM), `web` (Nginx), `queue` (Horizon),
-`scheduler` (`schedule:work`), `mysql` (8.4) dan `redis` (7, AOF). Aplikasi dipasang di subpath
-`https://supportfkip.unsil.ac.id/keuangan`.
+Pola `docker-apps`: container `app` (PHP-FPM), `web` (Nginx), `scheduler` (`schedule:work`, sekaligus menyalakan
+worker antrean tiap menit) dan basis data MariaDB 10.11+. Tanpa Redis, Horizon, maupun Octane: antrean, cache, sesi, dan lock memakai
+MariaDB (driver `database`). Aplikasi dipasang di subpath `https://supportfkip.unsil.ac.id/keuangan`.
+
+> **Profil Ringan berlaku setelah Fase B; kondisi saat ini:** `docker-compose.prod.yml`, `.env.production.example`, dan
+> kode masih memakai container `queue` (Horizon) dan `redis` (7, AOF) dengan `QUEUE_CONNECTION`/`CACHE_STORE`/`SESSION_DRIVER=redis`.
+> Isi dokumen ini menggambarkan keadaan sesudah Fase B (STANDAR-TEKNIS §1b, keputusan 15 Oktober 2026). Selama Fase B belum
+> selesai, perintah `exec queue php artisan horizon:terminate` dan variabel `REDIS_PASSWORD` tetap berlaku di produksi.
+>
+> **Keputusan 16 Oktober 2026 berlaku setelah Fase B; kondisi saat ini:** `docker-compose.prod.yml` masih memuat service `mysql`
+> (image `mysql:8.4`), dan service `backup` memakai `mysqldump` ke `./backup/mysql`. Keputusan 16 Oktober 2026 menetapkan
+> MariaDB 10.11 LTS atau lebih baru (native di host, bukan container; kolasi `utf8mb4_unicode_ci`) dan PHP 8.5. Penyesuaian
+> Compose, `.env.production.example`, dan skrip cadangan menunggu Fase B; sampai selesai, perintah di produksi mengikuti kondisi ini.
+>
+> **Sasaran sesudah Fase B (lanjutan keputusan 16 Oktober 2026):** produksi memakai MariaDB native di host lewat
+> `host.docker.internal` (`extra_hosts: host.docker.internal:host-gateway` pada `app` dan `scheduler`), sama dengan aplikasi produksi
+> lain; `docker-compose.prod.yml` tidak memuat container database (service `mysql` dihapus; `DB_ROOT_PASSWORD` tidak lagi dipakai
+> compose). Nama database `db_keuangan` (uji: `db_keuangan_testing`); nama pengguna DB tidak diubah. Dump memakai `mariadb-dump`.
+> `composer.json` (masih `^8.3`) dinaikkan ke `^8.5` pada Fase B. **Tandai: Fase B.**
 
 ## Prasyarat server
 
@@ -32,7 +48,7 @@ git clone <repo> keuangan && cd keuangan
 git checkout v1.0.0
 cp .env.production.example .env.production
 # isi APP_KEY (docker run --rm keuangan-app php artisan key:generate --show setelah build, atau php artisan key:generate --show di mesin dev),
-# DB_PASSWORD, DB_ROOT_PASSWORD, REDIS_PASSWORD, MAIL_*, TRUSTED_PROXIES, SEED_ADMIN_* (bawaan: fkip@unsil.ac.id),
+# DB_PASSWORD, DB_ROOT_PASSWORD, MAIL_* (REDIS_PASSWORD hanya selama Fase B belum selesai), TRUSTED_PROXIES, SEED_ADMIN_* (bawaan: fkip@unsil.ac.id),
 # MFA_WAJIB (bawaan false)
 export APP_VERSION=1.0.0
 docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
@@ -40,12 +56,12 @@ docker compose --env-file .env.production -f docker-compose.prod.yml exec app ph
 curl -fsS http://127.0.0.1:8035/api/health                                                                 # {"status":"ok",...}
 ```
 
-- Migrasi berjalan otomatis di container `app` (`RUN_MIGRATIONS=true`); `queue`/`scheduler` tidak bermigrasi.
+- Migrasi berjalan otomatis di container `app` (`RUN_MIGRATIONS=true`); `scheduler` tidak bermigrasi.
 - Entrypoint menjalankan `php artisan optimize`, `filament:optimize`, `icons:cache`. `storage:link` **tidak** dipakai
   (tidak ada berkas publik/unggahan; bukti berupa tautan Google Drive).
 - Aset Vite dibangun di image dengan `ASSET_URL=https://supportfkip.unsil.ac.id/keuangan` (build arg).
 - Volume `tmp` (ekspor/impor sementara, dibersihkan ≤ 24 jam oleh `keuangan:bersihkan-sementara`) dipakai bersama
-  `app`, `queue`, `scheduler`.
+  `app` dan `scheduler` (selama Fase B belum selesai: juga `queue`).
 - **Jangan** menjalankan `DemoSeeder` di produksi.
 
 ## Pembaruan versi
@@ -56,11 +72,11 @@ git fetch --tags && git checkout vX.Y.Z
 export APP_VERSION=X.Y.Z
 docker compose --env-file .env.production -f docker-compose.prod.yml build
 docker compose --env-file .env.production -f docker-compose.prod.yml up -d          # app menjalankan migrate --force
-docker compose --env-file .env.production -f docker-compose.prod.yml exec queue php artisan horizon:terminate   # pekerja memuat kode baru
+docker compose --env-file .env.production -f docker-compose.prod.yml exec scheduler php artisan queue:restart    # pekerja berikutnya memuat kode baru (Profil Ringan; sebelum Fase B: exec queue php artisan horizon:terminate)
 curl -fsS http://127.0.0.1:8035/api/health
 ```
 
-Sebelum memperbarui, pastikan cadangan MySQL terbaru ada (lihat `docs/runbook-cadangan.md`; service `backup`
+Sebelum memperbarui, pastikan cadangan MariaDB terbaru ada (lihat `docs/runbook-cadangan.md`; service `backup`
 membuat dump harian 01:30 WIB ke `./backup/mysql`).
 
 ## Auto-pull dari GitHub (CD)
@@ -79,8 +95,8 @@ bash scripts/deploy.sh
 ```
 
 `scripts/deploy.sh`: menolak bila HEAD bukan tag `vX.Y.Z`, tag tidak ada di riwayat `origin/main`, atau working tree
-kotor → cadangan MySQL pra-migrasi (service `backup`) → build → `up -d` (migrasi di `app`) → health check
-`/api/health` (maks. 2 menit; gagal = job merah + 50 baris log `app`) → `horizon:terminate` → hapus image lama
+kotor → cadangan MariaDB pra-migrasi (service `backup`) → build → `up -d` (migrasi di `app`) → health check
+`/api/health` (maks. 2 menit; gagal = job merah + 50 baris log `app`) → `queue:restart` (sebelum Fase B: `horizon:terminate`) → hapus image lama
 (3 versi terakhir disimpan). Push biasa ke `main` **tidak** menggelar apa pun; hanya tag yang dirilis.
 
 - Rahasia repositori (diisi manusia): `SERVER_HOST`, `SERVER_USER`, `SSH_PRIVATE_KEY` (kunci khusus deploy; publiknya di `authorized_keys`).
@@ -99,7 +115,7 @@ export APP_VERSION=<sebelumnya>
 docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 ```
 
-Bila versi baru membawa migrasi yang tidak kompatibel ke belakang, pulihkan dump MySQL sebelum pembaruan
+Bila versi baru membawa migrasi yang tidak kompatibel ke belakang, pulihkan dump MariaDB sebelum pembaruan
 (`docker/backup/restore.sh`, lihat runbook cadangan) — migrasi yang sudah dirilis tidak pernah diubah.
 
 ## Akun awal
@@ -108,9 +124,11 @@ Bila versi baru membawa migrasi yang tidak kompatibel ke belakang, pulihkan dump
 masuk pertama** (menu pengguna → Profil), atau tandai akun wajib ganti sandi. MFA tidak diwajibkan secara bawaan; setel
 `MFA_WAJIB=true` di `.env.production` (lalu `php artisan config:cache`) untuk mewajibkannya bagi super-admin, admin-keuangan, bpp, dan wadek-keuangan.
 
-## Horizon & log
+## Antrean & log
 
-- Dasbor antrean: `https://supportfkip.unsil.ac.id/keuangan/horizon` (hanya **super-admin**, login panel dulu).
+- Tidak ada dasbor antrean. Pantau lewat `/api/health` (job tertunda > 10 menit, `failed_jobs` 24 jam, detak penjadwal) dan
+  `docker compose … exec scheduler php artisan queue:failed` / `queue:retry <id>`; super-admin menerima notifikasi harian bila ada job gagal.
+  (Sebelum Fase B: dasbor Horizon di `/keuangan/horizon`, hanya super-admin.)
 - Log aplikasi: volume `logs` (`storage/logs`, kanal `daily`, data sensitif disamarkan).
 - Status layanan: `docker compose --env-file .env.production -f docker-compose.prod.yml ps` — `web` sehat bila
   `/api/health` mengembalikan `ok`; `app` sehat bila ping PHP-FPM membalas `pong`.
@@ -126,7 +144,7 @@ Butir 05-UJI-PENERIMAAN §4 yang tidak dapat diverifikasi dari kode dan harus di
 3. **G-04/G-05** — Buat pengguna per peran (unit benar; impor massal dengan salin-tempel di Sistem → Pengguna, dengan opsi wajib ganti kata sandi), tahun anggaran berjalan, dan tetapkan pagu semua unit.
 4. **G-06** — Server: sertifikat HTTPS valid, blok reverse proxy `/keuangan/`, `.env.production` (`APP_ENV=production`,
    `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, `TRUSTED_PROXIES` = IP proxy).
-5. **G-07** — `docker compose … up -d --build` di server; cek `/api/health` = ok, Horizon & scheduler berjalan.
+5. **G-07** — `docker compose … up -d --build` di server; cek `/api/health` = ok, scheduler berjalan dan detak penjadwal terbaru (sebelum Fase B: Horizon & scheduler berjalan).
 6. **G-08** — Uji SMTP kampus (surel uji diterima); putuskan WhatsApp aktif/nonaktif.
 7. **G-09** — Pastikan cadangan harian tercipta di `./backup/mysql`, salin ke luar server, uji pulih pertama dan catat di runbook.
 8. **G-09a** — Shared Drive per unit dengan berbagi default *Terbatas/Universitas Siliwangi*; sosialisasi panduan berbagi.

@@ -11,11 +11,11 @@ Ringkasan aturan yang ditegakkan sistem (kode `BR-xx` dirujuk di komentar kode d
 ## Pengajuan, pagu, dan persetujuan
 - **BR-03** Pengajuan hanya diubah saat `draf`/`dikembalikan`; sejak disetujui hanya lewat revisi bernomor.
 - **BR-04** Total pengajuan ≤ sisa pagu unit saat diajukan dan dicek ulang saat disetujui; pagu harus berstatus ditetapkan.
-- **BR-05** Nomor `PGJ/{tahun}/{urut}` terbit saat diajukan di bawah kunci Redis + `lockForUpdate`, dan tidak berubah.
+- **BR-05** Nomor `PGJ/{tahun}/{urut}` terbit saat diajukan di bawah `DB::transaction()` + `lockForUpdate()` + indeks `UNIQUE` (Profil Ringan, tanpa kunci Redis), dan tidak berubah.
 - **BR-06** Jenjang: kepala unit (opsional) → admin keuangan → wadek keuangan (opsional); snapshot pengaturan saat diajukan; kembalikan/tolak wajib catatan.
 - **BR-07** Pemisahan tugas: pembuat ≠ penyetuju; satu orang satu tahap; pencatat pencairan ≠ penyetuju akhir; verifikator SPJ/pengembalian ≠ pembuatnya.
 - **BR-08** Setiap perubahan status tercatat di `riwayat_status` (siapa, kapan, dari→ke, catatan, tahap) dalam transaksi yang sama.
-- **BR-09** Aksi status dibungkus kunci Redis per record (anti klik ganda).
+- **BR-09** Aksi status dibungkus penguncian per record, yaitu `lockForUpdate()` dalam transaksi (anti klik ganda; Profil Ringan, tanpa kunci Redis).
 - **BR-10/11** Revisi RAB bernomor, satu yang berjalan, versi lama `digantikan`; item revisi ≥ realisasi item asal; realisasi dipetakan ke item baru.
 
 ## Pencairan, SPJ, dan pengembalian
