@@ -19,7 +19,7 @@ final class DenganKunci
      * @param  Closure(): T  $fn
      * @return T
      */
-    public static function jalankan(string $kunci, Closure $fn, int $ttl = 15, int $tunggu = 3): mixed
+    public static function jalankan(string $kunci, Closure $fn, int $ttl = 15, int $tunggu = 8): mixed
     {
         try {
             /** @var LockProvider $store */
