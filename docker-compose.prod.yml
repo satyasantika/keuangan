@@ -31,7 +31,7 @@ x-aplikasi: &aplikasi
   networks: [keuangan]
 
 services:
-  app:
+  php:
     <<: *aplikasi
     mem_limit: 512m
     environment:
@@ -56,7 +56,7 @@ services:
     ports:
       - "${WEB_PORT:-8035}:80"
     depends_on:
-      - app
+      - php
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/api/health | grep -q '\"status\":\"ok\"'"]
       interval: 30s

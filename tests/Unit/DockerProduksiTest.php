@@ -26,7 +26,7 @@ function komposProduksi(): array
 }
 
 test('compose produksi hanya memuat app, web, scheduler, dan backup', function () {
-    expect(array_keys(komposProduksi()['services']))->toEqualCanonicalizing(['app', 'web', 'scheduler', 'backup']);
+    expect(array_keys(komposProduksi()['services']))->toEqualCanonicalizing(['php', 'web', 'scheduler', 'backup']);
 });
 
 test('compose produksi tidak memuat container database, redis, atau queue', function () {
@@ -55,7 +55,7 @@ test('image mariadb hanya dipakai backup (klien dump), bukan server basis data',
 });
 
 test('container aplikasi menjangkau basis data host lewat host-gateway', function () {
-    foreach (['app', 'scheduler', 'backup'] as $nama) {
+    foreach (['php', 'scheduler', 'backup'] as $nama) {
         expect(komposProduksi()['services'][$nama]['extra_hosts'])->toContain('host.docker.internal:host-gateway');
     }
 
