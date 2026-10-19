@@ -60,6 +60,7 @@ jobs:
       - name: Siapkan .env
         run: |
           cp .env.example .env
+          sed -i 's/^SEED_ADMIN_PASSWORD=.*/SEED_ADMIN_PASSWORD=UjiSuperAdmin123/' .env
           php artisan key:generate
 
       - name: Bangun aset frontend
