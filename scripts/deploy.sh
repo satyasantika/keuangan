@@ -44,7 +44,7 @@ tunggu_sehat() {
   done
 
   echo "--- 50 baris terakhir log app ---" >&2
-  "${COMPOSE[@]}" logs --tail=50 app >&2 || true
+  "${COMPOSE[@]}" logs --tail=50 php >&2 || true
   gagal "/api/health tidak ok setelah $((PERCOBAAN_SEHAT * JEDA_SEHAT)) detik."
 }
 
