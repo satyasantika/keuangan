@@ -6,7 +6,7 @@ import { mkdir } from 'node:fs/promises';
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ?? 'playwright');
 
-const BASE = (process.env.PANDUAN_BASE_URL ?? 'http://localhost:8035/keuangan').replace(/\/$/, '');
+const BASE = (process.env.PANDUAN_BASE_URL ?? 'http://localhost:8026/keuangan').replace(/\/$/, '');
 const SANDI = process.env.PANDUAN_PASSWORD;
 const KELUARAN = new URL('../../public/panduan/img/', import.meta.url).pathname;
 

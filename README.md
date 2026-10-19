@@ -45,7 +45,7 @@ npm install && npm run build
 
 > Lokal: `/home/satya/code/docker-compose.yml` (di luar repo ini) masih mendefinisikan `keuangan-horizon`; setelah Horizon dicabut, service itu harus dihapus dari berkas tersebut (kerjakan di sana, bukan di repo ini).
 
-Aplikasi: http://localhost:8035/keuangan/ · Kesehatan: `/api/health` · Antrean: `kup php artisan queue:failed` / `queue:retry <id>` (dijalankan penjadwal, STANDAR-TEKNIS §1b).
+Aplikasi: http://localhost:8026/keuangan/ · Kesehatan: `/api/health` · Antrean: `kup php artisan queue:failed` / `queue:retry <id>` (dijalankan penjadwal, STANDAR-TEKNIS §1b).
 Data contoh lokal: `kup php artisan db:seed --class=DemoSeeder`.
 
 ### Akun super-admin awal
