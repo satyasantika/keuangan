@@ -9,7 +9,7 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Lock Redis per kunci (BR-09) agar aksi tidak berjalan dobel.
+ * Lock cache per kunci (BR-09; Profil Ringan: store `database`, tabel cache_locks) agar aksi tidak berjalan dobel.
  */
 final class DenganKunci
 {

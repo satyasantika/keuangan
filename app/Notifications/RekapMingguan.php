@@ -9,7 +9,7 @@ class RekapMingguan extends NotifikasiKeuangan
      */
     public function __construct(public array $ringkasan)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

@@ -9,7 +9,7 @@ class PeriodeDibukaKembali extends NotifikasiKeuangan
 {
     public function __construct(public Periode $periode, public ?string $alasan = null)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

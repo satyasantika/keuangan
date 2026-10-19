@@ -30,7 +30,7 @@ class BuatEksporLaporan implements ShouldQueue
 
     public function __construct(public LaporanEkspor $ekspor)
     {
-        $this->onQueue('ekspor');
+        $this->onConnection('database-berat')->onQueue('berat');
     }
 
     public function handle(): void

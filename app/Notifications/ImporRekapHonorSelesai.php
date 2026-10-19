@@ -9,7 +9,7 @@ class ImporRekapHonorSelesai extends NotifikasiKeuangan
      */
     public function __construct(public ?string $batch, public int $jumlah, public array $galat)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     /**

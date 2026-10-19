@@ -60,9 +60,14 @@ class UnitImporter extends Importer
         }
     }
 
+    public function getJobConnection(): ?string
+    {
+        return 'database-berat';
+    }
+
     public function getJobQueue(): ?string
     {
-        return 'impor';
+        return 'berat';
     }
 
     public static function getCompletedNotificationBody(Import $import): string

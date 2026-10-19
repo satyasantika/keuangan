@@ -131,7 +131,7 @@ test('indikasi bukti ganda → admin-keuangan & bpp', function () {
     Notification::assertSentTo([$this->k->keu, $this->k->bpp], IndikasiBuktiGanda::class);
 });
 
-test('notifikasi diantrekan ke "notifikasi"; surel berawalan [Keuangan FKIP] tanpa nama penerima realisasi atau URL Drive', function () {
+test('notifikasi diantrekan ke "default"; surel berawalan [Keuangan FKIP] tanpa nama penerima realisasi atau URL Drive', function () {
     $p = buatPengajuanDisetujui($this->k);
     [$cair, $bukti] = dataPencairan('300000');
     app(CatatPencairan::class)->handle($p, $cair, $bukti, $this->k->bpp);
@@ -140,8 +140,8 @@ test('notifikasi diantrekan ke "notifikasi"; surel berawalan [Keuangan FKIP] tan
         $surel = $n->toMail($this->k->adminPmat);
         $teks = $surel->subject.' '.implode(' ', $surel->introLines).' '.$surel->actionUrl;
 
-        return $n->viaQueues()['mail'] === 'notifikasi'
-            && $n->queue === 'notifikasi'
+        return $n->viaQueues()['mail'] === 'default'
+            && $n->queue === 'default'
             && str_starts_with($surel->subject, '[Keuangan FKIP]')
             && ! str_contains($teks, 'Penyedia')
             && ! str_contains($teks, 'drive.google.com');

@@ -9,7 +9,7 @@ class PengajuanSelesai extends NotifikasiKeuangan
 {
     public function __construct(public Pengajuan $pengajuan)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

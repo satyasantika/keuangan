@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Cache;
 use Livewire\Livewire;
 
 test('impor csv 3 baris: 1 dibuat, 1 diperbarui, 1 gagal tercatat', function () {
+    // importer diarahkan ke koneksi database-berat; tes menjalankannya inline
+    config(['queue.connections.database-berat' => ['driver' => 'sync']]);
     Akun::factory()->create(['kode' => '521211', 'nama' => 'Nama lama', 'kelompok' => null, 'sumber' => 'contoh']);
     $keu = penggunaDenganPeran(Peran::AdminKeuangan);
 

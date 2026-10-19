@@ -2,6 +2,9 @@
 
 - Status: Diterima
 - Tanggal: 2026-10-07
+- Catatan: Disesuaikan oleh keputusan 15 Oktober 2026 (Profil Ringan): baris **Redis** di bawah (DB 13/14/15) tidak berlaku lagi (diterapkan di kode: ADR 0004); cache, sesi, antrean, dan lock memakai driver `database`, dan Redis/Horizon/Octane tidak dipakai (STANDAR-TEKNIS §1b). Isi asli dipertahankan sebagai catatan historis.
+- Catatan: Lanjutan keputusan 16 Oktober 2026: nama database seragam `db_<app>`/`db_<app>_testing` (`db_keuangan`, `db_keuangan_testing`; nama pengguna DB tidak diubah); tipe UUID mengikuti Blueprint Laravel 13 (UUID native MariaDB; tidak ada klaim `CHAR(36)` sebagai tipe kolom, `char('id', 36)`/`binary(16)` eksplisit dilarang); produksi memakai MariaDB native di host lewat `host.docker.internal` (`extra_hosts` host-gateway) tanpa container database di compose produksi (service `mysql` sudah dihapus: ADR 0004; CI boleh service container sementara); alat dump `mariadb-dump`; `composer.json` `^8.3` sudah dinaikkan ke `^8.5` (ADR 0004). Isi tabel di bawah tidak diubah.
+- Catatan: Keputusan pemilik 16 Oktober 2026 menetapkan untuk semua sistem: PHP 8.5, MariaDB 10.11 LTS atau lebih baru (native di host, bukan container), SQLite tidak dipakai, kolasi default `utf8mb4_unicode_ci` (STANDAR-TEKNIS diperbarui). Baris PHP dan basis data di bawah sejalan dengan keputusan itu dan tidak diubah; yang berubah adalah standar paketnya, sehingga kolom "Paket" untuk kedua baris itu kini menjadi catatan historis. Dokumen spesifikasi `_vibecoding/docs/*` dan `README.md` sudah diselaraskan; `docker-compose.prod.yml` dan skrip cadangan sudah diselaraskan (ADR 0004).
 
 Keputusan pemilik tentang lingkungan dan standar teknis:
 

@@ -50,7 +50,6 @@ function datasetHalaman(): array
         'panel/laporan' => SEMUA_PERAN,
         'panel/riwayat-ekspor' => SEMUA_PERAN,
         'panel/rekap-honor' => ['super-admin', 'admin-keuangan', 'bpp', 'wadek-keuangan', 'kepala-unit', 'pimpinan'],
-        'horizon' => ['super-admin'],
     ];
 
     $data = [];

@@ -11,7 +11,7 @@ class PengajuanMenungguTindakan extends NotifikasiKeuangan
 {
     public function __construct(public Pengajuan $pengajuan, public TahapPersetujuan $tahap)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

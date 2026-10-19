@@ -10,7 +10,7 @@ class SpjMenungguVerifikasi extends NotifikasiKeuangan
 {
     public function __construct(public Spj $spj)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

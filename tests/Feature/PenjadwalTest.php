@@ -87,7 +87,7 @@ test('rekap mingguan terkirim ke peran keuangan; rekonsiliasi berselisih memberi
 test('jadwal terdaftar untuk semua perintah', function () {
     $perintah = collect(app(Schedule::class)->events())->map(fn ($e) => $e->command)->implode(' ');
 
-    foreach (['keuangan:pengingat-spj', 'keuangan:rekap-mingguan', 'keuangan:pengingat-kunci-periode', 'keuangan:rekonsiliasi', 'keuangan:periksa-ulang-tautan', 'keuangan:bersihkan-sementara', 'horizon:snapshot'] as $nama) {
+    foreach (['keuangan:pengingat-spj', 'keuangan:rekap-mingguan', 'keuangan:pengingat-kunci-periode', 'keuangan:rekonsiliasi', 'keuangan:periksa-ulang-tautan', 'keuangan:bersihkan-sementara'] as $nama) {
         expect($perintah)->toContain($nama);
     }
 });

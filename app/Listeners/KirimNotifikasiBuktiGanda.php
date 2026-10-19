@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Notification;
 
 class KirimNotifikasiBuktiGanda implements ShouldQueue
 {
-    public string $queue = 'notifikasi';
+    public string $queue = 'default';
 
     public function handle(IndikasiBuktiGandaTerdeteksi $event): void
     {

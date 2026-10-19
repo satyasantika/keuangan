@@ -5,6 +5,35 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/) dan
 
 ## [Belum dirilis]
 
+### Dihapus (Profil Ringan)
+- Horizon (`laravel/horizon`, `laravel/sentinel`, `symfony/polyfill-php83`), `config/horizon.php`, `HorizonServiceProvider`, gerbang `viewHorizon`, rute `/horizon`, dan `horizon:snapshot`.
+- Redis: `/api/health` tidak lagi memeriksa Redis; variabel `REDIS_*` dan `HORIZON_*` dihapus dari contoh env; phpredis dihapus dari `docker/Dockerfile`.
+- Container `queue`, `redis`, dan `mysql` dari `docker-compose.prod.yml` (basis data kini MariaDB native di host); `DB_ROOT_PASSWORD`.
+
+### Ditambahkan (Profil Ringan)
+- Antrean database dua jalur (`database` dan `database-berat`, `retry_after` 960), worker dinyalakan penjadwal tiap menit, detak penjadwal, `queue:prune-failed` dan `queue:prune-batches`.
+- `/api/health` memuat `job_tertunda` (> 10 menit), `job_gagal_24j`, dan `detak_penjadwal`; 503 hanya bila DB gagal.
+- `APP_KODE`; `extra_hosts` host-gateway, `mem_limit`, dan rotasi log (`json-file` 10m x 3) pada setiap container produksi.
+- Gerbang uji: skema UUID native (tipe kolom, FK, urutan 100 id UUIDv7, morph), larangan `char`/`binary` eksplisit untuk id, antrean hanya `default`/`berat`, tanpa Redis/Horizon, compose produksi tanpa container database.
+- Peralihan produksi dari v1.0.0 (`docs/deploy.md`) dan ADR 0004.
+
+### Diubah (Profil Ringan)
+- `composer.json` PHP `^8.5`. Nama antrean `notifikasi` menjadi `default`; ekspor laporan dan impor memakai koneksi `database-berat`. Sesi, cache, antrean, dan lock memakai driver `database`.
+- Lock aksi (`DenganKunci`) memakai store cache `database` (`KEUANGAN_LOCK_STORE`). Cadangan memakai `mariadb-dump`; nama database `db_keuangan`.
+- **Ubah `.env.production` di server dan pindahkan data sebelum merge/rilis** (`docs/deploy.md`, "Peralihan dari v1.0.0").
+
+### Diubah (keputusan pemilik 16 Oktober 2026, lanjutan)
+- Dokumen diselaraskan: nama database seragam `db_<app>` (`db_keuangan`, `db_keuangan_testing`); kolom UUID bertipe UUID native MariaDB lewat Blueprint Laravel (klaim `CHAR(36)` dihapus; `char('id', 36)`/`binary(16)` eksplisit dilarang; gerbang uji urutan UUIDv7 100 id, FK, dan morph ditambahkan pada prompt F1.4); produksi memakai MariaDB native di host lewat `host.docker.internal` (prompt F12.3/F12.4 dan G-07 ditulis ulang tanpa container database; CI boleh service container sementara); alat dump `mariadb-dump`.
+- Butir Fase B tambahan (kode/Compose belum disesuaikan): hapus service `mysql` dari `docker-compose.prod.yml` dan tambahkan `extra_hosts` host-gateway; ganti `mysqldump` dengan `mariadb-dump` di `docker/backup/*.sh`; naikkan `composer.json` dari `^8.3` ke `^8.5`; perluas `tests/Feature/UuidTest.php` dengan uji urutan, FK, dan morph.
+
+### Diubah (keputusan pemilik 16 Oktober 2026)
+- Dokumen diselaraskan ke PHP 8.5 dan MariaDB 10.11 LTS atau lebih baru (native di host; kolasi `utf8mb4_unicode_ci`; SQLite tidak dipakai): `_vibecoding/CLAUDE.md`, `_vibecoding/docs/` (CLAUDE, README, 01-PRD, 02-ARSITEKTUR, 03-SKEMA-DATABASE, 04-PROMPT-BERTAHAP, 05-UJI-PENERIMAAN), `README.md`, `docs/deploy.md`, `docs/runbook-cadangan.md`, dan catatan pada ADR 0003.
+- Kode dan Compose belum disesuaikan (Fase B): `docker-compose.prod.yml` masih memuat `mysql:8.4`; entri riwayat di bawah dibiarkan apa adanya.
+
+### Diubah (Profil Ringan, keputusan 15 Oktober 2026)
+- Dokumen non-spesifikasi diselaraskan ke Profil Ringan (STANDAR-TEKNIS §1b): `docs/deploy.md`, `docs/aturan-bisnis.md` (BR-05, BR-09 memakai `lockForUpdate`, bukan kunci Redis), catatan penyesuaian pada ADR 0003, dan `README.md`. Tanpa Redis, Horizon, maupun Octane; antrean, cache, sesi, dan lock di MySQL; satu container `scheduler` menyalakan worker; kesehatan lewat `/api/health`.
+- Penyesuaian kode dan Compose (Fase B) belum dilakukan; sampai selesai, produksi masih memakai Horizon dan Redis. Entri riwayat di bawah dibiarkan apa adanya.
+
 ### Ditambahkan
 - **Landing page** di `/` (fitur, alur kerja, tautan panduan per peran tanpa kartu super-admin, tombol masuk) dengan tema bersama `public/css/keuangan.css`.
 - **Halaman masuk kiri-kanan** yang selaras dengan landing page.

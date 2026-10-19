@@ -22,7 +22,7 @@ class TautanBerkasBermasalah extends Notification implements ShouldQueue
 
     public function __construct(public TautanBerkas $tautan, public string $alasan)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     /**
@@ -38,7 +38,7 @@ class TautanBerkasBermasalah extends Notification implements ShouldQueue
      */
     public function viaQueues(): array
     {
-        return ['database' => 'notifikasi', 'mail' => 'notifikasi'];
+        return ['database' => 'default', 'mail' => 'default'];
     }
 
     /**

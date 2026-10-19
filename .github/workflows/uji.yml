@@ -1,7 +1,7 @@
 # Menjalankan seluruh uji sebelum penggelaran diizinkan.
 #
-# Keuangan FKIP menguji di atas MariaDB 10.11 (sama dengan server), bukan SQLite,
-# dan memakai Redis 7 untuk uji endpoint kesehatan. Gerbang: pint, phpstan, pest.
+# Keuangan FKIP menguji di atas MariaDB 10.11 (sama dengan server), bukan SQLite
+# (service container sementara; produksi memakai MariaDB native di host), tanpa Redis. Gerbang: pint, phpstan, pest.
 name: Uji keuangan
 on:
   push:
@@ -23,12 +23,6 @@ jobs:
         options: >-
           --health-cmd="healthcheck.sh --connect --innodb_initialized"
           --health-interval=10s --health-timeout=5s --health-retries=10
-      redis:
-        image: redis:7-alpine
-        ports: [ '6379:6379' ]
-        options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=10s --health-timeout=5s --health-retries=10
 
     # Variabel proses mengalahkan nilai di .env dan phpunit.xml.
     env:
@@ -36,7 +30,6 @@ jobs:
       DB_DATABASE: db_keuangan_testing
       DB_USERNAME: root
       DB_PASSWORD: root
-      REDIS_HOST: 127.0.0.1
 
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +38,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: mbstring, intl, bcmath, gd, zip, pdo_mysql, redis, exif, pcntl
+          extensions: mbstring, intl, bcmath, gd, zip, pdo_mysql, exif, pcntl
           coverage: none
 
       - name: Siapkan Node 22

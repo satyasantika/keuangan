@@ -1,14 +1,16 @@
 # Runbook cadangan & pemulihan — Keuangan FKIP Unsil
 
-Server **tidak menyimpan berkas pengguna**: yang dicadangkan hanya basis data MySQL.
+Server **tidak menyimpan berkas pengguna**: yang dicadangkan hanya basis data MariaDB.
 Bukti keuangan berupa tautan Google Drive milik unit.
+
+> Basis data adalah MariaDB 10.11+ native di host (`host.docker.internal`), database `db_keuangan`; service `backup` hanya klien dump (`mariadb-dump`), tanpa container database.
 
 ## Jadwal, lokasi, retensi
 
 | Hal | Ketentuan |
 |---|---|
 | Jadwal | Harian pukul **01:30 WIB** (service `backup` di `docker-compose.prod.yml`) |
-| Isi | `mysqldump --single-transaction --routines --triggers` basis data `keuangan`, dikompresi gzip |
+| Isi | `mariadb-dump --single-transaction --routines --triggers` basis data `db_keuangan`, dikompresi gzip |
 | Lokasi | Volume host `./backup/mysql/keuangan-{Y-m-d-His}.sql.gz` + berkas `.sha256` |
 | Retensi | `RETENSI_HARI` (bawaan **30 hari**); berkas lebih lama dihapus otomatis |
 | Salinan luar server | Salin harian `./backup/mysql` ke penyimpanan TI fakultas (rsync/NAS) — tanggung jawab TI |
@@ -56,7 +58,7 @@ Dilakukan tiap Januari dan Juli (05-UJI-PENERIMAAN G-09).
   pindah atau purnatugas.
 - Bila bukti terlanjur di Drive pribadi: **pindahkan kepemilikan** ke akun unit/Shared Drive sebelum pegawai
   pindah/purnatugas; tautan Drive tetap sama bila berkas dipindah ke Shared Drive.
-- `tautan_berkas_beku` (bagian dari dump MySQL) adalah **jejak audit URL + waktu** saat SPJ/pengembalian diterima;
+- `tautan_berkas_beku` (bagian dari dump MariaDB) adalah **jejak audit URL + waktu** saat SPJ/pengembalian diterima;
   isi berkas tidak ikut dicadangkan oleh sistem ini.
 
 ## Data aplikasi lama `laporankeuangan`

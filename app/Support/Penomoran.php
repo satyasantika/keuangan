@@ -6,7 +6,7 @@ use App\Models\Penomoran as NomorTerakhir;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Penomoran berurutan tanpa celah ganda (BR-05): lock Redis + lockForUpdate.
+ * Penomoran berurutan tanpa celah ganda (BR-05): lock cache (database) + lockForUpdate.
  */
 final class Penomoran
 {

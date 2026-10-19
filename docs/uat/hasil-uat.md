@@ -87,7 +87,7 @@ Versi aplikasi diuji: ……  ·  Server uji: ……  ·  Periode UAT: …… s.
 | No | Skenario | Langkah | Hasil diharapkan | Penguji | Tanggal | Hasil (Lulus/Gagal) | Catatan |
 |---|---|---|---|---|---|---|---|
 | SA-01 | Kelola pengguna | Buat admin-unit tanpa unit | Validasi "Unit wajib diisi…" | | | | |
-| SA-02 | Horizon | Buka `/horizon` | Terbuka untuk super-admin; 403 untuk peran lain | | | | |
+| SA-02 | Kesehatan antrean | Buka `/api/health` | `status` ok; `job_tertunda` 0, `detak_penjadwal` ok | | | | |
 | SA-03 | Tidak bisa menyetujui | Buka pengajuan Diverifikasi Keuangan | Tidak ada tombol Setujui | | | | |
 | SA-04 | Reset MFA | Reset MFA pengguna lain | Pengguna diminta mengaktifkan ulang; tercatat di log | | | | |
 | SA-05 | Tautan mati | Ubah berbagi/hapus berkas uji di Drive, jalankan `keuangan:periksa-ulang-tautan` | Status cek "tidak dapat diakses" + notifikasi ke penambah tautan; tautan SPJ diterima tidak diperiksa ulang | | | | |

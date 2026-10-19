@@ -6,7 +6,7 @@ class SelisihRekonsiliasi extends NotifikasiKeuangan
 {
     public function __construct(public int $jumlahSelisih)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

@@ -34,6 +34,6 @@ trap 'rm -f "$OPSI"' EXIT
 chmod 600 "$OPSI"
 printf '[client]\nhost=%s\nport=%s\nuser=%s\npassword=%s\n' "$DB_HOST" "$DB_PORT" "$DB_USERNAME" "$DB_PASSWORD" > "$OPSI"
 
-gunzip -c "$BERKAS" | mysql --defaults-extra-file="$OPSI" --default-character-set=utf8mb4 "$DB_DATABASE"
+gunzip -c "$BERKAS" | mariadb --defaults-extra-file="$OPSI" --default-character-set=utf8mb4 "$DB_DATABASE"
 
 echo "Pemulihan selesai ke basis data $DB_DATABASE@$DB_HOST dari $BERKAS"

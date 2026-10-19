@@ -90,9 +90,3 @@ test('daftar pengguna menampilkan peran sebagai lencana dan dapat difilter', fun
         ->assertCanSeeTableRecords([$unit])
         ->assertCanNotSeeTableRecords([$admin]);
 });
-
-test('horizon hanya dapat dibuka super-admin', function () {
-    $this->actingAs(penggunaDenganPeran(Peran::AdminKeuangan))->get('/horizon')->assertForbidden();
-    $this->get('/horizon')->assertForbidden();
-    $this->actingAs(penggunaDenganPeran(Peran::SuperAdmin))->get('/horizon')->assertOk();
-});

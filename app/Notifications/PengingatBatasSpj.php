@@ -9,7 +9,7 @@ class PengingatBatasSpj extends NotifikasiKeuangan
 {
     public function __construct(public Pengajuan $pengajuan, public int $hariMenujuBatas)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string

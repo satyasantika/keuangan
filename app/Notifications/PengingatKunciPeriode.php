@@ -9,7 +9,7 @@ class PengingatKunciPeriode extends NotifikasiKeuangan
 {
     public function __construct(public Periode $periode)
     {
-        $this->onQueue('notifikasi');
+        $this->onQueue('default');
     }
 
     public function judul(): string
