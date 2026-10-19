@@ -67,7 +67,7 @@ test('job masuk tabel jobs dan diproses worker pada koneksi database dan databas
 
         expect(DB::table('jobs')->where('queue', $antrean)->count())->toBe(1);
 
-        $this->artisan("queue:work {$koneksi} --queue={$antrean} --stop-when-empty")->assertSuccessful();
+        $this->artisan("queue:work {$koneksi} --queue={$antrean} --stop-when-empty --memory=512")->assertSuccessful();
 
         expect(cache()->get($kunci))->toBe('selesai')
             ->and(DB::table('jobs')->where('queue', $antrean)->count())->toBe(0);
