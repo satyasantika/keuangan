@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\CetakKartuKegiatanController;
 use App\Http\Controllers\CetakPengajuanController;
 use App\Http\Controllers\CetakRevisiController;
@@ -11,6 +12,11 @@ use App\Http\Controllers\VerifikasiPublikController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'landing')->name('beranda');
+
+Route::prefix('auth/google')->middleware('throttle:google-login')->group(function () {
+    Route::get('redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
+    Route::get('callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+});
 
 Route::get('/verifikasi/{id}', VerifikasiPublikController::class)
     ->whereUuid('id')

@@ -36,6 +36,8 @@ use App\Services\Berkas\TautanEksternal;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Actions\Imports\Models\FailedImportRow;
 use Filament\Actions\Imports\Models\Import;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -112,6 +114,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('periksa-tautan', fn () => Limit::perMinute(60));
         RateLimiter::for('ekspor', fn (Request $request) => Limit::perMinute(5)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('verifikasi-publik', fn (Request $request) => Limit::perMinute(30)->by((string) $request->ip()));
+
+        RateLimiter::for('google-login', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
+
+        FilamentView::registerRenderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('auth.tombol-google'));
 
         $this->siapkanSubpath();
     }
