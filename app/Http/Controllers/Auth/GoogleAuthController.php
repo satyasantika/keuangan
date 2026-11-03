@@ -28,7 +28,8 @@ class GoogleAuthController extends Controller
             return redirect()->to($this->tujuan($user) ?? route('filament.keuangan.auth.login'));
         }
 
-        session(['google_asal' => $request->query('asal')]);
+        $asal = $request->query('asal');
+        session(['google_asal' => is_string($asal) ? $asal : null]);
 
         /** @var GoogleProvider $driver */
         $driver = Socialite::driver('google');
@@ -84,7 +85,7 @@ class GoogleAuthController extends Controller
 
     private function gagal(string $pesan, ?string $asal): RedirectResponse
     {
-        $ke = ($asal !== null && str_starts_with($asal, url('/'))) ? $asal : route('filament.keuangan.auth.login');
+        $ke = ($asal !== null && str_starts_with($asal, rtrim(url('/'), '/').'/')) ? $asal : route('filament.keuangan.auth.login');
 
         return redirect()->to($ke)->with('galat_google', $pesan);
     }

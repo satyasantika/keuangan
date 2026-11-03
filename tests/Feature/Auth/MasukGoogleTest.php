@@ -157,6 +157,10 @@ test('kembali ke asal bila asal berada di dalam aplikasi, mengabaikan asal di lu
         ->get(route('auth.google.callback', ['error' => 'access_denied']))
         ->assertRedirect(url('/halaman-x'));
 
+    $this->withSession(['google_asal' => rtrim(url('/'), '/').'.evil.example/'])
+        ->get(route('auth.google.callback', ['error' => 'access_denied']))
+        ->assertRedirect(route('filament.keuangan.auth.login'));
+
     $this->withSession(['google_asal' => 'https://evil.example/'])
         ->get(route('auth.google.callback', ['error' => 'access_denied']))
         ->assertRedirect(route('filament.keuangan.auth.login'));
@@ -176,4 +180,14 @@ test('membatasi 10 permintaan per menit per IP', function () {
     }
 
     $this->get(route('auth.google.callback'))->assertStatus(429);
+});
+
+test('asal bukan string tidak menyebabkan galat 500', function () {
+    $lokasi = $this->get(route('auth.google.redirect', ['asal' => ['x']]))->assertRedirect()->headers->get('Location');
+
+    expect($lokasi)->toStartWith('https://accounts.google.com/');
+
+    $this->withSession(['google_asal' => ['x']])
+        ->get(route('auth.google.callback', ['error' => 'access_denied']))
+        ->assertRedirect(route('filament.keuangan.auth.login'));
 });
