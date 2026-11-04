@@ -115,7 +115,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('ekspor', fn (Request $request) => Limit::perMinute(5)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('verifikasi-publik', fn (Request $request) => Limit::perMinute(30)->by((string) $request->ip()));
 
-        RateLimiter::for('google-login', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
+        RateLimiter::for('google-login', fn (Request $request) => Limit::perMinute(60)->by((string) $request->ip()));
 
         FilamentView::registerRenderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('auth.tombol-google'));
 

@@ -129,7 +129,7 @@ test('menolak akun ber-MFA', function () {
     googleSebagai('budi@unsil.ac.id');
 
     $this->get(route('auth.google.callback'))
-        ->assertSessionHas('galat_google', 'Akun ini memakai verifikasi dua langkah; masuk dengan surel dan kata sandi.');
+        ->assertSessionHas('galat_google', 'Akun ini memakai verifikasi dua langkah; masuk dengan surel dan kata sandi, atau gunakan \'Lupa kata sandi\' bila belum punya kata sandi.');
 
     $this->assertGuest();
 });
@@ -172,10 +172,10 @@ test('pengguna yang sudah masuk langsung diarahkan', function () {
     $this->actingAs($user)->get(route('auth.google.redirect'))->assertRedirect(tujuanPanel());
 });
 
-test('membatasi 10 permintaan per menit per IP', function () {
+test('membatasi 60 permintaan per menit per IP', function () {
     googleSebagai('x@gmail.com', ['email_verified' => false]);
 
-    foreach (range(1, 10) as $i) {
+    foreach (range(1, 60) as $i) {
         $this->get(route('auth.google.callback'))->assertRedirect();
     }
 
@@ -190,4 +190,23 @@ test('asal bukan string tidak menyebabkan galat 500', function () {
     $this->withSession(['google_asal' => ['x']])
         ->get(route('auth.google.callback', ['error' => 'access_denied']))
         ->assertRedirect(route('filament.keuangan.auth.login'));
+});
+
+test('redirect_uri tetap bawaan walau GOOGLE_REDIRECT_URI kosong', function () {
+    // GOOGLE_REDIRECT_URI= kosong di .env: env() mengembalikan '' dan berkas config harus tetap memakai bawaan.
+    $_ENV['GOOGLE_REDIRECT_URI'] = $_SERVER['GOOGLE_REDIRECT_URI'] = '';
+    putenv('GOOGLE_REDIRECT_URI=');
+    config(['services.google.redirect' => (require config_path('services.php'))['google']['redirect']]);
+
+    $lokasi = $this->get(route('auth.google.redirect'))->assertRedirect()->headers->get('Location');
+    parse_str((string) parse_url($lokasi, PHP_URL_QUERY), $q);
+
+    expect($q['redirect_uri'])->toBe(route('auth.google.callback'));
+
+    unset($_ENV['GOOGLE_REDIRECT_URI'], $_SERVER['GOOGLE_REDIRECT_URI']);
+    putenv('GOOGLE_REDIRECT_URI');
+});
+
+test('halaman lupa kata sandi tersedia', function () {
+    $this->get(route('filament.keuangan.auth.password-reset.request'))->assertOk();
 });
