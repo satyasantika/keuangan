@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Contracts\PenyimpananBerkas;
+use App\Http\Livewire\HandleRequestsSubpath;
 use App\Models\Akun;
 use App\Models\BarisImporGagal;
 use App\Models\Ekspor;
@@ -47,6 +48,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Mechanisms\HandleRequests\HandleRequests;
 use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
@@ -68,6 +70,14 @@ class AppServiceProvider extends ServiceProvider
                 default => throw new RuntimeException('Mode berkas belum didukung: '.config('berkas.mode')),
             };
         });
+
+        // Aplikasi berjalan di bawah awalan path (mis. /keuangan): getUpdateUri() Livewire
+        // bawaan memakai toRoute(absolute: false) yang pada subpath sudah memuat awalan,
+        // lalu dibungkus lagi dengan url() -> awalan dobel. Paksa URL absolut agar
+        // url() mengenalinya via isValidUrl() dan mengembalikannya tanpa diubah.
+        if (($p = parse_url((string) config('app.url'), PHP_URL_PATH)) !== null && $p !== '' && $p !== '/') {
+            $this->app->bind(HandleRequests::class, HandleRequestsSubpath::class);
+        }
     }
 
     /**
