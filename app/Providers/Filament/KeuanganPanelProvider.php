@@ -56,7 +56,6 @@ class KeuanganPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->spa()
-            ->passwordReset()
             ->navigationGroups([
                 'Beranda',
                 'Kegiatan',

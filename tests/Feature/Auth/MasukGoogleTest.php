@@ -129,7 +129,7 @@ test('menolak akun ber-MFA', function () {
     googleSebagai('budi@unsil.ac.id');
 
     $this->get(route('auth.google.callback'))
-        ->assertSessionHas('galat_google', 'Akun ini memakai verifikasi dua langkah; masuk dengan surel dan kata sandi, atau gunakan \'Lupa kata sandi\' bila belum punya kata sandi.');
+        ->assertSessionHas('galat_google', 'Akun ini memakai verifikasi dua langkah; masuk dengan surel dan kata sandi.');
 
     $this->assertGuest();
 });
@@ -205,8 +205,4 @@ test('redirect_uri tetap bawaan walau GOOGLE_REDIRECT_URI kosong', function () {
 
     unset($_ENV['GOOGLE_REDIRECT_URI'], $_SERVER['GOOGLE_REDIRECT_URI']);
     putenv('GOOGLE_REDIRECT_URI');
-});
-
-test('halaman lupa kata sandi tersedia', function () {
-    $this->get(route('filament.keuangan.auth.password-reset.request'))->assertOk();
 });
