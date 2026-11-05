@@ -73,6 +73,7 @@ services:
     command: ["php", "artisan", "schedule:work"]
     mem_limit: 768m
     stop_grace_period: 60s
+    init: true
 
   # Cadangan harian 01:30 WIB: hanya KLIEN dump (mariadb-dump) ke basis data host, bukan server basis data.
   backup:
